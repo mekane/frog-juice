@@ -54,8 +54,31 @@ describe('the reveal action', () => {
 
 describe('the discard action', () => {
     it("moves the card at the specified index from the player's hand to the table", () => {
+        const originalState = app.newGame();
+        const stateAfterPlayerDrawsOne = actions.act(actions.DRAW, originalState, {player: 0});
 
+        const nextState = actions.act(actions.DISCARD, stateAfterPlayerDrawsOne, {player:0, card: 0});
+
+        const playerHasNoCardsInHand = (nextState.players.byId[0].hand.length === 0);
+        const thereIsOneCardOnTheTable = (nextState.table.length === 1);
+        expect(playerHasNoCardsInHand, 'Player has no cards in hand after discarding').to.be.true;
+        expect(thereIsOneCardOnTheTable, 'There is one card on the table after player discards').to.be.true;
     });
+
+    it('does nothing if no player is specified', () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.DISCARD, originalState, {});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it('does nothing if a player is specified but no card is specified', () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.DISCARD, originalState, {player:0});
+
+        expect(nextState).to.equal(originalState);
+    });
+
 });
 
 describe('the capture action', () => {

@@ -1,4 +1,5 @@
 'use strict';
+const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const REVEAL = 'REVEAL';
 
@@ -49,6 +50,7 @@ function copyPlayers(currentPlayers) {
 
 module.exports = {
     act,
+    DISCARD,
     DRAW,
     REVEAL
 }
