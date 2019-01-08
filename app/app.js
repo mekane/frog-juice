@@ -21,6 +21,7 @@ function getNewDeck() {
 function newGame() {
     return {
         deck: getNewDeck(),
+        table: [],
         players: {
             byId: {
                 0: {
