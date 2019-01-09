@@ -2,6 +2,7 @@
 
 var deepFreeze = require('deep-freeze');
 
+const CAPTURE = 'CAPTURE';
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const REVEAL = 'REVEAL';
@@ -17,7 +18,39 @@ function act(actionType, currentState, options) {
 
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
 
-    if ( actionType === DISCARD && optionsDefined(['player', 'card']) && player.hand[options.card]) {
+    if ( actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
+        const playerCardIds = options['cards'];
+        const tableCardIds = options['tableCards'];
+
+        if (playerCardIds.length === 0 || tableCardIds.length === 0)
+            return currentState;
+
+        if (playerCardIds.length > 1 && tableCardIds.length > 1) {
+            newState.error = 'Error, cannot capture use multiple cards from hand to capture multiple cards';
+            return newState;
+        }
+
+        const playerCards = playerCardIds.map(cardIndex => player.hand[cardIndex]);
+        const tableCards = tableCardIds.map(cardIndex => newState.table[cardIndex]);
+
+        const allCaptureCardsAreNumeric = (playerCards.every(isNumeric) && tableCards.every(isNumeric));
+        if (!allCaptureCardsAreNumeric) {
+            newState.error = 'Error, cannot capture non-numeric cards';
+            return newState;
+        }
+
+        const playerCardsSum = playerCards.reduce(sumCardValues, 0);
+        const tableCardsSum = tableCards.reduce(sumCardValues, 0);
+
+        console.log(`capturing ${tableCardsSum} using ${playerCardsSum}`);
+
+        if (playerCardsSum !== tableCardsSum) {
+            newState.error = 'Error, capture cards are not equal'
+            return newState;
+        }
+
+    }
+    else if ( actionType === DISCARD && optionsDefined(['player', 'card']) && player.hand[options.card]) {
         const cardDiscarded = player.hand[options.card];
         removeCardFrom(player.hand, options.card);
         newState.table.push(cardDiscarded);
@@ -89,8 +122,17 @@ function copyPlayers(currentPlayers) {
     return result;
 }
 
+function isNumeric(card) {
+    return card && card.numericValue && typeof card.numericValue === 'number';
+}
+
+function sumCardValues(total, nextCard) {
+    return total + nextCard.numericValue;
+}
+
 module.exports = {
     act,
+    CAPTURE,
     DISCARD,
     DRAW,
     REVEAL

@@ -105,43 +105,178 @@ describe('the discard action', () => {
 describe('the capture action', () => {
     it('does nothing if no player is specified', () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.DISCARD, originalState, {});
+        const nextState = actions.act(actions.CAPTURE, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it('does nothing if a player is specified but no card(s) are specified', () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.DISCARD, originalState, {player:0});
 
+        const nextState = actions.act(actions.CAPTURE, originalState, {player:0});
         expect(nextState).to.equal(originalState);
+
+        const anotherState = actions.act(actions.CAPTURE, originalState, {player:0, cards: []});
+        expect(anotherState).to.equal(originalState);
     });
 
     it('does nothing if a player and hand cards are specified but no table card(s) are specified', () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.DISCARD, originalState, {player:0, cards: [1]});
 
+        const nextState = actions.act(actions.CAPTURE, originalState, {player:0, cards: [1]});
         expect(nextState).to.equal(originalState);
+
+        const anotherState = actions.act(actions.CAPTURE, originalState, {player:0, cards: [1], tableCards: []});
+        expect(anotherState).to.equal(originalState);
     });
 
     it('does nothing if a player and table cards are specified but no hand card(s) are specified', () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.DISCARD, originalState, {player:0, tableCards: [1]});
 
+        const nextState = actions.act(actions.CAPTURE, originalState, {player:0, tableCards: [1]});
         expect(nextState).to.equal(originalState);
+
+        const anotherState = actions.act(actions.CAPTURE, originalState, {player:0, cards: [], tableCards: [1]});
+        expect(anotherState).to.equal(originalState);
     });
 
-    //it(`does an error state if you try to use non-numeric cards`, () => {
+    it(`produces an error state if you try to specify multiple cards for both player and table cards`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0,1]});
 
-    //it(`does an error state if you try to use one-and-one of different values`, () => {
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, cannot capture use multiple cards from hand to capture multiple cards');
+    });
 
-    it(`takes a player, a card from their hand, and a card from the table and puts them in the capture pile`, () => {
+    it(`produces an error state if you try to capture a non-numeric card from the table`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+            {
+                name: 'Witch',
+                numericValue: null,
+                isPowerCard: true
+            }
+        ]
+
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, cannot capture non-numeric cards');
+    });
+
+    it(`produces an error state if you try to capture a non-numeric card from your hand`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Witch',
+                numericValue: null,
+                isPowerCard: true
+            }
+        ];
+        originalState.table = [
+             {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                isPowerCard: false
+            }
+        ]
+
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, cannot capture non-numeric cards');
+    });
+
+    it(`produces an error state if you try to use one-and-one of different values`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+             {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            }
+        ];
+
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, capture cards are not equal');
+    });
+
+    it(`produces an error state if the player card doesn't add up to the value of the table cards`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+             {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            },
+            {
+                name: 'Toads',
+                numericValue: 3,
+                isPowerCard: false
+            }
+        ];
+
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, capture cards are not equal');
+    });
+
+    it(`produces an error state if the player cards don't add up to the value of the table card`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                isPowerCard: false
+            },
+            {
+            name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+            {
+                name: 'Toads',
+                numericValue: 4,
+                isPowerCard: false
+            }
+        ];
+
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, capture cards are not equal');
+    });
+
+    it.skip(`takes a player, a card from their hand, and a card from the table and puts them in the capture pile`, () => {
 
     });
 
-    //it(`does an error state if you try to specify multiple cards for both player and table cards`, () => {
-
-    //it(`does an error state if the multi-cards don't add up to the value of the single card`, () => {
 
     //two-or-three from hand to one on table
     //one from hand for two-or-three on table
