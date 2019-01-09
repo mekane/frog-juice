@@ -15,13 +15,14 @@ function act(actionType, currentState, options) {
         players: copyPlayers(currentState.players)
     };
 
-    if ( actionType === DISCARD && 'player' in options && 'card' in options ) {
-        const player = newState.players.byId[options.player];
+    const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
+
+    if ( actionType === DISCARD && optionsDefined(['player', 'card']) ) {
         const cardDiscarded = player.hand[options.card];
         removeCardFrom(player.hand, options.card);
         newState.table.push(cardDiscarded);
     }
-    else if ( actionType === DRAW && 'player' in options ) {
+    else if ( actionType === DRAW && optionsDefined('player') ) {
         const player = newState.players.byId[options.player];
         drawCard(newState, player)
     }
@@ -33,6 +34,18 @@ function act(actionType, currentState, options) {
     }
 
     return newState;
+
+
+    function optionsDefined(args) {
+        if (typeof options === 'undefined')
+            return false;
+        if (typeof args === 'string')
+            return args in options;
+        else if (Array.isArray(args))
+            return args.every(key => key in options);
+        else
+            return false;
+    }
 }
 
 function removeCardFrom(location, index) {
