@@ -10,12 +10,20 @@ function act(actionType, currentState, options) {
     const players = copyPlayers(currentState.players);
     const currentDeckSize = deck.length;
 
-    if ( actionType === DRAW && 'player' in options ) {
+    if ( actionType === DISCARD && 'player' in options && 'card' in options ) {
+        const player = players.byId[options.player];
+        const cardDiscarded = player.hand[options.card];
+        players.byId[options.player].hand.splice(options.card, 1);
+        table.push(cardDiscarded);
+    }
+    else if ( actionType === DRAW && 'player' in options ) {
         players.byId[options.player].hand.push(drawCard());
     }
-
-    if ( actionType === REVEAL ) {
+    else if ( actionType === REVEAL ) {
         table.push(drawCard());
+    }
+    else {
+        return currentState;
     }
 
     return {

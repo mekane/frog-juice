@@ -5,11 +5,15 @@ const actions = require('../app/actions.js');
 describe('The action function', () => {
     it('takes an action string, the current game state, and optional data and returns a new state', () => {
         const state = app.newGame();
-        const newState = actions.act('TEST', state, {});
+        const newState = actions.act(actions.REVEAL, state, {});
         expect(state).to.not.equal(newState);
     });
 
-    //it('returns the original state on unknown action types')
+    it('returns the original state on unknown action types', () => {
+        const state = app.newGame();
+        const newState = actions.act('BOGUS', state, {});
+        expect(state).to.equal(newState);
+    });
 });
 
 describe('the draw action', () => {
