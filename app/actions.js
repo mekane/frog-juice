@@ -5,38 +5,36 @@ const REVEAL = 'REVEAL';
 
 function act(actionType, currentState, options) {
 
-    let deck = currentState.deck.slice();
-    let table = currentState.table.slice();
-    const players = copyPlayers(currentState.players);
-    const currentDeckSize = deck.length;
+    const newState = {
+        deck: currentState.deck.slice(),
+        table: currentState.table.slice(),
+        players: copyPlayers(currentState.players)
+    };
 
     if ( actionType === DISCARD && 'player' in options && 'card' in options ) {
-        const player = players.byId[options.player];
+        const player = newState.players.byId[options.player];
         const cardDiscarded = player.hand[options.card];
-        players.byId[options.player].hand.splice(options.card, 1);
-        table.push(cardDiscarded);
+        newState.players.byId[options.player].hand.splice(options.card, 1);
+        newState.table.push(cardDiscarded);
     }
     else if ( actionType === DRAW && 'player' in options ) {
-        players.byId[options.player].hand.push(drawCard());
+        newState.players.byId[options.player].hand.push(drawCard());
     }
     else if ( actionType === REVEAL ) {
-        table.push(drawCard());
+        newState.table.push(drawCard());
     }
     else {
         return currentState;
     }
 
-    return {
-        deck,
-        table,
-        players
-    };
+    return newState;
 
     function drawCard() {
+        const currentDeckSize = newState.deck.length;
         const randomCardIndex = Math.floor(Math.random()*currentDeckSize);
-        const cardDrawn = deck[randomCardIndex];
-        deck[randomCardIndex] = false;
-        deck = deck.filter(card => card !== false);
+        const cardDrawn = newState.deck[randomCardIndex];
+        newState.deck[randomCardIndex] = false;
+        newState.deck = newState.deck.filter(card => card !== false);
 
         return cardDrawn;
     }
