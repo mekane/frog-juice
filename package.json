@@ -10,6 +10,7 @@
     "test": "./node_modules/.bin/mocha -b"
   },
   "author": "",
+  "repository": "git@github.com:mekane/frog-juice.git",
   "license": "ISC",
   "dependencies": {
     "chai": "^4.2.0",
