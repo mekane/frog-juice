@@ -25,7 +25,7 @@ function act(actionType, currentState, options) {
         const player = newState.players.byId[options.player];
         drawCard(newState, player)
     }
-    else if ( actionType === REVEAL ) {
+    else if ( actionType === REVEAL && newState.deck.length ) {
         revealCard(newState);
     }
     else {

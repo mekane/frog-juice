@@ -43,6 +43,15 @@ describe('the draw action', () => {
 });
 
 describe('the reveal action', () => {
+    it(`does nothing if the deck is empty`, () => {
+        const state = app.newGame();
+        state.deck = [];
+
+        const newState = actions.act(actions.REVEAL, state);
+
+        expect(newState).to.equal(state);
+    });
+
     it("draws a card from the deck and adds it to the table row", () => {
         const state = app.newGame();
         const originalDeckSize = state.deck.length;
