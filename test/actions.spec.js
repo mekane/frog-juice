@@ -92,10 +92,52 @@ describe('the discard action', () => {
         expect(nextState).to.equal(originalState);
     });
 
+    it(`does nothing if a player and card are specified but there are not enough cards in the hand`, () => {
+
+    });
 });
 
 describe('the capture action', () => {
-    //one-for-one
+    it('does nothing if no player is specified', () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.DISCARD, originalState, {});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it('does nothing if a player is specified but no card(s) are specified', () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.DISCARD, originalState, {player:0});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it('does nothing if a player and hand cards are specified but no table card(s) are specified', () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.DISCARD, originalState, {player:0, cards: [1]});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it('does nothing if a player and table cards are specified but no hand card(s) are specified', () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.DISCARD, originalState, {player:0, tableCards: [1]});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    //it(`does an error state if you try to use non-numeric cards`, () => {
+
+    //it(`does an error state if you try to use one-and-one of different values`, () => {
+
+    it(`takes a player, a card from their hand, and a card from the table and puts them in the capture pile`, () => {
+
+    });
+
+    //it(`does an error state if you try to specify multiple cards for both player and table cards`, () => {
+
+    //it(`does an error state if the multi-cards don't add up to the value of the single card`, () => {
+
     //two-or-three from hand to one on table
     //one from hand for two-or-three on table
 });
