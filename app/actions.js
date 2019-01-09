@@ -1,9 +1,13 @@
 'use strict';
+
+var deepFreeze = require('deep-freeze');
+
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const REVEAL = 'REVEAL';
 
 function act(actionType, currentState, options) {
+    deepFreeze(currentState);
 
     const newState = {
         deck: currentState.deck.slice(),
