@@ -93,7 +93,11 @@ describe('the discard action', () => {
     });
 
     it(`does nothing if a player and card are specified but there are not enough cards in the hand`, () => {
+        const originalState = app.newGame();
 
+        const nextState = actions.act(actions.DISCARD, originalState, {player:0, card:1});
+
+        expect(nextState).to.equal(originalState);
     });
 });
 

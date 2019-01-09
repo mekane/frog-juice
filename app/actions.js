@@ -17,7 +17,7 @@ function act(actionType, currentState, options) {
 
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
 
-    if ( actionType === DISCARD && optionsDefined(['player', 'card']) ) {
+    if ( actionType === DISCARD && optionsDefined(['player', 'card']) && player.hand[options.card]) {
         const cardDiscarded = player.hand[options.card];
         removeCardFrom(player.hand, options.card);
         newState.table.push(cardDiscarded);
