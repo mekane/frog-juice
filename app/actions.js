@@ -14,31 +14,49 @@ function act(actionType, currentState, options) {
     if ( actionType === DISCARD && 'player' in options && 'card' in options ) {
         const player = newState.players.byId[options.player];
         const cardDiscarded = player.hand[options.card];
-        newState.players.byId[options.player].hand.splice(options.card, 1);
+        removeCardFrom(player.hand, options.card);
         newState.table.push(cardDiscarded);
     }
     else if ( actionType === DRAW && 'player' in options ) {
-        newState.players.byId[options.player].hand.push(drawCard());
+        const player = newState.players.byId[options.player];
+        drawCard(newState, player)
     }
     else if ( actionType === REVEAL ) {
-        newState.table.push(drawCard());
+        revealCard(newState);
     }
     else {
         return currentState;
     }
 
     return newState;
-
-    function drawCard() {
-        const currentDeckSize = newState.deck.length;
-        const randomCardIndex = Math.floor(Math.random()*currentDeckSize);
-        const cardDrawn = newState.deck[randomCardIndex];
-        newState.deck[randomCardIndex] = false;
-        newState.deck = newState.deck.filter(card => card !== false);
-
-        return cardDrawn;
-    }
 }
+
+function removeCardFrom(location, index) {
+    if ('splice' in location)
+        location.splice(index, 1);
+}
+
+function takeRandomCardFromDeck(deck) {
+    const currentDeckSize = deck.length;
+    const randomCardIndex = Math.floor(Math.random()*currentDeckSize);
+    const cardDrawn = deck[randomCardIndex];
+    removeCardFrom(deck, randomCardIndex);
+
+    return cardDrawn;
+}
+
+function drawCard(state, player) {
+    const card = takeRandomCardFromDeck(state.deck);
+    player.hand.push(card);
+}
+
+function revealCard(state) {
+    const card = takeRandomCardFromDeck(state.deck);
+    state.table.push(card);
+}
+
+
+
 
 function copyPlayers(currentPlayers) {
     const result = {
