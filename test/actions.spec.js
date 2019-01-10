@@ -374,7 +374,63 @@ describe('the capture action', () => {
         expect(nextState.players.byId[0].captured.length, 'Three cards in capture pile').to.equal(3);
     });
 
-    //larger test with a bunch of data, maybe more explicit checks
+    it(`preserves other data when capturing`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                isPowerCard: false
+            },
+            {
+                name: 'Frog Juice',
+                numericValue: 6,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+            {
+                name: 'Witch',
+                numericValue: null,
+                isPowerCard: true
+            },
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                isPowerCard: false
+            },
+            {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            },
+            {
+                name: 'Toads',
+                numericValue: 3,
+                isPowerCard: false
+            },
+            {
+                name: 'Newts',
+                numericValue: 4,
+                isPowerCard: false
+            },
+            {
+                name: 'Mice',
+                numericValue: 5,
+                isPowerCard: false
+            }
+        ];
+
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [1], tableCards: [1,2,3]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.table.length, 'Three cards left on table').to.equal(3);
+        expect(nextState.table[0].name).to.equal('Witch');
+        expect(nextState.table[1].name).to.equal('Newts');
+        expect(nextState.players.byId[0].hand.length, 'One card left in hand').to.equal(1);
+        expect(nextState.players.byId[0].hand[0].name).to.equal('Shrinking Brew');
+        expect(nextState.players.byId[0].captured.length, 'Four cards in capture pile').to.equal(4);
+    });
 });
 
 describe('the black cat action', () => {
