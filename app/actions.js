@@ -2,6 +2,7 @@
 
 var deepFreeze = require('deep-freeze');
 
+const BLACK_CAT = 'BLACK_CAT';
 const CAPTURE = 'CAPTURE';
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
@@ -17,8 +18,36 @@ function act(actionType, currentState, options) {
     };
 
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
+    //TODO: check that target is a valid player (error or no-op?)
 
-    if ( actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
+    if ( actionType === BLACK_CAT && optionsDefined(['player', 'target']) ) {
+        const playerHasBlackCat = !!(player.hand.find(card => card.name === 'Black Cat'));
+
+        if (!playerHasBlackCat) {
+            newState.error = `Player ${options.player} does not have the Black Cat`;
+            return newState;
+        }
+
+        const target = newState.players.byId[options.target];
+        if (!target) {
+            //TODO: check that target is a valid player (no-op because we can check in the if conditions?)
+        }
+
+        const targetHasAnyPowerCards = target.captured.find(card => card.powerCard);
+        if (!targetHasAnyPowerCards) {
+            newState.error = `Player ${options.target} does not have any power cards in their capture pile`;
+            return newState;
+        }
+
+        const blackCatIndex = player.hand.findIndex(card => card.name === 'Black Cat');
+        const firstPowerCardIndex = target.captured.findIndex(card => card.powerCard);
+
+        player.captured.push(player.hand[blackCatIndex]);
+        removeCardFrom(player.hand, blackCatIndex);
+        player.captured.push(target.captured[firstPowerCardIndex]);
+        removeCardFrom(target.captured, firstPowerCardIndex);
+    }
+    else if ( actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
         const playerCardIds = options['cards'];
         const tableCardIds = options['tableCards'];
 
@@ -126,6 +155,7 @@ function copyPlayers(currentPlayers) {
     allPlayerIds.forEach(id => {
         result.byId[id] = Object.assign({}, currentPlayers.byId[id]);
         result.byId[id].hand = currentPlayers.byId[id].hand.slice();
+        result.byId[id].captured = currentPlayers.byId[id].captured.slice();
     });
 
     return result;
@@ -141,6 +171,7 @@ function sumCardValues(total, nextCard) {
 
 module.exports = {
     act,
+    BLACK_CAT,
     CAPTURE,
     DISCARD,
     DRAW,

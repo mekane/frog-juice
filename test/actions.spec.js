@@ -434,7 +434,91 @@ describe('the capture action', () => {
 });
 
 describe('the black cat action', () => {
+    it(`does nothing if no player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.BLACK_CAT, originalState, {});
 
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`does nothing if no target is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the specified player doesn't have the Black Cat card in hand`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Player 0 does not have the Black Cat');
+    });
+
+    it(`produces an error state if the target player has no power cards in their capture pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Black Cat',
+                numericValue: null,
+                powerCard: true
+            }
+        ];
+
+        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Player 1 does not have any power cards in their capture pile');
+    });
+
+    it(`transfers a power card from the target player's capture pile to the player's pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Black Cat',
+                numericValue: null,
+                powerCard: true
+            }
+        ];
+        originalState.players.byId[0].captured = [
+            {
+                name: 'Bats',
+                numericValue: 2,
+                powerCard: false
+            }
+        ];
+        originalState.players.byId[1].captured = [
+            {
+                name: 'Witch',
+                numericValue: null,
+                powerCard: true
+            },
+            {
+                name: 'Toads',
+                numericValue: 3,
+                powerCard: false
+            }
+        ];
+
+        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
+
+        const player = nextState.players.byId[0];
+        const playerCapturedBlackCat = !!(player.captured.find(card => card.name === 'Black Cat'));
+        const numberOfCapturedPowerCards = player.captured.filter(card => !!card.powerCard).length;
+        const target = nextState.players.byId[1];
+        const targetCapturedPowerCards = target.captured.filter(card => !!card.powerCard).length;
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+
+        expect(playerCapturedBlackCat, 'player 0 captured the Black Cat').to.be.true;
+        expect(player.captured.length, 'player captures Black Cat and one power card').to.equal(3);
+        expect(numberOfCapturedPowerCards, 'player gains two power cards').to.equal(2);
+
+        expect(target.captured.length, 'target loses a captured power card').to.equal(1);
+        expect(targetCapturedPowerCards, 'target loses a power card').to.equal(0)
+    });
 });
 
 describe('the witch action', () => {
