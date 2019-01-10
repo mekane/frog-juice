@@ -27,12 +27,12 @@ function newGame() {
                 0: {
                     type: 'human',
                     hand: [],
-                    capture: []
+                    captured: []
                 },
                 1: {
                     type: 'robot',
                     hand: [],
-                    capture: []
+                    captured: []
                 }
             }
         }

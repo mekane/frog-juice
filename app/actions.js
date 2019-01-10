@@ -26,7 +26,12 @@ function act(actionType, currentState, options) {
             return currentState;
 
         if (playerCardIds.length > 1 && tableCardIds.length > 1) {
-            newState.error = 'Error, cannot capture use multiple cards from hand to capture multiple cards';
+            newState.error = 'Error, cannot use multiple cards from hand to capture multiple cards';
+            return newState;
+        }
+
+        if (playerCardIds.length > 3 || tableCardIds.length > 3) {
+            newState.error = 'Error, cannot use more than three cards to capture';
             return newState;
         }
 
@@ -42,13 +47,17 @@ function act(actionType, currentState, options) {
         const playerCardsSum = playerCards.reduce(sumCardValues, 0);
         const tableCardsSum = tableCards.reduce(sumCardValues, 0);
 
-        console.log(`capturing ${tableCardsSum} using ${playerCardsSum}`);
-
         if (playerCardsSum !== tableCardsSum) {
             newState.error = 'Error, capture cards are not equal'
             return newState;
         }
 
+        player.captured = player.captured.concat(playerCards, tableCards);
+        playerCardIds.forEach(cardIndex => player.hand[cardIndex] = false);
+        player.hand = player.hand.filter(card => !!card);
+
+        tableCardIds.forEach(cardIndex => newState.table[cardIndex] = false);
+        newState.table = newState.table.filter(card => !!card);
     }
     else if ( actionType === DISCARD && optionsDefined(['player', 'card']) && player.hand[options.card]) {
         const cardDiscarded = player.hand[options.card];

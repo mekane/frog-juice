@@ -145,7 +145,23 @@ describe('the capture action', () => {
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0,1]});
 
         expect(nextState).to.not.equal(originalState);
-        expect(nextState.error).to.equal('Error, cannot capture use multiple cards from hand to capture multiple cards');
+        expect(nextState.error).to.equal('Error, cannot use multiple cards from hand to capture multiple cards');
+    });
+
+    it(`produces an error state if you try to use more than three hand cards to capture`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1,2,3], tableCards: [0]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, cannot use more than three cards to capture');
+    });
+
+    it(`produces an error state if you try to capture more than three cards`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1,2,3]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Error, cannot use more than three cards to capture');
     });
 
     it(`produces an error state if you try to capture a non-numeric card from the table`, () => {
@@ -273,13 +289,92 @@ describe('the capture action', () => {
         expect(nextState.error).to.equal('Error, capture cards are not equal');
     });
 
-    it.skip(`takes a player, a card from their hand, and a card from the table and puts them in the capture pile`, () => {
+    it(`takes a player, a card from their hand, and a card from the table and puts them in the capture pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+             {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            }
+        ];
 
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.table.length, 'No cards left on table').to.equal(0);
+        expect(nextState.players.byId[0].hand.length, 'No cards left in hand').to.equal(0);
+        expect(nextState.players.byId[0].captured.length, 'Two cards in capture pile').to.equal(2);
     });
 
+    it(`takes a player, multiple cards from their hand, and a card from the table and puts them in the capture pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            },
+            {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+            {
+                name: 'Newts',
+                numericValue: 4,
+                isPowerCard: false
+            }
+        ];
 
-    //two-or-three from hand to one on table
-    //one from hand for two-or-three on table
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.table.length, 'No cards left on table').to.equal(0);
+        expect(nextState.players.byId[0].hand.length, 'No cards left in hand').to.equal(0);
+        expect(nextState.players.byId[0].captured.length, 'Three cards in capture pile').to.equal(3);
+    });
+
+    it(`takes a player, a card from their hand, and multiple cards from the table and puts them in the capture pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Frog Juice',
+                numericValue: 6,
+                isPowerCard: false
+            }
+        ];
+        originalState.table = [
+            {
+                name: 'Bats',
+                numericValue: 2,
+                isPowerCard: false
+            },
+            {
+                name: 'Newts',
+                numericValue: 4,
+                isPowerCard: false
+            }
+        ];
+
+        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1]});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.table.length, 'No cards left on table').to.equal(0);
+        expect(nextState.players.byId[0].hand.length, 'No cards left in hand').to.equal(0);
+        expect(nextState.players.byId[0].captured.length, 'Three cards in capture pile').to.equal(3);
+    });
+
+    //larger test with a bunch of data, maybe more explicit checks
 });
 
 describe('the black cat action', () => {
