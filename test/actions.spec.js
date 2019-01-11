@@ -522,7 +522,61 @@ describe('the black cat action', () => {
 });
 
 describe('the witch action', () => {
+    it(`does nothing if no player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.WITCH, originalState, {});
 
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the player does not have a Witch card in hand`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.WITCH, originalState, {player: 0});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Player 0 does not have a Witch');
+    });
+
+    it(`puts all cards from the table and the witch into the player's capture pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Witch',
+                numericValue: null,
+                powerCard: true
+            },
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                powerCard: false
+            }
+        ];
+        originalState.table = [
+            {
+                name: 'Bats',
+                numericValue: 2,
+                powerCard: false
+            },
+            {
+                name: 'Toads',
+                numericValue: 3,
+                powerCard: false
+            }
+        ];
+
+        const newState = actions.act(actions.WITCH, originalState, {player: 0});
+        const player = newState.players.byId[0];
+        const playerCapturedWitch = !!(player.captured.find(card => card.name === 'Witch'));
+
+        expect(player.hand.length, 'Player has one card left in hand').to.equal(1);
+        expect(player.captured.length, 'Player captured three cards').to.equal(3);
+        expect(newState.table.length, 'Table is swept clean').to.equal(0);
+        expect(playerCapturedWitch, 'Player captured their witch too').to.equal(true);
+    });
+
+    it.skip(`puts all spells in progress and ingredients on those spells into the player's capture pile`, () => {
+
+    });
 });
 
 describe('the witch wash action (as action on turn)', () => {

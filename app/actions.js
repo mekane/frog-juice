@@ -7,6 +7,7 @@ const CAPTURE = 'CAPTURE';
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const REVEAL = 'REVEAL';
+const WITCH = 'WITCH';
 
 function act(actionType, currentState, options) {
     deepFreeze(currentState);
@@ -42,8 +43,8 @@ function act(actionType, currentState, options) {
         const blackCatIndex = player.hand.findIndex(card => card.name === 'Black Cat');
         const firstPowerCardIndex = target.captured.findIndex(card => card.powerCard);
 
-        player.captured.push(player.hand[blackCatIndex]);
-        removeCardFrom(player.hand, blackCatIndex);
+        captureCardFromHand(player, blackCatIndex);
+
         player.captured.push(target.captured[firstPowerCardIndex]);
         removeCardFrom(target.captured, firstPowerCardIndex);
     }
@@ -100,6 +101,20 @@ function act(actionType, currentState, options) {
     else if ( actionType === REVEAL && newState.deck.length ) {
         revealCard(newState);
     }
+    else if ( actionType === WITCH && optionsDefined(['player'])) {
+        const playerHasWitch = !!(player.hand.find(card => card.name === 'Witch'));
+
+        if (!playerHasWitch) {
+            newState.error = `Player ${options.player} does not have a Witch`;
+            return newState;
+        }
+
+        const witchIndex = player.hand.findIndex(card => card.name === 'Witch');
+        captureCardFromHand(player, witchIndex);
+
+        player.captured = player.captured.concat(newState.table);
+        newState.table = [];
+    }
     else {
         return currentState;
     }
@@ -117,6 +132,11 @@ function act(actionType, currentState, options) {
         else
             return false;
     }
+}
+
+function captureCardFromHand(player, index) {
+    player.captured.push(player.hand[index]);
+    removeCardFrom(player.hand, index);
 }
 
 function removeCardFrom(location, index) {
@@ -175,5 +195,6 @@ module.exports = {
     CAPTURE,
     DISCARD,
     DRAW,
-    REVEAL
-}
+    REVEAL,
+    WITCH
+};
