@@ -8,6 +8,7 @@ const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const REVEAL = 'REVEAL';
 const WITCH = 'WITCH';
+const WITCH_WASH = 'WITCH_WASH';
 
 function act(actionType, currentState, options) {
     deepFreeze(currentState);
@@ -115,6 +116,27 @@ function act(actionType, currentState, options) {
         player.captured = player.captured.concat(newState.table);
         newState.table = [];
     }
+    else if ( actionType === WITCH_WASH && optionsDefined(['player'])) {
+        const playerHasWitchWash = !!(player.hand.find(card => card.name === 'Witch Wash'));
+
+        if (!playerHasWitchWash) {
+            newState.error = `Player ${options.player} does not have the Witch Wash`;
+            return newState;
+        }
+
+        const anyWitchesOnTheTable = !!(newState.table.find(card => card.name === 'Witch'));
+        if (!anyWitchesOnTheTable) {
+            newState.error = `There are no Witches to Wash`;
+            return newState;
+        }
+
+        const witchWashIndex = player.hand.findIndex(card => card.name === 'Witch Wash');
+        const witchIndex = newState.table.findIndex(card => card.name === 'Witch');
+
+        captureCardFromHand(player, witchWashIndex);
+        player.captured.push(newState.table[witchIndex]);
+        removeCardFrom(newState.table, witchIndex);
+    }
     else {
         return currentState;
     }
@@ -196,5 +218,6 @@ module.exports = {
     DISCARD,
     DRAW,
     REVEAL,
-    WITCH
+    WITCH,
+    WITCH_WASH
 };

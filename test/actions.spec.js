@@ -580,7 +580,84 @@ describe('the witch action', () => {
 });
 
 describe('the witch wash action (as action on turn)', () => {
+    it(`does nothing if no player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.WITCH_WASH, originalState, {});
 
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the player does not have the Witch Wash card in hand`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Player 0 does not have the Witch Wash');
+    });
+
+    it(`produces an error state if there is not a Witch card on the table`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Witch Wash',
+                numericValue: null,
+                powerCard: true
+            }
+        ];
+        const nextState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('There are no Witches to Wash');
+    });
+
+    it(`puts a Witch from the table into the player's capture pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            {
+                name: 'Witch Wash',
+                numericValue: null,
+                powerCard: true
+            },
+            {
+                name: 'Shrinking Brew',
+                numericValue: 1,
+                powerCard: false
+            }
+        ];
+        originalState.table = [
+            {
+                name: 'Bats',
+                numericValue: 2,
+                powerCard: false
+            },
+            {
+                name: 'Witch',
+                numericValue: null,
+                powerCard: true
+            },
+            {
+                name: 'Toads',
+                numericValue: 3,
+                powerCard: false
+            },
+            {
+                name: 'Witch',
+                numericValue: null,
+                powerCard: true
+            }
+        ];
+
+        const newState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
+        const player = newState.players.byId[0];
+        const playerCapturedWitch = !!(player.captured.find(card => card.name === 'Witch'));
+        const playerCapturedWitchWash = !!(player.captured.find(card => card.name === 'Witch Wash'));
+
+        expect(player.hand.length, 'Player has one card left in hand').to.equal(1);
+        expect(player.captured.length, 'Player captured two cards').to.equal(2);
+        expect(playerCapturedWitch, 'Player captured a Witch').to.equal(true);
+        expect(playerCapturedWitchWash, 'Player captured the Witch Wash').to.equal(true);
+        expect(newState.table.length, 'Table is one card smaller').to.equal(3);
+    });
 });
 
 describe('the witch-countered-by-witch-wash action', () => {
