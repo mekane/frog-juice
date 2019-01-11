@@ -23,9 +23,7 @@ function act(actionType, currentState, options) {
     //TODO: check that target is a valid player (error or no-op?)
 
     if ( actionType === BLACK_CAT && optionsDefined(['player', 'target']) ) {
-        const playerHasBlackCat = !!(player.hand.find(card => card.name === 'Black Cat'));
-
-        if (!playerHasBlackCat) {
+        if (!hasCard(player, 'Black Cat')) {
             newState.error = `Player ${options.player} does not have the Black Cat`;
             return newState;
         }
@@ -41,11 +39,9 @@ function act(actionType, currentState, options) {
             return newState;
         }
 
-        const blackCatIndex = player.hand.findIndex(card => card.name === 'Black Cat');
+        captureCardFromHand(player, 'Black Cat');
+
         const firstPowerCardIndex = target.captured.findIndex(card => card.powerCard);
-
-        captureCardFromHand(player, blackCatIndex);
-
         player.captured.push(target.captured[firstPowerCardIndex]);
         removeCardFrom(target.captured, firstPowerCardIndex);
     }
@@ -103,23 +99,18 @@ function act(actionType, currentState, options) {
         revealCard(newState);
     }
     else if ( actionType === WITCH && optionsDefined(['player'])) {
-        const playerHasWitch = !!(player.hand.find(card => card.name === 'Witch'));
-
-        if (!playerHasWitch) {
+        if (!hasCard(player, 'Witch')) {
             newState.error = `Player ${options.player} does not have a Witch`;
             return newState;
         }
 
-        const witchIndex = player.hand.findIndex(card => card.name === 'Witch');
-        captureCardFromHand(player, witchIndex);
+        captureCardFromHand(player, 'Witch');
 
         player.captured = player.captured.concat(newState.table);
         newState.table = [];
     }
     else if ( actionType === WITCH_WASH && optionsDefined(['player'])) {
-        const playerHasWitchWash = !!(player.hand.find(card => card.name === 'Witch Wash'));
-
-        if (!playerHasWitchWash) {
+        if (!hasCard(player, 'Witch Wash')) {
             newState.error = `Player ${options.player} does not have the Witch Wash`;
             return newState;
         }
@@ -130,10 +121,9 @@ function act(actionType, currentState, options) {
             return newState;
         }
 
-        const witchWashIndex = player.hand.findIndex(card => card.name === 'Witch Wash');
-        const witchIndex = newState.table.findIndex(card => card.name === 'Witch');
+        captureCardFromHand(player, 'Witch Wash');
 
-        captureCardFromHand(player, witchWashIndex);
+        const witchIndex = newState.table.findIndex(card => card.name === 'Witch');
         player.captured.push(newState.table[witchIndex]);
         removeCardFrom(newState.table, witchIndex);
     }
@@ -156,9 +146,16 @@ function act(actionType, currentState, options) {
     }
 }
 
-function captureCardFromHand(player, index) {
-    player.captured.push(player.hand[index]);
-    removeCardFrom(player.hand, index);
+function hasCard(player, cardName) {
+    return !!(player.hand.find(card => card.name === cardName));
+}
+
+function captureCardFromHand(player, cardName) {
+    const index = player.hand.findIndex(card => card.name === cardName);
+    if ( index !== -1 ) {
+        player.captured.push(player.hand[index]);
+        removeCardFrom(player.hand, index);
+    }
 }
 
 function removeCardFrom(location, index) {
