@@ -1,6 +1,5 @@
 function getNewDeck() {
-    return [
-        {
+    return [{
             name: 'Witch',
             numericValue: null,
             isPowerCard: true

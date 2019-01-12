@@ -22,7 +22,7 @@ function act(actionType, currentState, options) {
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
     //TODO: check that target is a valid player (error or no-op?)
 
-    if ( actionType === BLACK_CAT && optionsDefined(['player', 'target']) ) {
+    if (actionType === BLACK_CAT && optionsDefined(['player', 'target'])) {
         if (!hasCard(player, 'Black Cat')) {
             newState.error = `Player ${options.player} does not have the Black Cat`;
             return newState;
@@ -45,7 +45,7 @@ function act(actionType, currentState, options) {
         player.captured.push(target.captured[firstPowerCardIndex]);
         removeCardFrom(target.captured, firstPowerCardIndex);
     }
-    else if ( actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
+    else if (actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
         const playerCardIds = options['cards'];
         const tableCardIds = options['tableCards'];
 
@@ -86,19 +86,19 @@ function act(actionType, currentState, options) {
         tableCardIds.forEach(cardIndex => newState.table[cardIndex] = false);
         newState.table = newState.table.filter(card => !!card);
     }
-    else if ( actionType === DISCARD && optionsDefined(['player', 'card']) && player.hand[options.card]) {
+    else if (actionType === DISCARD && optionsDefined(['player', 'card']) && player.hand[options.card]) {
         const cardDiscarded = player.hand[options.card];
         removeCardFrom(player.hand, options.card);
         newState.table.push(cardDiscarded);
     }
-    else if ( actionType === DRAW && optionsDefined('player') ) {
+    else if (actionType === DRAW && optionsDefined('player')) {
         const player = newState.players.byId[options.player];
         drawCard(newState, player)
     }
-    else if ( actionType === REVEAL && newState.deck.length ) {
+    else if (actionType === REVEAL && newState.deck.length) {
         revealCard(newState);
     }
-    else if ( actionType === WITCH && optionsDefined(['player'])) {
+    else if (actionType === WITCH && optionsDefined(['player'])) {
         if (!hasCard(player, 'Witch')) {
             newState.error = `Player ${options.player} does not have a Witch`;
             return newState;
@@ -109,7 +109,7 @@ function act(actionType, currentState, options) {
         player.captured = player.captured.concat(newState.table);
         newState.table = [];
     }
-    else if ( actionType === WITCH_WASH && optionsDefined(['player'])) {
+    else if (actionType === WITCH_WASH && optionsDefined(['player'])) {
         if (!hasCard(player, 'Witch Wash')) {
             newState.error = `Player ${options.player} does not have the Witch Wash`;
             return newState;
@@ -152,7 +152,7 @@ function hasCard(player, cardName) {
 
 function captureCardFromHand(player, cardName) {
     const index = player.hand.findIndex(card => card.name === cardName);
-    if ( index !== -1 ) {
+    if (index !== -1) {
         player.captured.push(player.hand[index]);
         removeCardFrom(player.hand, index);
     }
@@ -165,7 +165,7 @@ function removeCardFrom(location, index) {
 
 function takeRandomCardFromDeck(deck) {
     const currentDeckSize = deck.length;
-    const randomCardIndex = Math.floor(Math.random()*currentDeckSize);
+    const randomCardIndex = Math.floor(Math.random() * currentDeckSize);
     const cardDrawn = deck[randomCardIndex];
     removeCardFrom(deck, randomCardIndex);
 

@@ -33,7 +33,7 @@ describe('the draw action', () => {
         const state = app.newGame();
         const originalDeckSize = state.deck.length;
 
-        const newState = actions.act(actions.DRAW, state, {player: 0});
+        const newState = actions.act(actions.DRAW, state, { player: 0 });
 
         const expectedDeckSize = originalDeckSize - 1;
 
@@ -76,7 +76,7 @@ describe('the discard action', () => {
 
     it('does nothing if a player is specified but no card is specified', () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.DISCARD, originalState, {player:0});
+        const nextState = actions.act(actions.DISCARD, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
@@ -84,16 +84,16 @@ describe('the discard action', () => {
     it(`does nothing if a player and card are specified but there are not enough cards in the hand`, () => {
         const originalState = app.newGame();
 
-        const nextState = actions.act(actions.DISCARD, originalState, {player:0, card:1});
+        const nextState = actions.act(actions.DISCARD, originalState, { player: 0, card: 1 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it("moves the card at the specified index from the player's hand to the table", () => {
         const originalState = app.newGame();
-        const stateAfterPlayerDrawsOne = actions.act(actions.DRAW, originalState, {player: 0});
+        const stateAfterPlayerDrawsOne = actions.act(actions.DRAW, originalState, { player: 0 });
 
-        const nextState = actions.act(actions.DISCARD, stateAfterPlayerDrawsOne, {player:0, card: 0});
+        const nextState = actions.act(actions.DISCARD, stateAfterPlayerDrawsOne, { player: 0, card: 0 });
 
         const playerHasNoCardsInHand = (nextState.players.byId[0].hand.length === 0);
         const thereIsOneCardOnTheTable = (nextState.table.length === 1);
@@ -113,36 +113,36 @@ describe('the capture action', () => {
     it('does nothing if a player is specified but no card(s) are specified', () => {
         const originalState = app.newGame();
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player:0});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0 });
         expect(nextState).to.equal(originalState);
 
-        const anotherState = actions.act(actions.CAPTURE, originalState, {player:0, cards: []});
+        const anotherState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [] });
         expect(anotherState).to.equal(originalState);
     });
 
     it('does nothing if a player and hand cards are specified but no table card(s) are specified', () => {
         const originalState = app.newGame();
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player:0, cards: [1]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [1] });
         expect(nextState).to.equal(originalState);
 
-        const anotherState = actions.act(actions.CAPTURE, originalState, {player:0, cards: [1], tableCards: []});
+        const anotherState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [1], tableCards: [] });
         expect(anotherState).to.equal(originalState);
     });
 
     it('does nothing if a player and table cards are specified but no hand card(s) are specified', () => {
         const originalState = app.newGame();
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player:0, tableCards: [1]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, tableCards: [1] });
         expect(nextState).to.equal(originalState);
 
-        const anotherState = actions.act(actions.CAPTURE, originalState, {player:0, cards: [], tableCards: [1]});
+        const anotherState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [], tableCards: [1] });
         expect(anotherState).to.equal(originalState);
     });
 
     it(`produces an error state if you try to specify multiple cards for both player and table cards`, () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0,1]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0, 1], tableCards: [0, 1] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, cannot use multiple cards from hand to capture multiple cards');
@@ -150,7 +150,7 @@ describe('the capture action', () => {
 
     it(`produces an error state if you try to use more than three hand cards to capture`, () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1,2,3], tableCards: [0]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0, 1, 2, 3], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, cannot use more than three cards to capture');
@@ -158,7 +158,7 @@ describe('the capture action', () => {
 
     it(`produces an error state if you try to capture more than three cards`, () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1,2,3]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0, 1, 2, 3] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, cannot use more than three cards to capture');
@@ -173,7 +173,7 @@ describe('the capture action', () => {
             witch()
         ]
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, cannot capture non-numeric cards');
@@ -185,10 +185,10 @@ describe('the capture action', () => {
             witch()
         ];
         originalState.table = [
-             shrinkingBrew()
+            shrinkingBrew()
         ]
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, cannot capture non-numeric cards');
@@ -203,7 +203,7 @@ describe('the capture action', () => {
             bats()
         ];
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, capture cards are not equal');
@@ -219,7 +219,7 @@ describe('the capture action', () => {
             toads()
         ];
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0, 1] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, capture cards are not equal');
@@ -235,7 +235,7 @@ describe('the capture action', () => {
             newts()
         ];
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0, 1], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Error, capture cards are not equal');
@@ -250,7 +250,7 @@ describe('the capture action', () => {
             bats()
         ];
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.table.length, 'No cards left on table').to.equal(0);
@@ -268,7 +268,7 @@ describe('the capture action', () => {
             newts()
         ];
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0, 1], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.table.length, 'No cards left on table').to.equal(0);
@@ -286,7 +286,7 @@ describe('the capture action', () => {
             newts()
         ];
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0, 1] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.table.length, 'No cards left on table').to.equal(0);
@@ -309,7 +309,7 @@ describe('the capture action', () => {
             mice()
         ];
 
-        const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [1], tableCards: [1,2,3]});
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [1], tableCards: [1, 2, 3] });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.table.length, 'Three cards left on table').to.equal(3);
@@ -331,14 +331,14 @@ describe('the black cat action', () => {
 
     it(`does nothing if no target is specified`, () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0});
+        const nextState = actions.act(actions.BLACK_CAT, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the specified player doesn't have the Black Cat card in hand`, () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
+        const nextState = actions.act(actions.BLACK_CAT, originalState, { player: 0, target: 1 });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Player 0 does not have the Black Cat');
@@ -350,7 +350,7 @@ describe('the black cat action', () => {
             blackCat()
         ];
 
-        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
+        const nextState = actions.act(actions.BLACK_CAT, originalState, { player: 0, target: 1 });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Player 1 does not have any power cards in their capture pile');
@@ -369,7 +369,7 @@ describe('the black cat action', () => {
             toads()
         ];
 
-        const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
+        const nextState = actions.act(actions.BLACK_CAT, originalState, { player: 0, target: 1 });
 
         const player = nextState.players.byId[0];
         const playerCapturedBlackCat = !!(player.captured.find(card => card.name === 'Black Cat'));
@@ -399,7 +399,7 @@ describe('the witch action', () => {
 
     it(`produces an error state if the player does not have a Witch card in hand`, () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.WITCH, originalState, {player: 0});
+        const nextState = actions.act(actions.WITCH, originalState, { player: 0 });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Player 0 does not have a Witch');
@@ -416,7 +416,7 @@ describe('the witch action', () => {
             toads()
         ];
 
-        const newState = actions.act(actions.WITCH, originalState, {player: 0});
+        const newState = actions.act(actions.WITCH, originalState, { player: 0 });
         const player = newState.players.byId[0];
         const playerCapturedWitch = !!(player.captured.find(card => card.name === 'Witch'));
 
@@ -441,7 +441,7 @@ describe('the witch wash action (as action on turn)', () => {
 
     it(`produces an error state if the player does not have the Witch Wash card in hand`, () => {
         const originalState = app.newGame();
-        const nextState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
+        const nextState = actions.act(actions.WITCH_WASH, originalState, { player: 0 });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Player 0 does not have the Witch Wash');
@@ -452,7 +452,7 @@ describe('the witch wash action (as action on turn)', () => {
         originalState.players.byId[0].hand = [
             witchWash()
         ];
-        const nextState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
+        const nextState = actions.act(actions.WITCH_WASH, originalState, { player: 0 });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('There are no Witches to Wash');
@@ -471,7 +471,7 @@ describe('the witch wash action (as action on turn)', () => {
             witch()
         ];
 
-        const newState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
+        const newState = actions.act(actions.WITCH_WASH, originalState, { player: 0 });
         const player = newState.players.byId[0];
         const playerCapturedWitch = !!(player.captured.find(card => card.name === 'Witch'));
         const playerCapturedWitchWash = !!(player.captured.find(card => card.name === 'Witch Wash'));
