@@ -9,6 +9,7 @@ const DRAW = 'DRAW';
 const REVEAL = 'REVEAL';
 const WITCH = 'WITCH';
 const WITCH_WASH = 'WITCH_WASH';
+const WITCH_COUNTERED_BY_WASH = 'WITCH_COUNTERED_BY_WASH';
 
 function act(actionType, currentState, options) {
     deepFreeze(currentState);
@@ -105,9 +106,7 @@ function act(actionType, currentState, options) {
         }
 
         captureCardFromHand(player, 'Witch');
-
-        player.captured = player.captured.concat(newState.table);
-        newState.table = [];
+        sweepTheTableIntoPlayersCapturePile();
     }
     else if (actionType === WITCH_WASH && optionsDefined(['player'])) {
         if (!hasCard(player, 'Witch Wash')) {
@@ -127,6 +126,28 @@ function act(actionType, currentState, options) {
         player.captured.push(newState.table[witchIndex]);
         removeCardFrom(newState.table, witchIndex);
     }
+    else if (actionType === WITCH_COUNTERED_BY_WASH && optionsDefined(['player', 'target'])) {
+        const target = newState.players.byId[options.target];
+
+        if (!hasCard(player, 'Witch Wash')) {
+            newState.error = `Player ${options.player} does not have the Witch Wash`;
+            return newState;
+        }
+
+        if (!hasCard(target, 'Witch')) {
+            newState.error = `Player ${options.target} does not have a Witch`;
+            return newState;
+        }
+
+        captureCardFromHand(player, 'Witch Wash');
+
+        //move witch from target's hand to player's capture pile
+        const witchIndex = target.hand.findIndex(card => card.name === 'Witch');
+        player.captured.push(target.hand[witchIndex]);
+        removeCardFrom(target.hand, witchIndex);
+
+        sweepTheTableIntoPlayersCapturePile();
+    }
     else {
         return currentState;
     }
@@ -143,6 +164,11 @@ function act(actionType, currentState, options) {
             return args.every(key => key in options);
         else
             return false;
+    }
+
+    function sweepTheTableIntoPlayersCapturePile() {
+        player.captured = player.captured.concat(newState.table);
+        newState.table = [];
     }
 }
 
@@ -216,5 +242,6 @@ module.exports = {
     DRAW,
     REVEAL,
     WITCH,
-    WITCH_WASH
+    WITCH_WASH,
+    WITCH_COUNTERED_BY_WASH
 };

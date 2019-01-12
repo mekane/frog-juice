@@ -484,14 +484,71 @@ describe('the witch wash action (as action on turn)', () => {
     });
 });
 
-
 describe('the witch-countered-by-witch-wash action', () => {
-    /* I imagine the UI will have to query the player holding the Witch Wash
-       whenever a Witch is played, and if they want to use it then this action
-       will be the final result. It will contain the player that tried to use the
-       witch (the target) as well as the player who countered, and will result in the countering
-       player sweeping all the cards
-   */
+    it(`does nothing if no player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, {});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`does nothing if no target is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, { player: 0 });
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the player does not have the Witch Wash card in hand`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, { player: 0, target: 1 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Player 0 does not have the Witch Wash');
+    });
+
+    it(`produces an error state if the target does not have a Witch card in hand`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            witchWash()
+        ];
+
+        const nextState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, { player: 0, target: 1 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Player 1 does not have a Witch');
+    });
+
+    it(`puts all cards from the table, the witch, and the witch wash into the player's capture pile instead of the targets`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            witchWash(),
+            shrinkingBrew()
+        ];
+        originalState.players.byId[1].hand = [
+            bats(),
+            witch()
+        ];
+        originalState.table = [
+            bats(),
+            toads()
+        ];
+        //TODO: include a spell or two also
+
+        const newState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, { player: 0, target: 1 });
+        const player = newState.players.byId[0];
+        const playerCapturedWitch = !!(player.captured.find(card => card.name === 'Witch'));
+        const playerCapturedWitchWash = !!(player.captured.find(card => card.name === 'Witch Wash'))
+        const target = newState.players.byId[1];
+
+        expect(player.hand.length, 'Player has one card left in hand').to.equal(1);
+        expect(player.captured.length, 'Player captured four cards').to.equal(4);
+        expect(newState.table.length, 'Table is swept clean').to.equal(0);
+        expect(playerCapturedWitch, 'Player captured the witch').to.equal(true);
+        expect(playerCapturedWitchWash, 'Player captured the witch wash too').to.equal(true);
+        expect(target.hand.length, 'Target has one card left in hand').to.equal(1);
+        expect(target.captured.length, 'Target did not capture any cards').to.equal(0);
+    });
 });
 
 describe('the play spell action', () => {
