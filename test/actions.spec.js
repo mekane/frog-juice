@@ -167,18 +167,10 @@ describe('the capture action', () => {
     it(`produces an error state if you try to capture a non-numeric card from the table`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                isPowerCard: false
-            }
+            shrinkingBrew()
         ];
         originalState.table = [
-            {
-                name: 'Witch',
-                numericValue: null,
-                isPowerCard: true
-            }
+            witch()
         ]
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
@@ -190,18 +182,10 @@ describe('the capture action', () => {
     it(`produces an error state if you try to capture a non-numeric card from your hand`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Witch',
-                numericValue: null,
-                isPowerCard: true
-            }
+            witch()
         ];
         originalState.table = [
-             {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                isPowerCard: false
-            }
+             shrinkingBrew()
         ]
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
@@ -213,18 +197,10 @@ describe('the capture action', () => {
     it(`produces an error state if you try to use one-and-one of different values`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                isPowerCard: false
-            }
+            shrinkingBrew()
         ];
         originalState.table = [
-             {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            }
+            bats()
         ];
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
@@ -236,23 +212,11 @@ describe('the capture action', () => {
     it(`produces an error state if the player card doesn't add up to the value of the table cards`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                isPowerCard: false
-            }
+            shrinkingBrew()
         ];
         originalState.table = [
-             {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            },
-            {
-                name: 'Toads',
-                numericValue: 3,
-                isPowerCard: false
-            }
+            bats(),
+            toads()
         ];
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1]});
@@ -264,23 +228,11 @@ describe('the capture action', () => {
     it(`produces an error state if the player cards don't add up to the value of the table card`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                isPowerCard: false
-            },
-            {
-            name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            }
+            shrinkingBrew(),
+            bats()
         ];
         originalState.table = [
-            {
-                name: 'Toads',
-                numericValue: 4,
-                isPowerCard: false
-            }
+            newts()
         ];
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0]});
@@ -292,18 +244,10 @@ describe('the capture action', () => {
     it(`takes a player, a card from their hand, and a card from the table and puts them in the capture pile`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            }
+            bats()
         ];
         originalState.table = [
-             {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            }
+            bats()
         ];
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0]});
@@ -317,23 +261,11 @@ describe('the capture action', () => {
     it(`takes a player, multiple cards from their hand, and a card from the table and puts them in the capture pile`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            },
-            {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            }
+            bats(),
+            bats()
         ];
         originalState.table = [
-            {
-                name: 'Newts',
-                numericValue: 4,
-                isPowerCard: false
-            }
+            newts()
         ];
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0,1], tableCards: [0]});
@@ -347,23 +279,11 @@ describe('the capture action', () => {
     it(`takes a player, a card from their hand, and multiple cards from the table and puts them in the capture pile`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Frog Juice',
-                numericValue: 6,
-                isPowerCard: false
-            }
+            frogJuice()
         ];
         originalState.table = [
-            {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            },
-            {
-                name: 'Newts',
-                numericValue: 4,
-                isPowerCard: false
-            }
+            bats(),
+            newts()
         ];
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [0], tableCards: [0,1]});
@@ -377,48 +297,16 @@ describe('the capture action', () => {
     it(`preserves other data when capturing`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                isPowerCard: false
-            },
-            {
-                name: 'Frog Juice',
-                numericValue: 6,
-                isPowerCard: false
-            }
+            shrinkingBrew(),
+            frogJuice()
         ];
         originalState.table = [
-            {
-                name: 'Witch',
-                numericValue: null,
-                isPowerCard: true
-            },
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                isPowerCard: false
-            },
-            {
-                name: 'Bats',
-                numericValue: 2,
-                isPowerCard: false
-            },
-            {
-                name: 'Toads',
-                numericValue: 3,
-                isPowerCard: false
-            },
-            {
-                name: 'Newts',
-                numericValue: 4,
-                isPowerCard: false
-            },
-            {
-                name: 'Mice',
-                numericValue: 5,
-                isPowerCard: false
-            }
+            witch(),
+            shrinkingBrew(),
+            bats(),
+            toads(),
+            newts(),
+            mice()
         ];
 
         const nextState = actions.act(actions.CAPTURE, originalState, {player: 0, cards: [1], tableCards: [1,2,3]});
@@ -459,11 +347,7 @@ describe('the black cat action', () => {
     it(`produces an error state if the target player has no power cards in their capture pile`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Black Cat',
-                numericValue: null,
-                powerCard: true
-            }
+            blackCat()
         ];
 
         const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
@@ -475,30 +359,14 @@ describe('the black cat action', () => {
     it(`transfers a power card from the target player's capture pile to the player's pile`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Black Cat',
-                numericValue: null,
-                powerCard: true
-            }
+            blackCat()
         ];
         originalState.players.byId[0].captured = [
-            {
-                name: 'Bats',
-                numericValue: 2,
-                powerCard: false
-            }
+            bats()
         ];
         originalState.players.byId[1].captured = [
-            {
-                name: 'Witch',
-                numericValue: null,
-                powerCard: true
-            },
-            {
-                name: 'Toads',
-                numericValue: 3,
-                powerCard: false
-            }
+            witch(),
+            toads()
         ];
 
         const nextState = actions.act(actions.BLACK_CAT, originalState, {player: 0, target: 1});
@@ -540,28 +408,12 @@ describe('the witch action', () => {
     it(`puts all cards from the table and the witch into the player's capture pile`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Witch',
-                numericValue: null,
-                powerCard: true
-            },
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                powerCard: false
-            }
+            witch(),
+            shrinkingBrew()
         ];
         originalState.table = [
-            {
-                name: 'Bats',
-                numericValue: 2,
-                powerCard: false
-            },
-            {
-                name: 'Toads',
-                numericValue: 3,
-                powerCard: false
-            }
+            bats(),
+            toads()
         ];
 
         const newState = actions.act(actions.WITCH, originalState, {player: 0});
@@ -598,11 +450,7 @@ describe('the witch wash action (as action on turn)', () => {
     it(`produces an error state if there is not a Witch card on the table`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Witch Wash',
-                numericValue: null,
-                powerCard: true
-            }
+            witchWash()
         ];
         const nextState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
 
@@ -613,38 +461,14 @@ describe('the witch wash action (as action on turn)', () => {
     it(`puts a Witch from the table into the player's capture pile`, () => {
         const originalState = app.newGame();
         originalState.players.byId[0].hand = [
-            {
-                name: 'Witch Wash',
-                numericValue: null,
-                powerCard: true
-            },
-            {
-                name: 'Shrinking Brew',
-                numericValue: 1,
-                powerCard: false
-            }
+            witchWash(),
+            shrinkingBrew()
         ];
         originalState.table = [
-            {
-                name: 'Bats',
-                numericValue: 2,
-                powerCard: false
-            },
-            {
-                name: 'Witch',
-                numericValue: null,
-                powerCard: true
-            },
-            {
-                name: 'Toads',
-                numericValue: 3,
-                powerCard: false
-            },
-            {
-                name: 'Witch',
-                numericValue: null,
-                powerCard: true
-            }
+            bats(),
+            witch(),
+            toads(),
+            witch()
         ];
 
         const newState = actions.act(actions.WITCH_WASH, originalState, {player: 0});
@@ -660,11 +484,12 @@ describe('the witch wash action (as action on turn)', () => {
     });
 });
 
+
 describe('the witch-countered-by-witch-wash action', () => {
     /* I imagine the UI will have to query the player holding the Witch Wash
        whenever a Witch is played, and if they want to use it then this action
        will be the final result. It will contain the player that tried to use the
-       witch as well as the player who countered, and will result in the countering
+       witch (the target) as well as the player who countered, and will result in the countering
        player sweeping all the cards
    */
 });
@@ -681,3 +506,77 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
 describe('taking a spell component from another player and adding it to a spell', () => {
 
 });
+
+
+/* Utility functions to generate test data */
+function shrinkingBrew() {
+    return {
+        name: 'Shrinking Brew',
+        numericValue: 1,
+        isPowerCard: false
+    }
+}
+
+function bats() {
+    return {
+        name: 'Bats',
+        numericValue: 2,
+        isPowerCard: false
+    }
+}
+
+function toads() {
+    return {
+        name: 'Toads',
+        numericValue: 3,
+        isPowerCard: false
+    }
+}
+
+function blackCat() {
+    return {
+        name: 'Black Cat',
+        numericValue: null,
+        powerCard: true
+    }
+}
+
+function newts() {
+    return {
+        name: 'Newts',
+        numericValue: 4,
+        isPowerCard: false
+    }
+}
+
+function mice() {
+    return {
+        name: 'Mice',
+        numericValue: 5,
+        isPowerCard: false
+    }
+}
+
+function frogJuice() {
+    return {
+        name: 'Frog Juice',
+        numericValue: 6,
+        isPowerCard: true
+    }
+}
+
+function witch() {
+    return {
+        name: 'Witch',
+        numericValue: null,
+        powerCard: true
+    }
+}
+
+function witchWash() {
+    return {
+        name: 'Witch Wash',
+        numericValue: null,
+        powerCard: true
+    }
+}
