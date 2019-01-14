@@ -552,8 +552,53 @@ describe('the witch-countered-by-witch-wash action', () => {
 });
 
 describe('the play spell action', () => {
-    //I think this just adds the spell from their hand to their "spellInProgress" list
-    //Taking ingredients from the table and asking for ingredients should each be their own actions
+    it(`does nothing if no player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.PLAY_SPELL, originalState, {});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it('does nothing if no card is specified', () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.PLAY_SPELL, originalState, { player: 0 });
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the specified card is not a spell`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            bats()
+        ];
+        const nextState = actions.act(actions.PLAY_SPELL, originalState, { player: 0, card: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal('Card specified (Bats) is not a spell');
+    });
+
+    it(`adds the spell to the player's "in progress" list`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            bats(),
+            princeToFrogSpell()
+        ];
+
+        const nextState = actions.act(actions.PLAY_SPELL, originalState, { player: 0, card: 1 });
+
+        const player = nextState.players.byId[0];
+        const playerHasSpellInProgress = !!(player.spells.find(card => card.name === 'Prince to Frog Spell'));
+        const spellIsNotInPlayersHand = !(player.hand.find(card => card.name === 'Prince to Frog Spell'))
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+
+        expect(player.hand.length, 'Player has one card left in hand').to.equal(1);
+        expect(player.spells, 'Player has one card in spells list').to.be.an('array').and.to.have.length(1);
+        expect(playerHasSpellInProgress, 'The spell card is in the in progress list').to.be.true;
+        expect(spellIsNotInPlayersHand, `The spell is no longer in the player's hand`).to.be.true;
+    });
+
 });
 
 describe("taking an ingredient from the table to add to a player's spell", () => {
@@ -619,6 +664,15 @@ function frogJuice() {
         name: 'Frog Juice',
         numericValue: 6,
         isPowerCard: true
+    }
+}
+
+function princeToFrogSpell() {
+    return {
+        name: 'Prince to Frog Spell',
+        numericValue: null,
+        isPowerCard: true,
+        isSpell: true
     }
 }
 

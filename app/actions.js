@@ -6,6 +6,7 @@ const BLACK_CAT = 'BLACK_CAT';
 const CAPTURE = 'CAPTURE';
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
+const PLAY_SPELL = 'PLAY_SPELL';
 const REVEAL = 'REVEAL';
 const WITCH = 'WITCH';
 const WITCH_WASH = 'WITCH_WASH';
@@ -95,6 +96,16 @@ function act(actionType, currentState, options) {
     else if (actionType === DRAW && optionsDefined('player')) {
         const player = newState.players.byId[options.player];
         drawCard(newState, player)
+    }
+    else if (actionType === PLAY_SPELL && optionsDefined(['player', 'card'])) {
+        const card = player.hand[options.card];
+        if (!card || !card.isSpell) {
+            newState.error = `Card specified (${card.name}) is not a spell`;
+            return newState;
+        }
+
+        player.spells.push(card);
+        removeCardFrom(player.hand, options.card);
     }
     else if (actionType === REVEAL && newState.deck.length) {
         revealCard(newState);
@@ -221,6 +232,7 @@ function copyPlayers(currentPlayers) {
         result.byId[id] = Object.assign({}, currentPlayers.byId[id]);
         result.byId[id].hand = currentPlayers.byId[id].hand.slice();
         result.byId[id].captured = currentPlayers.byId[id].captured.slice();
+        result.byId[id].spells = currentPlayers.byId[id].spells.slice();
     });
 
     return result;
@@ -240,6 +252,7 @@ module.exports = {
     CAPTURE,
     DISCARD,
     DRAW,
+    PLAY_SPELL,
     REVEAL,
     WITCH,
     WITCH_WASH,

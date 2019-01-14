@@ -26,12 +26,14 @@ function newGame() {
                 0: {
                     type: 'human',
                     hand: [],
-                    captured: []
+                    captured: [],
+                    spells: []
                 },
                 1: {
                     type: 'robot',
                     hand: [],
-                    captured: []
+                    captured: [],
+                    spells: []
                 }
             }
         }
