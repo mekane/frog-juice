@@ -602,11 +602,129 @@ describe('the play spell action', () => {
 });
 
 describe("taking an ingredient from the table to add to a player's spell", () => {
+    it(`does nothing if no player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, {});
 
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`does nothing if no card name is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0 });
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`does nothing if no spell is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Shrinking Brew' });
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the named card is not on the table`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Bats', spell: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The named card (Bats) is not available to take`);
+    });
+
+    it(`produces an error state if the named card is not in the spell's list of ingredients`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+        originalState.table = [
+            bats()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Bats', spell: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The named card (Bats) is not an ingredient of the spell`);
+    });
+
+    it(`adds the card to the players's list of ingredients`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+        originalState.table = [
+            bats(),
+            prince()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Prince', spell: 0 });
+        const player = nextState.players.byId[0];
+        const ingredientIsNotOnTable = !(nextState.table.find(card => card.name === 'Prince'));
+        const playerHasIngredient = !!(player.ingredients.find(card => card.name === 'Prince'));
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+        expect(ingredientIsNotOnTable, 'Ingredient is gone from table').to.be.true;
+        expect(nextState.table.length).to.equal(1);
+        expect(playerHasIngredient, `Ingredient is in player's list`).to.be.true;
+        expect(player.ingredients.length).to.equal(1);
+    });
+
+    it(`adds the spell and the ingredients to the players's capture pile if the spell is complete`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+        originalState.players.byId[0].ingredients = [
+            toads(),
+            shrinkingBrew(),
+            frogJuice()
+        ];
+        originalState.table = [
+            bats(),
+            prince()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Prince', spell: 0 });
+
+        const player = nextState.players.byId[0];
+        const ingredientIsNotInList = !(player.ingredients.find(card => card.name === 'Prince'));
+        const playerCapturedSpell = !!(player.captured.find(card => card.name === 'Prince to Frog Spell'));
+        const playerCapturedBrew = !!(player.captured.find(card => card.name === 'Shrinking Brew'));
+        const playerCapturedJuice = !!(player.captured.find(card => card.name === 'Frog Juice'));
+        const playerCapturedPrince = !!(player.captured.find(card => card.name === 'Prince'));
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+        expect(ingredientIsNotInList, `Ingredient is gone from player's list`).to.be.true;
+        expect(player.ingredients.length, `Left the non-applicable ingredient alone`).to.equal(1);
+        expect(playerCapturedSpell, `Spell is in player's capture pile`).to.be.true;
+        expect(playerCapturedBrew, `Shrinking Brew is in player's capture pile`).to.be.true;
+        expect(playerCapturedJuice, `Frog Juice is in player's capture pile`).to.be.true;
+        expect(playerCapturedPrince, `Prince is in player's capture pile`).to.be.true;
+        expect(player.captured.length).to.equal(4);
+    });
 });
 
 describe('taking a spell component from another player and adding it to a spell', () => {
+    //does nothing if no player is specified
 
+    //does nothing if no target player is specified
+
+    //does nothing if no card name is specified
+
+    //does nothing if no spell is specified
+
+    //returns an error if the target player doesn't have the named card
+
+    //returns an error if the specified card does not fit into the spell ingredients
+
+    //adds the card to the spell's dictionary of ingredients
+
+    //if that complets the spell, moves the spell and the ingredients to the player's capture pile
 });
 
 
@@ -667,12 +785,21 @@ function frogJuice() {
     }
 }
 
+function prince() {
+    return {
+        name: 'Prince',
+        numericValue: 12,
+        isPowerCard: false
+    }
+}
+
 function princeToFrogSpell() {
     return {
         name: 'Prince to Frog Spell',
         numericValue: null,
         isPowerCard: true,
-        isSpell: true
+        isSpell: true,
+        ingredients: ['Shrinking Brew', 'Prince', 'Frog Juice']
     }
 }
 

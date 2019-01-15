@@ -8,6 +8,7 @@ const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const PLAY_SPELL = 'PLAY_SPELL';
 const REVEAL = 'REVEAL';
+const TAKE_INGREDIENT_FROM_TABLE = 'TAKE_INGREDIENT_FROM_TABLE';
 const WITCH = 'WITCH';
 const WITCH_WASH = 'WITCH_WASH';
 const WITCH_COUNTERED_BY_WASH = 'WITCH_COUNTERED_BY_WASH';
@@ -110,6 +111,32 @@ function act(actionType, currentState, options) {
     else if (actionType === REVEAL && newState.deck.length) {
         revealCard(newState);
     }
+    else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'cardName', 'spell'])) {
+        const cardIndex = newState.table.findIndex(card => card.name === options.cardName);
+        const cardIsOnTable = (cardIndex !== -1);
+        if (!cardIsOnTable) {
+            newState.error = `The named card (${options.cardName}) is not available to take`;
+            return newState;
+        }
+
+        const spell = player.spells[0];
+        if (!spellRequiresIngredient(spell, options.cardName)) {
+            newState.error = `The named card (${options.cardName}) is not an ingredient of the spell`;
+            return newState;
+        }
+
+        const card = newState.table[cardIndex];
+        removeCardFrom(newState.table, cardIndex);
+        player.ingredients.push(card);
+
+        if (spellIsComplete(player, options.spell)) {
+            player.captured.push(spell);
+            removeCardFrom(player.spells, options.spell);
+
+            const captureIngredient = name => captureCardFromIngredients(player, name);
+            spell.ingredients.forEach(captureIngredient);
+        }
+    }
     else if (actionType === WITCH && optionsDefined(['player'])) {
         if (!hasCard(player, 'Witch')) {
             newState.error = `Player ${options.player} does not have a Witch`;
@@ -187,6 +214,30 @@ function hasCard(player, cardName) {
     return !!(player.hand.find(card => card.name === cardName));
 }
 
+function spellRequiresIngredient(spell, ingredientName) {
+    return spell && (spell.ingredients.find(cardName => cardName === ingredientName));
+}
+
+function spellIsComplete(player, spellIndex) {
+    const spell = player.spells[spellIndex];
+    if (!spell)
+        return false;
+
+    return spell.ingredients.every(playerHasIngredient);
+
+    function playerHasIngredient(ingredientName) {
+        return player.ingredients.find(card => card.name === ingredientName);
+    }
+}
+
+function captureCardFromIngredients(player, cardName) {
+    const index = player.ingredients.findIndex(card => card.name === cardName);
+    if (index !== -1) {
+        player.captured.push(player.ingredients[index]);
+        removeCardFrom(player.ingredients, index);
+    }
+}
+
 function captureCardFromHand(player, cardName) {
     const index = player.hand.findIndex(card => card.name === cardName);
     if (index !== -1) {
@@ -233,6 +284,7 @@ function copyPlayers(currentPlayers) {
         result.byId[id].hand = currentPlayers.byId[id].hand.slice();
         result.byId[id].captured = currentPlayers.byId[id].captured.slice();
         result.byId[id].spells = currentPlayers.byId[id].spells.slice();
+        result.byId[id].ingredients = currentPlayers.byId[id].ingredients.slice();
     });
 
     return result;
@@ -254,6 +306,7 @@ module.exports = {
     DRAW,
     PLAY_SPELL,
     REVEAL,
+    TAKE_INGREDIENT_FROM_TABLE,
     WITCH,
     WITCH_WASH,
     WITCH_COUNTERED_BY_WASH
