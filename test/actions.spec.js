@@ -584,23 +584,32 @@ describe('the witch-countered-by-witch-wash action', () => {
             bats(),
             witch()
         ];
+        originalState.players.byId[1].spells = [
+            uglifyingSpell()
+        ];
+        originalState.players.byId[1].ingredients = [
+            toads()
+        ];
         originalState.table = [
             bats(),
             toads()
         ];
-        //TODO: include a spell or two also
 
         const newState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, { player: 0, target: 1 });
         const player = newState.players.byId[0];
         const playerCapturedWitch = !!(player.captured.find(card => card.name === 'Witch'));
         const playerCapturedWitchWash = !!(player.captured.find(card => card.name === 'Witch Wash'))
+        const playerCapturedSpell = !!(player.captured.find(card => card.name === 'Uglifying Spell'))
+        const playerCapturedIngredient = !!(player.captured.find(card => card.name === 'Toads'))
         const target = newState.players.byId[1];
 
         expect(player.hand.length, 'Player has one card left in hand').to.equal(1);
-        expect(player.captured.length, 'Player captured four cards').to.equal(4);
+        expect(player.captured.length, 'Player captured six cards').to.equal(6);
         expect(newState.table.length, 'Table is swept clean').to.equal(0);
         expect(playerCapturedWitch, 'Player captured the witch').to.equal(true);
         expect(playerCapturedWitchWash, 'Player captured the witch wash too').to.equal(true);
+        expect(playerCapturedSpell, 'Player captured the in-progress spell').to.equal(true);
+        expect(playerCapturedIngredient, 'Player captured the in-progress spell ingredient').to.equal(true);
         expect(target.hand.length, 'Target has one card left in hand').to.equal(1);
         expect(target.captured.length, 'Target did not capture any cards').to.equal(0);
     });
