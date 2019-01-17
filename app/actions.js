@@ -207,6 +207,14 @@ function act(actionType, currentState, options) {
     function sweepTheTableIntoPlayersCapturePile() {
         player.captured = player.captured.concat(newState.table);
         newState.table = [];
+
+        const players = Object.keys(newState.players.byId).map(playerId => newState.players.byId[playerId]);
+        players.forEach(target => {
+            player.captured = player.captured.concat(target.spells);
+            target.spells = [];
+            player.captured = player.captured.concat(target.ingredients);
+            target.ingredients = [];
+        });
     }
 }
 

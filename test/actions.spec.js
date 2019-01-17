@@ -426,8 +426,63 @@ describe('the witch action', () => {
         expect(playerCapturedWitch, 'Player captured their witch too').to.equal(true);
     });
 
-    it.skip(`puts all spells in progress and ingredients on those spells into the player's capture pile`, () => {
+    it(`puts all spells in progress and ingredients on those spells into the player's capture pile`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].hand = [
+            witch(),
+            shrinkingBrew()
+        ];
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+        originalState.players.byId[1].spells = [
+            uglifyingSpell()
+        ];
+        originalState.players.byId[0].ingredients = [
+            shrinkingBrew(),
+            frogJuice()
+        ];
+        originalState.players.byId[1].ingredients = [
+            toads(),
+            newts()
+        ];
+        originalState.table = [
+            bats(),
+            prince()
+        ];
 
+        const nextState = actions.act(actions.WITCH, originalState, { player: 0 });
+
+        const player0 = nextState.players.byId[0];
+        const player1 = nextState.players.byId[1];
+        const playerCapturedSpell1 = !!(player0.captured.find(card => card.name === 'Prince to Frog Spell'));
+        const playerCapturedSpell2 = !!(player0.captured.find(card => card.name === 'Uglifying Spell'));
+        const playerCapturedBrew = !!(player0.captured.find(card => card.name === 'Shrinking Brew'));
+        const playerCapturedJuice = !!(player0.captured.find(card => card.name === 'Frog Juice'));
+        const playerCapturedToads = !!(player0.captured.find(card => card.name === 'Toads'));
+        const playerCapturedNewts = !!(player0.captured.find(card => card.name === 'Newts'));
+        const playerCapturedBats = !!(player0.captured.find(card => card.name === 'Bats'));
+        const playerCapturedPrince = !!(player0.captured.find(card => card.name === 'Prince'));
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+
+        expect(nextState.table.length, 'Table is swept clean').to.equal(0);
+        expect(player0.ingredients.length, `All player 0's ingredients are gone`).to.equal(0);
+        expect(player1.ingredients.length, `All player 1's ingredients are gone`).to.equal(0);
+        expect(player0.spells.length, `All player 0's spells are gone`).to.equal(0);
+        expect(player1.spells.length, `All player 1's spells are gone`).to.equal(0);
+
+        expect(player0.captured.length, 'Player captured nine cards').to.equal(9);
+
+        expect(playerCapturedSpell1, `Frog to Prince spell is in player's capture pile`).to.be.true;
+        expect(playerCapturedSpell2, `Uglifying spell is in player's capture pile`).to.be.true;
+        expect(playerCapturedBrew, `Shrinking Brew is in player's capture pile`).to.be.true;
+        expect(playerCapturedJuice, `Frog Juice is in player's capture pile`).to.be.true;
+        expect(playerCapturedToads, `Toads are in player's capture pile`).to.be.true;
+        expect(playerCapturedNewts, `Newts are in player's capture pile`).to.be.true;
+        expect(playerCapturedBats, `Bats are in player's capture pile`).to.be.true;
+        expect(playerCapturedPrince, `Prince is in player's capture pile`).to.be.true;
     });
 });
 
@@ -800,6 +855,16 @@ function princeToFrogSpell() {
         isPowerCard: true,
         isSpell: true,
         ingredients: ['Shrinking Brew', 'Prince', 'Frog Juice']
+    }
+}
+
+function uglifyingSpell() {
+    return {
+        name: 'Uglifying Spell',
+        numericValue: null,
+        isPowerCard: true,
+        isSpell: true,
+        ingredients: ['Toads', 'Newts', 'Mice']
     }
 }
 
