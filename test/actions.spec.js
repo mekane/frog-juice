@@ -774,19 +774,83 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
 });
 
 describe('taking a spell component from another player and adding it to a spell', () => {
-    //does nothing if no player is specified
+    it(`does nothing if no player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, {});
 
-    //does nothing if no target player is specified
+        expect(nextState).to.equal(originalState);
+    });
 
-    //does nothing if no card name is specified
+    it(`does nothing if no target player is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0 });
 
-    //does nothing if no spell is specified
+        expect(nextState).to.equal(originalState);
+    });
 
-    //returns an error if the target player doesn't have the named card
+    it(`does nothing if no card name is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1 });
 
-    //returns an error if the specified card does not fit into the spell ingredients
+        expect(nextState).to.equal(originalState);
+    });
 
-    //adds the card to the spell's dictionary of ingredients
+    it(`does nothing if no spell is specified`, () => {
+        const originalState = app.newGame();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Shrinking Brew' });
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the target player does not have the named card`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Bats', spell: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The player does not have the named card (Bats)`);
+    });
+
+    it(`produces an error state if the named card is not in the spell's list of ingredients`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+        originalState.players.byId[1].hand = [
+            bats()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Bats', spell: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The named card (Bats) is not an ingredient of the spell`);
+    });
+
+    it(`adds the card from the target's hand to the players's list of ingredients`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            princeToFrogSpell()
+        ];
+        originalState.players.byId[1].hand = [
+            prince()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Prince', spell: 0 });
+        const player = nextState.players.byId[0];
+        const target = nextState.players.byId[1];
+        const ingredientIsNotInTargetsHand = !(target.hand.find(card => card.name === 'Prince'));
+        const playerHasIngredient = !!(player.ingredients.find(card => card.name === 'Prince'));
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+        expect(ingredientIsNotInTargetsHand, `Ingredient is gone from target's hand`).to.be.true;
+        expect(target.hand.length).to.equal(0);
+        expect(playerHasIngredient, `Ingredient is in player's list`).to.be.true;
+        expect(player.ingredients.length).to.equal(1);
+    });
 
     //if that complets the spell, moves the spell and the ingredients to the player's capture pile
 });

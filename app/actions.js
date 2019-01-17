@@ -8,6 +8,7 @@ const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const PLAY_SPELL = 'PLAY_SPELL';
 const REVEAL = 'REVEAL';
+const TAKE_INGREDIENT_FROM_PLAYER = 'TAKE_INGREDIENT_FROM_PLAYER';
 const TAKE_INGREDIENT_FROM_TABLE = 'TAKE_INGREDIENT_FROM_TABLE';
 const WITCH = 'WITCH';
 const WITCH_WASH = 'WITCH_WASH';
@@ -110,6 +111,24 @@ function act(actionType, currentState, options) {
     }
     else if (actionType === REVEAL && newState.deck.length) {
         revealCard(newState);
+    }
+    else if (actionType === TAKE_INGREDIENT_FROM_PLAYER && optionsDefined(['player', 'target', 'cardName', 'spell'])) {
+        const targetPlayer = newState.players.byId[options.target];
+        if (!hasCard(targetPlayer, options.cardName)) {
+            newState.error = `The player does not have the named card (${options.cardName})`;
+            return newState;
+        }
+
+        const spell = player.spells[0];
+        if (!spellRequiresIngredient(spell, options.cardName)) {
+            newState.error = `The named card (${options.cardName}) is not an ingredient of the spell`;
+            return newState;
+        }
+
+        const cardIndex = targetPlayer.hand.findIndex(card => card.name === options.cardName);
+        const card = targetPlayer.hand[cardIndex];
+        removeCardFrom(targetPlayer.hand, cardIndex);
+        player.ingredients.push(card);
     }
     else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'cardName', 'spell'])) {
         const cardIndex = newState.table.findIndex(card => card.name === options.cardName);
@@ -314,6 +333,7 @@ module.exports = {
     DRAW,
     PLAY_SPELL,
     REVEAL,
+    TAKE_INGREDIENT_FROM_PLAYER,
     TAKE_INGREDIENT_FROM_TABLE,
     WITCH,
     WITCH_WASH,
