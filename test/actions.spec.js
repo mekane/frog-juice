@@ -852,7 +852,45 @@ describe('taking a spell component from another player and adding it to a spell'
         expect(player.ingredients.length).to.equal(1);
     });
 
-    //if that complets the spell, moves the spell and the ingredients to the player's capture pile
+    it(`adds the spell and the ingredients to the players's capture pile if the spell is complete`, () => {
+        const originalState = app.newGame();
+        originalState.players.byId[0].spells = [
+            uglifyingSpell()
+        ];
+        originalState.players.byId[0].ingredients = [
+            toads(),
+            shrinkingBrew(),
+            newts()
+        ];
+        originalState.players.byId[1].hand = [
+            prince(),
+            mice()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Mice', spell: 0 });
+        const player = nextState.players.byId[0];
+        const target = nextState.players.byId[1];
+
+        const ingredientIsNotInList = !(player.ingredients.find(card => card.name === 'Mice'));
+        const playerCapturedSpell = !!(player.captured.find(card => card.name === 'Uglifying Spell'));
+        const playerCapturedToads = !!(player.captured.find(card => card.name === 'Toads'));
+        const playerCapturedNewts = !!(player.captured.find(card => card.name === 'Newts'));
+        const playerCapturedMice = !!(player.captured.find(card => card.name === 'Mice'));
+        const ingredientIsGoneFromTargetsHand = !(target.hand.find(card => card.name === 'Mice'));
+        const targetStillHasPrinceInHand = !(target.hand.find(card => card.name === 'Price'));
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+        expect(ingredientIsNotInList, `Ingredient is gone from player's list`).to.be.true;
+        expect(player.ingredients.length, `Left the non-applicable ingredient alone`).to.equal(1);
+        expect(playerCapturedSpell, `Spell is in player's capture pile`).to.be.true;
+        expect(playerCapturedToads, `Ingredient Toads is in player's capture pile`).to.be.true;
+        expect(playerCapturedNewts, `Ingredient Newts is in player's capture pile`).to.be.true;
+        expect(playerCapturedMice, `Ingredient Mice is in player's capture pile`).to.be.true;
+        expect(player.captured.length, `Player captured spell plus three ingredients`).to.equal(4);
+        expect(ingredientIsGoneFromTargetsHand, `Ingredient is gone from target's hand`).to.be.true;
+        expect(targetStillHasPrinceInHand, `Other card in target's hand was left alone`).to.be.true;
+    });
 });
 
 
