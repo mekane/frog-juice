@@ -131,11 +131,7 @@ function act(actionType, currentState, options) {
         player.ingredients.push(card);
 
         if (spellIsComplete(player, options.spell)) {
-            player.captured.push(spell);
-            removeCardFrom(player.spells, options.spell);
-
-            const captureIngredient = name => captureCardFromIngredients(player, name);
-            spell.ingredients.forEach(captureIngredient);
+            captureSpellAndIngredients(player, options.spell);
         }
     }
     else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'cardName', 'spell'])) {
@@ -157,11 +153,7 @@ function act(actionType, currentState, options) {
         player.ingredients.push(card);
 
         if (spellIsComplete(player, options.spell)) {
-            player.captured.push(spell);
-            removeCardFrom(player.spells, options.spell);
-
-            const captureIngredient = name => captureCardFromIngredients(player, name);
-            spell.ingredients.forEach(captureIngredient);
+            captureSpellAndIngredients(player, options.spell);
         }
     }
     else if (actionType === WITCH && optionsDefined(['player'])) {
@@ -263,6 +255,16 @@ function spellIsComplete(player, spellIndex) {
     function playerHasIngredient(ingredientName) {
         return player.ingredients.find(card => card.name === ingredientName);
     }
+}
+
+function captureSpellAndIngredients(player, spellIndex) {
+    const spell = player.spells[spellIndex];
+
+    player.captured.push(spell);
+    removeCardFrom(player.spells, spellIndex);
+
+    const captureIngredient = name => captureCardFromIngredients(player, name);
+    spell.ingredients.forEach(captureIngredient);
 }
 
 function captureCardFromIngredients(player, cardName) {
