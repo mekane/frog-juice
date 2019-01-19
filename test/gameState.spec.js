@@ -1,9 +1,9 @@
 const expect = require('chai').expect;
-const app = require('../app/gameState.js');
+const gameState = require('../app/gameState.js');
 
-describe('The app module', () => {
-    it('should export a newGame module', () => {
-        const game = app.newGame();
+describe('The gameState module', () => {
+    it('should export an initialState function', () => {
+        const game = gameState.initialState();
 
         expect(game.deck).to.be.an('array').and.to.have.length(3);
         expect(game.table).to.be.an('array').and.to.have.length(0);

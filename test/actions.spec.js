@@ -1,16 +1,16 @@
 const expect = require('chai').expect;
-const app = require('../app/gameState.js');
+const gameState = require('../app/gameState.js');
 const actions = require('../app/actions.js');
 
 describe('The action function', () => {
     it('takes an action string, the current game state, and optional data and returns a new state', () => {
-        const state = app.newGame();
+        const state = gameState.initialState();
         const newState = actions.act(actions.REVEAL, state, {});
         expect(state).to.not.equal(newState);
     });
 
     it('returns the original state on unknown action types', () => {
-        const state = app.newGame();
+        const state = gameState.initialState();
         const newState = actions.act('BOGUS', state, {});
         expect(state).to.equal(newState);
     });
@@ -18,7 +18,7 @@ describe('The action function', () => {
 
 describe('the draw action', () => {
     it('does nothing if no player is specified', () => {
-        const state = app.newGame();
+        const state = gameState.initialState();
         const originalDeckSize = state.deck.length;
 
         const newState = actions.act(actions.DRAW, state, {});
@@ -30,7 +30,7 @@ describe('the draw action', () => {
     });
 
     it("moves a random card from the deck array to the specified player's hand", () => {
-        const state = app.newGame();
+        const state = gameState.initialState();
         const originalDeckSize = state.deck.length;
 
         const newState = actions.act(actions.DRAW, state, { player: 0 });
@@ -45,7 +45,7 @@ describe('the draw action', () => {
 
 describe('the reveal action', () => {
     it(`does nothing if the deck is empty`, () => {
-        const state = app.newGame();
+        const state = gameState.initialState();
         state.deck = [];
 
         const newState = actions.act(actions.REVEAL, state);
@@ -54,7 +54,7 @@ describe('the reveal action', () => {
     });
 
     it("draws a card from the deck and adds it to the table row", () => {
-        const state = app.newGame();
+        const state = gameState.initialState();
         const originalDeckSize = state.deck.length;
 
         const newState = actions.act(actions.REVEAL, state);
@@ -68,21 +68,21 @@ describe('the reveal action', () => {
 
 describe('the discard action', () => {
     it('does nothing if no player is specified', () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.DISCARD, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it('does nothing if a player is specified but no card is specified', () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.DISCARD, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if a player and card are specified but there are not enough cards in the hand`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
 
         const nextState = actions.act(actions.DISCARD, originalState, { player: 0, card: 1 });
 
@@ -90,7 +90,7 @@ describe('the discard action', () => {
     });
 
     it("moves the card at the specified index from the player's hand to the table", () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const stateAfterPlayerDrawsOne = actions.act(actions.DRAW, originalState, { player: 0 });
 
         const nextState = actions.act(actions.DISCARD, stateAfterPlayerDrawsOne, { player: 0, card: 0 });
@@ -104,14 +104,14 @@ describe('the discard action', () => {
 
 describe('the capture action', () => {
     it('does nothing if no player is specified', () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.CAPTURE, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it('does nothing if a player is specified but no card(s) are specified', () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
 
         const nextState = actions.act(actions.CAPTURE, originalState, { player: 0 });
         expect(nextState).to.equal(originalState);
@@ -121,7 +121,7 @@ describe('the capture action', () => {
     });
 
     it('does nothing if a player and hand cards are specified but no table card(s) are specified', () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
 
         const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [1] });
         expect(nextState).to.equal(originalState);
@@ -131,7 +131,7 @@ describe('the capture action', () => {
     });
 
     it('does nothing if a player and table cards are specified but no hand card(s) are specified', () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
 
         const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, tableCards: [1] });
         expect(nextState).to.equal(originalState);
@@ -141,7 +141,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if you try to specify multiple cards for both player and table cards`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0, 1], tableCards: [0, 1] });
 
         expect(nextState).to.not.equal(originalState);
@@ -149,7 +149,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if you try to use more than three hand cards to capture`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0, 1, 2, 3], tableCards: [0] });
 
         expect(nextState).to.not.equal(originalState);
@@ -157,7 +157,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if you try to capture more than three cards`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0, 1, 2, 3] });
 
         expect(nextState).to.not.equal(originalState);
@@ -165,7 +165,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if you try to capture a non-numeric card from the table`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             shrinkingBrew()
         ];
@@ -180,7 +180,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if you try to capture a non-numeric card from your hand`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             witch()
         ];
@@ -195,7 +195,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if you try to use one-and-one of different values`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             shrinkingBrew()
         ];
@@ -210,7 +210,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if the player card doesn't add up to the value of the table cards`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             shrinkingBrew()
         ];
@@ -226,7 +226,7 @@ describe('the capture action', () => {
     });
 
     it(`produces an error state if the player cards don't add up to the value of the table card`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             shrinkingBrew(),
             bats()
@@ -242,7 +242,7 @@ describe('the capture action', () => {
     });
 
     it(`takes a player, a card from their hand, and a card from the table and puts them in the capture pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             bats()
         ];
@@ -259,7 +259,7 @@ describe('the capture action', () => {
     });
 
     it(`takes a player, multiple cards from their hand, and a card from the table and puts them in the capture pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             bats(),
             bats()
@@ -277,7 +277,7 @@ describe('the capture action', () => {
     });
 
     it(`takes a player, a card from their hand, and multiple cards from the table and puts them in the capture pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             frogJuice()
         ];
@@ -295,7 +295,7 @@ describe('the capture action', () => {
     });
 
     it(`preserves other data when capturing`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             shrinkingBrew(),
             frogJuice()
@@ -323,21 +323,21 @@ describe('the capture action', () => {
 
 describe('the black cat action', () => {
     it(`does nothing if no player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.BLACK_CAT, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if no target is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.BLACK_CAT, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the specified player doesn't have the Black Cat card in hand`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.BLACK_CAT, originalState, { player: 0, target: 1 });
 
         expect(nextState).to.not.equal(originalState);
@@ -345,7 +345,7 @@ describe('the black cat action', () => {
     });
 
     it(`produces an error state if the target player has no power cards in their capture pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             blackCat()
         ];
@@ -357,7 +357,7 @@ describe('the black cat action', () => {
     });
 
     it(`transfers a power card from the target player's capture pile to the player's pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             blackCat()
         ];
@@ -391,14 +391,14 @@ describe('the black cat action', () => {
 
 describe('the witch action', () => {
     it(`does nothing if no player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.WITCH, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the player does not have a Witch card in hand`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.WITCH, originalState, { player: 0 });
 
         expect(nextState).to.not.equal(originalState);
@@ -406,7 +406,7 @@ describe('the witch action', () => {
     });
 
     it(`puts all cards from the table and the witch into the player's capture pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             witch(),
             shrinkingBrew()
@@ -427,7 +427,7 @@ describe('the witch action', () => {
     });
 
     it(`puts all spells in progress and ingredients on those spells into the player's capture pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             witch(),
             shrinkingBrew()
@@ -488,14 +488,14 @@ describe('the witch action', () => {
 
 describe('the witch wash action (as action on turn)', () => {
     it(`does nothing if no player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.WITCH_WASH, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the player does not have the Witch Wash card in hand`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.WITCH_WASH, originalState, { player: 0 });
 
         expect(nextState).to.not.equal(originalState);
@@ -503,7 +503,7 @@ describe('the witch wash action (as action on turn)', () => {
     });
 
     it(`produces an error state if there is not a Witch card on the table`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             witchWash()
         ];
@@ -514,7 +514,7 @@ describe('the witch wash action (as action on turn)', () => {
     });
 
     it(`puts a Witch from the table into the player's capture pile`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             witchWash(),
             shrinkingBrew()
@@ -541,21 +541,21 @@ describe('the witch wash action (as action on turn)', () => {
 
 describe('the witch-countered-by-witch-wash action', () => {
     it(`does nothing if no player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if no target is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the player does not have the Witch Wash card in hand`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.WITCH_COUNTERED_BY_WASH, originalState, { player: 0, target: 1 });
 
         expect(nextState).to.not.equal(originalState);
@@ -563,7 +563,7 @@ describe('the witch-countered-by-witch-wash action', () => {
     });
 
     it(`produces an error state if the target does not have a Witch card in hand`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             witchWash()
         ];
@@ -575,7 +575,7 @@ describe('the witch-countered-by-witch-wash action', () => {
     });
 
     it(`puts all cards from the table, the witch, and the witch wash into the player's capture pile instead of the targets`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             witchWash(),
             shrinkingBrew()
@@ -617,21 +617,21 @@ describe('the witch-countered-by-witch-wash action', () => {
 
 describe('the play spell action', () => {
     it(`does nothing if no player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.PLAY_SPELL, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it('does nothing if no card is specified', () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.PLAY_SPELL, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the specified card is not a spell`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             bats()
         ];
@@ -642,7 +642,7 @@ describe('the play spell action', () => {
     });
 
     it(`adds the spell to the player's "in progress" list`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].hand = [
             bats(),
             princeToFrogSpell()
@@ -667,28 +667,28 @@ describe('the play spell action', () => {
 
 describe("taking an ingredient from the table to add to a player's spell", () => {
     it(`does nothing if no player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if no card name is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if no spell is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Shrinking Brew' });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the named card is not on the table`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             princeToFrogSpell()
         ];
@@ -700,7 +700,7 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
     });
 
     it(`produces an error state if the named card is not in the spell's list of ingredients`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             princeToFrogSpell()
         ];
@@ -715,7 +715,7 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
     });
 
     it(`adds the card to the players's list of ingredients`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             princeToFrogSpell()
         ];
@@ -738,7 +738,7 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
     });
 
     it(`adds the spell and the ingredients to the players's capture pile if the spell is complete`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             princeToFrogSpell()
         ];
@@ -775,35 +775,35 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
 
 describe('taking a spell component from another player and adding it to a spell', () => {
     it(`does nothing if no player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if no target player is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if no card name is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1 });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`does nothing if no spell is specified`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Shrinking Brew' });
 
         expect(nextState).to.equal(originalState);
     });
 
     it(`produces an error state if the target player does not have the named card`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             princeToFrogSpell()
         ];
@@ -815,7 +815,7 @@ describe('taking a spell component from another player and adding it to a spell'
     });
 
     it(`produces an error state if the named card is not in the spell's list of ingredients`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             princeToFrogSpell()
         ];
@@ -830,7 +830,7 @@ describe('taking a spell component from another player and adding it to a spell'
     });
 
     it(`adds the card from the target's hand to the players's list of ingredients`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             princeToFrogSpell()
         ];
@@ -853,7 +853,7 @@ describe('taking a spell component from another player and adding it to a spell'
     });
 
     it(`adds the spell and the ingredients to the players's capture pile if the spell is complete`, () => {
-        const originalState = app.newGame();
+        const originalState = gameState.initialState();
         originalState.players.byId[0].spells = [
             uglifyingSpell()
         ];

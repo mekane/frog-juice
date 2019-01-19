@@ -17,7 +17,7 @@ function getNewDeck() {
     ];
 }
 
-function newGame() {
+function initialState() {
     return {
         deck: getNewDeck(),
         table: [],
@@ -44,5 +44,5 @@ function newGame() {
 
 
 module.exports = {
-    newGame
+    initialState
 };
