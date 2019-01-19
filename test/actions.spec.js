@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const app = require('../app/app.js');
+const app = require('../app/gameState.js');
 const actions = require('../app/actions.js');
 
 describe('The action function', () => {
