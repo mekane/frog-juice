@@ -2,6 +2,19 @@ const expect = require('chai').expect;
 const gameState = require('../app/gameState.js');
 const actions = require('../app/actions.js');
 
+const bats = gameState.bats;
+const blackCat = gameState.blackCat;
+const frogJuice = gameState.frogJuice;
+const mice = gameState.mice;
+const newts = gameState.newts;
+const prince = gameState.prince;
+const princeToFrogSpell = gameState.princeToFrogSpell;
+const shrinkingBrew = gameState.shrinkingBrew;
+const toads = gameState.toads;
+const uglifyingSpell = gameState.uglifyingSpell;
+const witch = gameState.witch;
+const witchWash = gameState.witchWash;
+
 describe('The action function', () => {
     it('takes an action string, the current game state, and optional data and returns a new state', () => {
         const state = gameState.initialState();
@@ -895,102 +908,3 @@ describe('taking a spell component from another player and adding it to a spell'
 
 
 /* Utility functions to generate test data */
-function shrinkingBrew() {
-    return {
-        name: 'Shrinking Brew',
-        numericValue: 1,
-        isPowerCard: false
-    }
-}
-
-function bats() {
-    return {
-        name: 'Bats',
-        numericValue: 2,
-        isPowerCard: false
-    }
-}
-
-function toads() {
-    return {
-        name: 'Toads',
-        numericValue: 3,
-        isPowerCard: false
-    }
-}
-
-function blackCat() {
-    return {
-        name: 'Black Cat',
-        numericValue: null,
-        powerCard: true
-    }
-}
-
-function newts() {
-    return {
-        name: 'Newts',
-        numericValue: 4,
-        isPowerCard: false
-    }
-}
-
-function mice() {
-    return {
-        name: 'Mice',
-        numericValue: 5,
-        isPowerCard: false
-    }
-}
-
-function frogJuice() {
-    return {
-        name: 'Frog Juice',
-        numericValue: 6,
-        isPowerCard: true
-    }
-}
-
-function prince() {
-    return {
-        name: 'Prince',
-        numericValue: 12,
-        isPowerCard: false
-    }
-}
-
-function princeToFrogSpell() {
-    return {
-        name: 'Prince to Frog Spell',
-        numericValue: null,
-        isPowerCard: true,
-        isSpell: true,
-        ingredients: ['Shrinking Brew', 'Prince', 'Frog Juice']
-    }
-}
-
-function uglifyingSpell() {
-    return {
-        name: 'Uglifying Spell',
-        numericValue: null,
-        isPowerCard: true,
-        isSpell: true,
-        ingredients: ['Toads', 'Newts', 'Mice']
-    }
-}
-
-function witch() {
-    return {
-        name: 'Witch',
-        numericValue: null,
-        powerCard: true
-    }
-}
-
-function witchWash() {
-    return {
-        name: 'Witch Wash',
-        numericValue: null,
-        powerCard: true
-    }
-}

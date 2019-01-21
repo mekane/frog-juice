@@ -5,7 +5,7 @@ describe('The gameState module', () => {
     it('should export an initialState function', () => {
         const game = gameState.initialState();
 
-        expect(game.deck).to.be.an('array').and.to.have.length(12);
+        expect(game.deck).to.be.an('array').and.to.have.length(59);
         expect(game.table).to.be.an('array').and.to.have.length(0);
         expect(game.players).to.be.an('object');
         expect(game.players.byId).to.be.an('object');
