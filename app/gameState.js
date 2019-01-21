@@ -1,8 +1,18 @@
 function getNewDeck() {
     return [{
-            name: 'Witch',
-            numericValue: null,
-            isPowerCard: true
+            name: 'Shrinking Brew',
+            numericValue: 1,
+            isPowerCard: false
+        },
+        {
+            name: 'Shrinking Brew',
+            numericValue: 1,
+            isPowerCard: false
+        },
+        {
+            name: 'Shrinking Brew',
+            numericValue: 1,
+            isPowerCard: false
         },
         {
             name: 'Shrinking Brew',
@@ -13,6 +23,41 @@ function getNewDeck() {
             name: 'Bats',
             numericValue: 2,
             isPowerCard: false
+        },
+        {
+            name: 'Bats',
+            numericValue: 2,
+            isPowerCard: false
+        },
+        {
+            name: 'Bats',
+            numericValue: 2,
+            isPowerCard: false
+        },
+        {
+            name: 'Bats',
+            numericValue: 2,
+            isPowerCard: false
+        },
+        {
+            name: 'Witch',
+            numericValue: null,
+            isPowerCard: true
+        },
+        {
+            name: 'Witch',
+            numericValue: null,
+            isPowerCard: true
+        },
+        {
+            name: 'Witch',
+            numericValue: null,
+            isPowerCard: true
+        },
+        {
+            name: 'Witch',
+            numericValue: null,
+            isPowerCard: true
         }
     ];
 }
