@@ -24,5 +24,6 @@ describe('The gameState module', () => {
         expect(gameState.DISCARD).to.be.a('string');
         expect(gameState.DRAW).to.be.a('string');
         expect(gameState.PLAY).to.be.a('string');
+        expect(gameState.SETUP).to.be.a('string');
     });
 });

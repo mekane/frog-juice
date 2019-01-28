@@ -50,6 +50,9 @@ function act(actionType, currentState, options) {
         const firstPowerCardIndex = target.captured.findIndex(card => card.isPowerCard);
         player.captured.push(target.captured[firstPowerCardIndex]);
         removeCardFrom(target.captured, firstPowerCardIndex);
+
+        //TODO: this is a hack
+        newState.currentState = 'DISCARD';
     }
     else if (actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
         const playerCardIds = options['cards'];

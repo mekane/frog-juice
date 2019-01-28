@@ -69,6 +69,7 @@ describe('the main module', () => {
 });
 
 /**
+ * [__-Setup] --REVEAL-> [__-Setup] --REVEAL(x3)->[P0-Draw]
  * [P0-Draw] --DRAW-> [P0-Play] --ACTION-> [P0-Discard] --DISCARD-> Next Player
  * [P1-Draw] --DRAW-> [P1-Play] --ACTION-> [p1-Discard] --DISCARD-> Next Player
  *
@@ -80,6 +81,12 @@ describe('the main module', () => {
  *
  */
 describe('The Game State finite state machine', () => {
+    it('Initially starts in the SETUP state', () => {
+        const initialState = gameState.initialState();
+        expect(initialState.currentPlayer).to.equal(null);
+        expect(initialState.currentState).to.equal(gameState.SETUP);
+    });
+
     /* Not starting at [P0-Draw] because it automatically transitions to Play
        because Player 0 starts with four cards
      */
@@ -90,17 +97,17 @@ describe('The Game State finite state machine', () => {
         expect(game.currentState).to.equal(gameState.PLAY);
     });
 
-    it('Transitions to Player 0 Discarding after an action', () => {
+    it('Transitions to Player 0 Discarding after they play a card', () => {
         main.newGame();
         const originalState = main.currentState();
         originalState.players.byId[0].hand[0] = gameState.blackCat();
         originalState.players.byId[1].captured.push(gameState.frogJuice());
-        console.log(originalState.players.byId[1]);
         const nextState = action.act(action.BLACK_CAT, originalState, { player: 0, target: 1 });
 
-        console.log(nextState);
+        expect(nextState.currentPlayer).to.equal(0);
+        expect(nextState.currentState).to.equal(gameState.DISCARD);
+
         //TODO: add a PASS action
-        //TODO: write a test that sets up a realistic situation to play (e.g. Black Cat)
     });
 });
 
@@ -110,6 +117,7 @@ function actionSpy() {
     return {
         act: function(actionName, state, options) {
             actionHistory.push(actionName);
+            return {};
         },
         actionsPerformed: function() {
             return actionHistory;

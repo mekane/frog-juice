@@ -1,6 +1,7 @@
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const PLAY = 'PLAY';
+const SETUP = 'SETUP';
 
 function getNewDeck() {
     return [
@@ -88,8 +89,8 @@ function initialState() {
                 }
             }
         },
-        currentPlayer: 0,
-        currentState: 'PLAY'
+        currentPlayer: null,
+        currentState: 'SETUP'
     };
 }
 
@@ -278,6 +279,7 @@ module.exports = {
     DISCARD,
     DRAW,
     PLAY,
+    SETUP,
     antigravitySpell,
     bats,
     blackCat,

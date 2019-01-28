@@ -27,6 +27,10 @@ function newGame() {
     next = action(actionsModule.REVEAL, next);
 
     currentGameState = next;
+
+    //hack
+    currentGameState.currentPlayer = 0;
+    currentGameState.currentState = gameState.PLAY;
 }
 
 function overrideActionHandler(newActionHandler) {
