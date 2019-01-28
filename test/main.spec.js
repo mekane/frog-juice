@@ -10,10 +10,15 @@ describe('the main module', () => {
     it(`exports an object that keeps track of the current game state`, () => {
         expect(main).to.be.an('object');
         expect(main.currentState).to.be.a('function');
+        expect(main.currentPlayer).to.be.a('function');
+        expect(main.currentPhase).to.be.a('function');
+        expect(main.playerTurn).to.be.a('function');
     });
 
     it(`begins with an initial state`, () => {
         expect(main.currentState()).to.deep.equal(gameState.initialState());
+        expect(main.currentPlayer()).to.equal(null);
+        expect(main.currentPhase()).to.equal(gameState.SETUP);
     });
 
     it(`uses the built-in action handler, but can take an alternate one`, () => {
@@ -62,14 +67,13 @@ describe('the main module', () => {
 
     it(`keeps track of whose turn it is`, () => {
         main.newGame();
-        const newGameState = main.currentState();
-        expect(newGameState.currentPlayer).to.be.a('number');
-        expect(newGameState.currentState).to.be.a('string');
+
+        expect(main.currentPlayer()).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.PLAY);
     });
 });
 
 /**
- * [__-Setup] --REVEAL-> [__-Setup] --REVEAL(x3)->[P0-Draw]
  * [P0-Draw] --DRAW-> [P0-Play] --ACTION-> [P0-Discard] --DISCARD-> Next Player
  * [P1-Draw] --DRAW-> [P1-Play] --ACTION-> [p1-Discard] --DISCARD-> Next Player
  *
@@ -81,31 +85,28 @@ describe('the main module', () => {
  *
  */
 describe('The Game State finite state machine', () => {
-    it('Initially starts in the SETUP state', () => {
-        const initialState = gameState.initialState();
-        expect(initialState.currentPlayer).to.equal(null);
-        expect(initialState.currentState).to.equal(gameState.SETUP);
-    });
-
     /* Not starting at [P0-Draw] because it automatically transitions to Play
        because Player 0 starts with four cards
      */
-    it('Should start at Player 0 Playing', () => {
+    it('Transitions to Player 0 Playing after setup', () => {
         main.newGame();
-        const game = main.currentState();
-        expect(game.currentPlayer).to.equal(0);
-        expect(game.currentState).to.equal(gameState.PLAY);
+
+        expect(main.currentPlayer()).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.PLAY);
     });
 
     it('Transitions to Player 0 Discarding after they play a card', () => {
         main.newGame();
-        const originalState = main.currentState();
-        originalState.players.byId[0].hand[0] = gameState.blackCat();
-        originalState.players.byId[1].captured.push(gameState.frogJuice());
-        const nextState = action.act(action.BLACK_CAT, originalState, { player: 0, target: 1 });
+        const state = main.currentState();
+        state.players.byId[0].hand[0] = gameState.blackCat();
+        state.players.byId[1].captured.push(gameState.frogJuice());
 
-        expect(nextState.currentPlayer).to.equal(0);
-        expect(nextState.currentState).to.equal(gameState.DISCARD);
+        main.playerTurn(action.BLACK_CAT, { target: 1 });
+
+        const nextState = main.currentState();
+
+        expect(main.currentPlayer()).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.DISCARD);
 
         //TODO: add a PASS action
     });

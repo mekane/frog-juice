@@ -20,9 +20,7 @@ function act(actionType, currentState, options) {
     const newState = {
         deck: currentState.deck.slice(),
         table: currentState.table.slice(),
-        players: copyPlayers(currentState.players),
-        currentPlayer: currentState.currentPlayer,
-        currentState: currentState.currentState
+        players: copyPlayers(currentState.players)
     };
 
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
@@ -50,9 +48,6 @@ function act(actionType, currentState, options) {
         const firstPowerCardIndex = target.captured.findIndex(card => card.isPowerCard);
         player.captured.push(target.captured[firstPowerCardIndex]);
         removeCardFrom(target.captured, firstPowerCardIndex);
-
-        //TODO: this is a hack
-        newState.currentState = 'DISCARD';
     }
     else if (actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
         const playerCardIds = options['cards'];

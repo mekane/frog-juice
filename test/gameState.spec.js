@@ -19,7 +19,6 @@ describe('The gameState module', () => {
         expect(player0.ingredients, 'No initial ingredients').to.be.an('array').and.to.have.length(0);
     });
 
-
     it('should export game state constants to represent the phase of players turns', () => {
         expect(gameState.DISCARD).to.be.a('string');
         expect(gameState.DRAW).to.be.a('string');
