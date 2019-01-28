@@ -107,11 +107,20 @@ describe('The Game State finite state machine', () => {
         expect(main.currentPhase()).to.equal(gameState.PLAY);
     });
 
+    it.skip('Does not transition if there was a no-op due to invalid game state', () => {
+        //TODO: look at actions.spec for situations where the action "Does Nothing"
+    });
+
+    it.skip('Does not transition if there was an error during the action', () => {
+        //TODO: look at actions.spec for situations where the action produces an Error
+    });
 
     it('Transitions to Player 0 Discarding after they play a card', () => {
         main.reset();
 
         testPlayingBlackCat();
+        testCapture();
+        //testPlayingSpell();
         testPlayingWitch();
         testPlayingWitchWash();
 
@@ -126,7 +135,18 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPlayer()).to.equal(0);
             expect(main.currentPhase()).to.equal(gameState.DISCARD);
         }
-        //TODO: test other play types [CAPTURE, Spell, Witch, Witch Wash]
+
+        function testCapture() {
+            main.newGame();
+            const state = main.currentState();
+            //TODO: add real hand and table setup for a valid capture
+            //state.players.byId[0].hand[0] = gameState.blackCat();
+
+            main.playerTurn(playerAction.CAPTURE);
+
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        }
 
         function testPlayingWitch() {
             main.newGame();
@@ -158,6 +178,21 @@ describe('The Game State finite state machine', () => {
         expect(main.currentPlayer()).to.equal(0);
         expect(main.currentPhase()).to.equal(gameState.DISCARD);
     });
+
+    it('Transitions from Player 0 Discarding to Player 1 Drawing after player 1 discards', () => {
+        main.reset();
+        main.newGame();
+        playFirstPlayersTurn();
+
+        main.playerDiscard(0);
+
+        expect(main.currentPlayer()).to.equal(1);
+        expect(main.currentPhase()).to.equal(gameState.DRAW);
+    });
+
+    //TODO: test that it doesn't transition if the discarded index is invalid (no-op)
+
+    //TODO: need a test to ensure that it doesn't increment the current player, but "wraps" back to first when hitting max
 });
 
 function actionSpy() {
@@ -172,4 +207,12 @@ function actionSpy() {
             return actionHistory;
         }
     };
+}
+
+function playFirstPlayersTurn() {
+    main.reset();
+    main.newGame();
+    const state = main.currentState();
+    state.players.byId[0].hand[0] = gameState.witch();
+    main.playerTurn(playerAction.PLAY_WITCH);
 }

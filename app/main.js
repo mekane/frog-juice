@@ -55,6 +55,11 @@ function overrideActionHandler(newActionHandler) {
     action = newActionHandler;
 }
 
+function playerDiscard(cardIndex) {
+    _currentPlayer++;
+    _currentPhase = 'DRAW';
+}
+
 function playerTurn(actionType, options) {
     if (possibleActions.includes(actionType)) {
         const actionOptions = Object.assign({ player: _currentPlayer }, options);
@@ -78,6 +83,7 @@ module.exports = {
     newGame,
     overrideActionHandler,
     playerAction,
+    playerDiscard,
     playerTurn,
     reset
 };
