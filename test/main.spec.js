@@ -91,9 +91,14 @@ describe('The Game State finite state machine', () => {
     });
 
     it('Transitions to Player 0 Discarding after an action', () => {
-        const originalState = main.newGame();
-        //const nextState = action.act(action.PASS);
+        main.newGame();
+        const originalState = main.currentState();
+        originalState.players.byId[0].hand[0] = gameState.blackCat();
+        originalState.players.byId[1].captured.push(gameState.frogJuice());
+        console.log(originalState.players.byId[1]);
+        const nextState = action.act(action.BLACK_CAT, originalState, { player: 0, target: 1 });
 
+        console.log(nextState);
         //TODO: add a PASS action
         //TODO: write a test that sets up a realistic situation to play (e.g. Black Cat)
     });

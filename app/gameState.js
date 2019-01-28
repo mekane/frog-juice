@@ -115,7 +115,7 @@ function blackCat() {
     return {
         name: 'Black Cat',
         numericValue: null,
-        powerCard: true
+        isPowerCard: true
     }
 }
 
@@ -259,7 +259,7 @@ function witch() {
     return {
         name: 'Witch',
         numericValue: null,
-        powerCard: true
+        isPowerCard: true
     }
 }
 
@@ -267,7 +267,7 @@ function witchWash() {
     return {
         name: 'Witch Wash',
         numericValue: null,
-        powerCard: true
+        isPowerCard: true
     }
 }
 

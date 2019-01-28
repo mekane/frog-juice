@@ -39,7 +39,7 @@ function act(actionType, currentState, options) {
             //TODO: check that target is a valid player (no-op because we can check in the if conditions?)
         }
 
-        const targetHasAnyPowerCards = target.captured.find(card => card.powerCard);
+        const targetHasAnyPowerCards = target.captured.find(card => card.isPowerCard);
         if (!targetHasAnyPowerCards) {
             newState.error = `Player ${options.target} does not have any power cards in their capture pile`;
             return newState;
@@ -47,7 +47,7 @@ function act(actionType, currentState, options) {
 
         captureCardFromHand(player, 'Black Cat');
 
-        const firstPowerCardIndex = target.captured.findIndex(card => card.powerCard);
+        const firstPowerCardIndex = target.captured.findIndex(card => card.isPowerCard);
         player.captured.push(target.captured[firstPowerCardIndex]);
         removeCardFrom(target.captured, firstPowerCardIndex);
     }

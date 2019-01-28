@@ -386,9 +386,9 @@ describe('the black cat action', () => {
 
         const player = nextState.players.byId[0];
         const playerCapturedBlackCat = !!(player.captured.find(card => card.name === 'Black Cat'));
-        const numberOfCapturedPowerCards = player.captured.filter(card => !!card.powerCard).length;
+        const numberOfCapturedPowerCards = player.captured.filter(card => card.isPowerCard).length;
         const target = nextState.players.byId[1];
-        const targetCapturedPowerCards = target.captured.filter(card => !!card.powerCard).length;
+        const targetCapturedPowerCards = target.captured.filter(card => card.isPowerCard).length;
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.be.an('undefined');
