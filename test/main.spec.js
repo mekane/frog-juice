@@ -1,10 +1,8 @@
 const expect = require('chai').expect;
-const action = require('../app/actions.js');
 const gameState = require('../app/gameState.js');
 const main = require('../app/main.js');
 
-const Reveal = action.REVEAL;
-const Draw = action.DRAW;
+const playerAction = main.playerAction;
 
 describe('the main module', () => {
     it(`exports an object that keeps track of the current game state`, () => {
@@ -16,6 +14,7 @@ describe('the main module', () => {
     });
 
     it(`begins with an initial state`, () => {
+        main.reset();
         expect(main.currentState()).to.deep.equal(gameState.initialState());
         expect(main.currentPlayer()).to.equal(null);
         expect(main.currentPhase()).to.equal(gameState.SETUP);
@@ -27,6 +26,10 @@ describe('the main module', () => {
 
     it(`has a newGame() function that set up a new game`, () => {
         expect(main.newGame).to.be.a('function');
+
+        const actionModule = require('../app/actions.js');
+        const Reveal = actionModule.REVEAL;
+        const Draw = actionModule.DRAW;
 
         const spy = actionSpy();
         main.overrideActionHandler(spy.act);
@@ -52,7 +55,7 @@ describe('the main module', () => {
     });
 
     it(`deals four cards to each player and puts four in the middle to set up a new game`, () => {
-        main.overrideActionHandler(action.act);
+        main.reset();
         main.newGame();
 
         const newGameState = main.currentState();
@@ -101,14 +104,22 @@ describe('The Game State finite state machine', () => {
         state.players.byId[0].hand[0] = gameState.blackCat();
         state.players.byId[1].captured.push(gameState.frogJuice());
 
-        main.playerTurn(action.BLACK_CAT, { target: 1 });
+        main.playerTurn(playerAction.BLACK_CAT, { target: 1 });
 
         const nextState = main.currentState();
 
         expect(main.currentPlayer()).to.equal(0);
         expect(main.currentPhase()).to.equal(gameState.DISCARD);
 
-        //TODO: add a PASS action
+        //TODO: test other play types [CAPTURE, Spell, Witch, Witch Wash]
+    });
+
+    it('Can transition from Playing to Discarding if the player Passes', () => {
+        main.newGame();
+        main.playerTurn(playerAction.PASS, { target: 1 });
+
+        expect(main.currentPlayer()).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.DISCARD);
     });
 });
 

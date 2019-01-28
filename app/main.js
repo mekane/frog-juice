@@ -6,6 +6,15 @@ let _currentState = gameState.initialState();
 let _currentPlayer = null;
 let _currentPhase = gameState.SETUP;
 
+const playerAction = {
+    CAPTURE: actionsModule.CAPTURE,
+    PASS: 'PASS',
+    PLAY_BLACK_CAT: actionsModule.BLACK_CAT,
+    PLAY_SPELL: actionsModule.PLAY_SPELL,
+    PLAY_WITCH: actionsModule.WITCH,
+    PLAY_WITCH_WASH: actionsModule.WITCH_WASH
+}
+
 function currentPlayer() {
     return _currentPlayer;
 }
@@ -52,6 +61,12 @@ function playerTurn(actionType, options) {
     _currentPhase = 'DISCARD';
 }
 
+function reset() {
+    action = actionsModule.act;
+    _currentState = gameState.initialState();
+    _currentPlayer = null;
+    _currentPhase = gameState.SETUP;
+}
 
 module.exports = {
     currentPhase,
@@ -59,5 +74,7 @@ module.exports = {
     currentState,
     newGame,
     overrideActionHandler,
-    playerTurn
+    playerAction,
+    playerTurn,
+    reset
 };
