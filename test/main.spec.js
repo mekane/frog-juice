@@ -91,27 +91,64 @@ describe('The Game State finite state machine', () => {
     /* Not starting at [P0-Draw] because it automatically transitions to Play
        because Player 0 starts with four cards
      */
-    it('Transitions to Player 0 Playing after setup', () => {
+    it('Transitions automatically to Player 0 Playing after setup', () => {
+        main.reset();
         main.newGame();
 
         expect(main.currentPlayer()).to.equal(0);
         expect(main.currentPhase()).to.equal(gameState.PLAY);
     });
 
-    it('Transitions to Player 0 Discarding after they play a card', () => {
+    it('Does not transition for invalid action types', () => {
         main.newGame();
-        const state = main.currentState();
-        state.players.byId[0].hand[0] = gameState.blackCat();
-        state.players.byId[1].captured.push(gameState.frogJuice());
-
-        main.playerTurn(playerAction.BLACK_CAT, { target: 1 });
-
-        const nextState = main.currentState();
+        main.playerTurn('OBVIOUS_GARBAGE', {});
 
         expect(main.currentPlayer()).to.equal(0);
-        expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        expect(main.currentPhase()).to.equal(gameState.PLAY);
+    });
 
+
+    it('Transitions to Player 0 Discarding after they play a card', () => {
+        main.reset();
+
+        testPlayingBlackCat();
+        testPlayingWitch();
+        testPlayingWitchWash();
+
+        function testPlayingBlackCat() {
+            main.newGame();
+            const state = main.currentState();
+            state.players.byId[0].hand[0] = gameState.blackCat();
+            state.players.byId[1].captured.push(gameState.frogJuice());
+
+            main.playerTurn(playerAction.PLAY_BLACK_CAT, { target: 1 });
+
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        }
         //TODO: test other play types [CAPTURE, Spell, Witch, Witch Wash]
+
+        function testPlayingWitch() {
+            main.newGame();
+            const state = main.currentState();
+            state.players.byId[0].hand[0] = gameState.witch();
+
+            main.playerTurn(playerAction.PLAY_WITCH);
+
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        }
+
+        function testPlayingWitchWash() {
+            main.newGame();
+            const state = main.currentState();
+            state.players.byId[0].hand[0] = gameState.witchWash();
+            //TODO: need to add a witch on the table here
+            main.playerTurn(playerAction.PLAY_WITCH_WASH);
+
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        }
     });
 
     it('Can transition from Playing to Discarding if the player Passes', () => {

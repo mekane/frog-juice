@@ -14,6 +14,7 @@ const playerAction = {
     PLAY_WITCH: actionsModule.WITCH,
     PLAY_WITCH_WASH: actionsModule.WITCH_WASH
 }
+const possibleActions = (Object.keys(playerAction).map(key => playerAction[key]));
 
 function currentPlayer() {
     return _currentPlayer;
@@ -55,10 +56,12 @@ function overrideActionHandler(newActionHandler) {
 }
 
 function playerTurn(actionType, options) {
-    const actionOptions = Object.assign({ player: _currentPlayer }, options);
-    const nextState = action(actionType, _currentState, actionOptions);
+    if (possibleActions.includes(actionType)) {
+        const actionOptions = Object.assign({ player: _currentPlayer }, options);
+        const nextState = action(actionType, _currentState, actionOptions);
 
-    _currentPhase = 'DISCARD';
+        _currentPhase = 'DISCARD';
+    }
 }
 
 function reset() {
