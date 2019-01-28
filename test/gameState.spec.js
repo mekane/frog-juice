@@ -20,4 +20,9 @@ describe('The gameState module', () => {
     });
 
 
+    it('should export game state constants to represent the phase of players turns', () => {
+        expect(gameState.DISCARD).to.be.a('string');
+        expect(gameState.DRAW).to.be.a('string');
+        expect(gameState.PLAY).to.be.a('string');
+    });
 });

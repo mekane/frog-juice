@@ -20,7 +20,9 @@ function act(actionType, currentState, options) {
     const newState = {
         deck: currentState.deck.slice(),
         table: currentState.table.slice(),
-        players: copyPlayers(currentState.players)
+        players: copyPlayers(currentState.players),
+        currentPlayer: currentState.currentPlayer,
+        currentState: currentState.currentState
     };
 
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;

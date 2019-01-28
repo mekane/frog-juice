@@ -1,3 +1,7 @@
+const DISCARD = 'DISCARD';
+const DRAW = 'DRAW';
+const PLAY = 'PLAY';
+
 function getNewDeck() {
     return [
         shrinkingBrew(),
@@ -83,7 +87,9 @@ function initialState() {
                     ingredients: []
                 }
             }
-        }
+        },
+        currentPlayer: 0,
+        currentState: 'PLAY'
     };
 }
 
@@ -269,6 +275,9 @@ function witchWash() {
 
 module.exports = {
     initialState,
+    DISCARD,
+    DRAW,
+    PLAY,
     antigravitySpell,
     bats,
     blackCat,

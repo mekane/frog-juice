@@ -905,6 +905,3 @@ describe('taking a spell component from another player and adding it to a spell'
         expect(targetStillHasPrinceInHand, `Other card in target's hand was left alone`).to.be.true;
     });
 });
-
-
-/* Utility functions to generate test data */
