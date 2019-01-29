@@ -107,12 +107,31 @@ describe('The Game State finite state machine', () => {
         expect(main.currentPhase()).to.equal(gameState.PLAY);
     });
 
-    it.skip('Does not transition if there was a no-op due to invalid game state', () => {
-        //TODO: look at actions.spec for situations where the action "Does Nothing"
+    it('Does not transition if there was a no-op due to invalid game state', () => {
+        main.reset();
+        main.newGame();
+        const gameStatePre = main.currentState();
+
+        main.playerTurn(playerAction.CAPTURE, { options: 'bad' });
+        const gameStatePost = main.currentState();
+
+        expect(main.currentPlayer()).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.PLAY);
+        expect(gameStatePre).to.equal(gameStatePost);
     });
 
-    it.skip('Does not transition if there was an error during the action', () => {
-        //TODO: look at actions.spec for situations where the action produces an Error
+    it('Does not transition if there was an error during the action', () => {
+        main.reset();
+        main.newGame();
+        const gameStatePre = main.currentState();
+        gameStatePre.players.byId[0].hand = [];
+
+        main.playerTurn(playerAction.PLAY_WITCH_WASH, {});
+        const gameStatePost = main.currentState();
+
+        expect(main.currentPlayer()).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.PLAY);
+        expect(gameStatePre).to.equal(gameStatePost);
     });
 
     it('Transitions to Player 0 Discarding after they play a card', () => {
@@ -133,19 +152,19 @@ describe('The Game State finite state machine', () => {
             main.playerTurn(playerAction.PLAY_BLACK_CAT, { target: 1 });
 
             expect(main.currentPlayer()).to.equal(0);
-            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+            expect(main.currentPhase(), 'Transition to discard after Black Cat').to.equal(gameState.DISCARD);
         }
 
         function testCapture() {
             main.newGame();
             const state = main.currentState();
-            //TODO: add real hand and table setup for a valid capture
-            //state.players.byId[0].hand[0] = gameState.blackCat();
+            state.players.byId[0].hand[0] = gameState.shrinkingBrew();
+            state.table[0] = gameState.shrinkingBrew();
 
-            main.playerTurn(playerAction.CAPTURE);
+            main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0] });
 
             expect(main.currentPlayer()).to.equal(0);
-            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+            expect(main.currentPhase(), 'Transition to discard after Capture').to.equal(gameState.DISCARD);
         }
 
         function testPlayingWitch() {
@@ -156,18 +175,18 @@ describe('The Game State finite state machine', () => {
             main.playerTurn(playerAction.PLAY_WITCH);
 
             expect(main.currentPlayer()).to.equal(0);
-            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+            expect(main.currentPhase(), 'Transition to discard after playing Witch').to.equal(gameState.DISCARD);
         }
 
         function testPlayingWitchWash() {
             main.newGame();
             const state = main.currentState();
             state.players.byId[0].hand[0] = gameState.witchWash();
-            //TODO: need to add a witch on the table here
+            state.table[0] = gameState.witch();
             main.playerTurn(playerAction.PLAY_WITCH_WASH);
 
             expect(main.currentPlayer()).to.equal(0);
-            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+            expect(main.currentPhase(), 'Transition to discard after playing Witch Wash').to.equal(gameState.DISCARD);
         }
     });
 
@@ -179,7 +198,18 @@ describe('The Game State finite state machine', () => {
         expect(main.currentPhase()).to.equal(gameState.DISCARD);
     });
 
-    it('Transitions from Player 0 Discarding to Player 1 Drawing after player 1 discards', () => {
+    it('Connects the discard player action to game state change', () => {
+        main.reset();
+        main.newGame();
+
+        main.playerDiscard(0);
+        const gameState = main.currentState();
+
+        expect(gameState.players.byId[0].hand.length).to.equal(3);
+        expect(gameState.table.length).to.equal(5);
+    });
+
+    it('Transitions from Player 0 Discarding to Player 1 Drawing after player 0 discards', () => {
         main.reset();
         main.newGame();
         playFirstPlayersTurn();
@@ -190,7 +220,19 @@ describe('The Game State finite state machine', () => {
         expect(main.currentPhase()).to.equal(gameState.DRAW);
     });
 
-    //TODO: test that it doesn't transition if the discarded index is invalid (no-op)
+    it('Does not transition if the discard is invalid', () => {
+        main.reset();
+        main.newGame();
+        playFirstPlayersTurn();
+
+        const gameStatePre = main.currentState();
+        main.playerDiscard(-1);
+        const gameStatePost = main.currentState();
+
+        expect(main.currentPlayer()).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        expect(gameStatePre).to.equal(gameStatePost);
+    });
 
     //TODO: need a test to ensure that it doesn't increment the current player, but "wraps" back to first when hitting max
 });

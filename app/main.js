@@ -56,8 +56,17 @@ function overrideActionHandler(newActionHandler) {
 }
 
 function playerDiscard(cardIndex) {
-    _currentPlayer++;
-    _currentPhase = 'DRAW';
+    const options = {
+        player: _currentPlayer,
+        card: cardIndex
+    };
+    const nextState = action(actionsModule.DISCARD, _currentState, options);
+
+    if (nextState !== _currentState) {
+        _currentState = nextState;
+        _currentPlayer++;
+        _currentPhase = 'DRAW';
+    }
 }
 
 function playerTurn(actionType, options) {
@@ -65,7 +74,17 @@ function playerTurn(actionType, options) {
         const actionOptions = Object.assign({ player: _currentPlayer }, options);
         const nextState = action(actionType, _currentState, actionOptions);
 
-        _currentPhase = 'DISCARD';
+        if (nextState.error)
+            console.log(`ERROR: ${nextState.error}`)
+
+        const noError = !nextState.error;
+        const actionSuccess = (nextState !== _currentState) || (actionType === playerAction.PASS);
+        const okToTransition = (noError && actionSuccess);
+
+        if (okToTransition) {
+            _currentState = nextState;
+            _currentPhase = 'DISCARD';
+        }
     }
 }
 

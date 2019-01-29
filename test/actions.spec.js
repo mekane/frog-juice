@@ -102,6 +102,14 @@ describe('the discard action', () => {
         expect(nextState).to.equal(originalState);
     });
 
+    it(`does nothing if a player and card are specified but the card index is invalid`, () => {
+        const originalState = gameState.initialState();
+
+        const nextState = actions.act(actions.DISCARD, originalState, { player: 0, card: -1 });
+
+        expect(nextState).to.equal(originalState);
+    });
+
     it("moves the card at the specified index from the player's hand to the table", () => {
         const originalState = gameState.initialState();
         const stateAfterPlayerDrawsOne = actions.act(actions.DRAW, originalState, { player: 0 });
