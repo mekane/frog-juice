@@ -104,6 +104,7 @@ describe('The Game State finite state machine', () => {
 
     describe('the PLAY phase', () => {
         it.skip('Only allows playing cards in the Play phase', () => {
+            //start, discard => player 1 PLAY
 
         });
 
@@ -143,10 +144,11 @@ describe('The Game State finite state machine', () => {
             function testCapture() {
                 main.newGame();
                 const state = main.currentState();
-                state.players.byId[0].hand[0] = gameState.shrinkingBrew();
+                state.players.byId[0].hand[0] = gameState.toads();
                 state.table[0] = gameState.shrinkingBrew();
+                state.table[1] = gameState.bats();
 
-                main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0] });
+                main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0, 1] });
 
                 expect(main.currentPlayer()).to.equal(0);
                 expect(main.currentPhase(), 'Transition to discard after Capture').to.equal(gameState.DISCARD);
@@ -225,9 +227,7 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Transitions from Player 0 Discarding to Player 1 Drawing after player 0 discards', () => {
-            main.reset();
-            main.newGame();
-            playFirstPlayersTurn();
+            startInPlayer0DiscardPhase();
             //get rid of a card from player 1's hand so they will need to draw
             main.currentState().players.byId[1].hand.pop();
 
@@ -249,9 +249,7 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Does not transition if the discard is invalid', () => {
-            main.reset();
-            main.newGame();
-            playFirstPlayersTurn();
+            startInPlayer0DiscardPhase();
 
             const gameStatePre = main.currentState();
             main.playerDiscard(-1);
@@ -263,9 +261,7 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Transitions automatically to Player 1 playing if Player 1 already had four cards', () => {
-            main.reset();
-            main.newGame();
-            playFirstPlayersTurn();
+            startInPlayer0DiscardPhase();
             main.playerDiscard(0);
 
             expect(main.currentPlayer()).to.equal(1);
@@ -291,10 +287,17 @@ function actionSpy() {
     };
 }
 
-function playFirstPlayersTurn() {
+function startInPlayer0PlayPhase() {
     main.reset();
     main.newGame();
+}
+
+function startInPlayer0DiscardPhase() {
+    startInPlayer0PlayPhase();
+
     const state = main.currentState();
-    state.players.byId[0].hand[0] = gameState.witch();
-    main.playerTurn(playerAction.PLAY_WITCH);
+    state.players.byId[0].hand[0] = gameState.shrinkingBrew();
+    state.table[0] = gameState.shrinkingBrew();
+
+    main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0] });
 }
