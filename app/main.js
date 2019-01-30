@@ -66,6 +66,10 @@ function playerDiscard(cardIndex) {
         _currentState = nextState;
         _currentPlayer++;
         _currentPhase = 'DRAW';
+
+        if (_currentState.players.byId[_currentPlayer].hand.length >= 4) {
+            _currentPhase = 'PLAY';
+        }
     }
 }
 
