@@ -110,7 +110,7 @@ describe('the discard action', () => {
         expect(nextState).to.equal(originalState);
     });
 
-    it("moves the card at the specified index from the player's hand to the table", () => {
+    it(`moves the card at the specified index from the player's hand to the table`, () => {
         const originalState = gameState.initialState();
         const stateAfterPlayerDrawsOne = actions.act(actions.DRAW, originalState, { player: 0 });
 

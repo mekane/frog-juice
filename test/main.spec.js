@@ -143,8 +143,6 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPlayer()).to.equal(1);
             expect(main.currentPhase()).to.equal(gameState.PLAY);
         });
-
-        //TODO: check for error and no-op cases
     });
 
     describe('the PLAY phase', () => {
