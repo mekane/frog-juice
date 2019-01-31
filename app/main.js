@@ -6,6 +6,8 @@ let _currentState = gameState.initialState();
 let _currentPlayer = null;
 let _currentPhase = gameState.SETUP;
 
+const numberOfPlayers = Object.keys(_currentState.players.byId).length;
+
 const playerAction = {
     CAPTURE: actionsModule.CAPTURE,
     PASS: 'PASS',
@@ -56,6 +58,9 @@ function overrideActionHandler(newActionHandler) {
 }
 
 function playerDiscard(cardIndex) {
+    if (_currentPhase !== gameState.DISCARD)
+        return;
+
     const options = {
         player: _currentPlayer,
         card: cardIndex
@@ -65,15 +70,35 @@ function playerDiscard(cardIndex) {
     if (nextState !== _currentState) {
         _currentState = nextState;
         _currentPlayer++;
-        _currentPhase = 'DRAW';
+        _currentPhase = gameState.DRAW;
+
+        if (_currentPlayer > (numberOfPlayers - 1)) {
+            _currentPlayer = 0;
+        }
 
         if (_currentState.players.byId[_currentPlayer].hand.length >= 4) {
-            _currentPhase = 'PLAY';
+            _currentPhase = gameState.PLAY;
         }
     }
 }
 
+function playerDraw() {
+    if (_currentPhase !== gameState.DRAW)
+        return;
+
+    const nextState = action(gameState.DRAW, _currentState, { player: _currentPlayer });
+    _currentState = nextState;
+
+    const cardsInPlayersHand = _currentState.players.byId[_currentPlayer].hand.length;
+    if (cardsInPlayersHand >= 4) {
+        _currentPhase = gameState.PLAY;
+    }
+}
+
 function playerTurn(actionType, options) {
+    if (_currentPhase !== gameState.PLAY)
+        return;
+
     if (possibleActions.includes(actionType)) {
         const actionOptions = Object.assign({ player: _currentPlayer }, options);
         const nextState = action(actionType, _currentState, actionOptions);
@@ -87,7 +112,7 @@ function playerTurn(actionType, options) {
 
         if (okToTransition) {
             _currentState = nextState;
-            _currentPhase = 'DISCARD';
+            _currentPhase = gameState.DISCARD;
         }
     }
 }
@@ -106,6 +131,7 @@ module.exports = {
     newGame,
     overrideActionHandler,
     playerAction,
+    playerDraw,
     playerDiscard,
     playerTurn,
     reset

@@ -89,27 +89,85 @@ describe('the main module', () => {
  */
 describe('The Game State finite state machine', () => {
     describe('the DRAW phase', () => {
-        it.skip('Only allows drawing during the Draw phase', () => {
+        it('Does not allow playing cards in the Draw phase', () => {
+            startInPlayer1DrawPhase();
+            const originalGameState = main.currentState();
+            let player1 = originalGameState.players.byId[1];
+            player1.hand[0] = gameState.witch();
+
+            main.playerTurn(main.playerAction.PLAY_WITCH);
+
+            expect(main.currentPlayer()).to.equal(1);
+            expect(main.currentPhase()).to.equal(gameState.DRAW);
+            expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
+        });
+
+        it('Does not allow discarding cards in the Draw phase', () => {
+            startInPlayer1DrawPhase();
+            const originalGameState = main.currentState();
+
+            main.playerDiscard(0);
+
+            expect(main.currentPlayer()).to.equal(1);
+            expect(main.currentPhase()).to.equal(gameState.DRAW);
+            expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
+        });
+
+        it.skip('Does not allow asking for spell ingredients during the Draw phase', () => {
 
         });
 
-        it.skip(`Adds a card to the player's hand and stays in the phase if they have less than four cards`, () => {
+        it(`Adds a card to the player's hand and stays in the phase if they have less than four cards`, () => {
+            startInPlayer1DrawPhase();
+            let player1 = main.currentState().players.byId[1];
+            player1.hand.pop();
+            expect(player1.hand.length).to.equal(2);
 
+            main.playerDraw();
+
+            player1 = main.currentState().players.byId[1];
+
+            expect(player1.hand.length).to.equal(3);
+            expect(main.currentPlayer()).to.equal(1);
+            expect(main.currentPhase()).to.equal(gameState.DRAW);
         });
 
-        it.skip(`Transitions to the Play phase once the player draw their fourth card`, () => {
+        it(`Transitions to the Play phase once the player draws their fourth card`, () => {
+            startInPlayer1DrawPhase();
 
+            main.playerDraw();
+
+            const player1 = main.currentState().players.byId[1];
+
+            expect(player1.hand.length).to.equal(4);
+            expect(main.currentPlayer()).to.equal(1);
+            expect(main.currentPhase()).to.equal(gameState.PLAY);
         });
+
+        //TODO: check for error and no-op cases
     });
 
     describe('the PLAY phase', () => {
-        it.skip('Only allows playing cards in the Play phase', () => {
-            //start, discard => player 1 PLAY
+        it('Does not allow drawing cards in the Play phase', () => {
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
 
+            main.playerDraw();
+
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentPhase()).to.equal(gameState.PLAY);
+            expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
         });
 
-        it.skip('Only allows asking for spell ingredients during the Play phase', () => {
+        it('Does not allow discarding cards in the Play phase', () => {
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
 
+            main.playerDiscard(0);
+
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentPhase()).to.equal(gameState.PLAY);
+            expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
         });
 
         it('Transitions automatically to Player 0 Playing after setup because they start with four cards', () => {
@@ -177,6 +235,14 @@ describe('The Game State finite state machine', () => {
             }
         });
 
+        it('Transitions from Playing to Discarding if the player Passes', () => {
+            main.newGame();
+            main.playerTurn(playerAction.PASS, { target: 1 });
+
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        });
+
         it('Does not transition for invalid action types', () => {
             main.newGame();
             main.playerTurn('OBVIOUS_GARBAGE', {});
@@ -212,17 +278,35 @@ describe('The Game State finite state machine', () => {
             expect(gameStatePre).to.equal(gameStatePost);
         });
 
-        it('Transitions from Playing to Discarding if the player Passes', () => {
-            main.newGame();
-            main.playerTurn(playerAction.PASS, { target: 1 });
-
-            expect(main.currentPlayer()).to.equal(0);
-            expect(main.currentPhase()).to.equal(gameState.DISCARD);
-        });
+        //asking for spell ingredients - doesn't transition
+        //asking for spell ingredients isn't allowed after they've asked everyone
     });
 
     describe('the DISCARD phase', () => {
-        it.skip('Only allows discarding during the Discard phase', () => {
+        it('Does not allow drawing during the Discard phase', () => {
+            startInPlayer0DiscardPhase();
+            const originalGameState = main.currentState();
+
+            main.playerDraw();
+
+            expect(main.currentPhase(), 'Ignores drawing during the Discard phase').to.equal(gameState.DISCARD);
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
+        });
+
+        it('Does not allow playing cards during the Discard phase', () => {
+            startInPlayer0DiscardPhase();
+            const originalGameState = main.currentState();
+            originalGameState.players.byId[0].hand[0] = gameState.witch();
+
+            main.playerTurn(playerAction.PLAY_WITCH);
+
+            expect(main.currentPhase(), 'Ignores player actions during the Discard phase').to.equal(gameState.DISCARD);
+            expect(main.currentPlayer()).to.equal(0);
+            expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
+        });
+
+        it.skip('Does not allow asking for spell ingredients during the Discard phase', () => {
 
         });
 
@@ -238,14 +322,12 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Connects the discard player action to game state change', () => {
-            main.reset();
-            main.newGame();
-
+            startInPlayer0DiscardPhase();
             main.playerDiscard(0);
             const gameState = main.currentState();
 
-            expect(gameState.players.byId[0].hand.length).to.equal(3);
-            expect(gameState.table.length).to.equal(5);
+            expect(gameState.players.byId[0].hand.length).to.equal(2);
+            expect(gameState.table.length).to.equal(4);
         });
 
         it('Does not transition if the discard is invalid', () => {
@@ -268,7 +350,13 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPhase()).to.equal(gameState.PLAY);
         });
 
-        //TODO: need a test to ensure that it doesn't increment the current player, but "wraps" back to first when hitting max
+        it('Loops back to Player 0 when the last player discards', () => {
+            startInPlayer1DiscardPhase();
+
+            main.playerDiscard(0);
+
+            expect(main.currentPlayer()).to.equal(0);
+        });
     });
 
 });
@@ -297,6 +385,31 @@ function startInPlayer0DiscardPhase() {
 
     const state = main.currentState();
     state.players.byId[0].hand[0] = gameState.shrinkingBrew();
+    state.table[0] = gameState.shrinkingBrew();
+
+    main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0] });
+}
+
+function startInPlayer1DrawPhase() {
+    startInPlayer0DiscardPhase();
+
+    //get rid of a card from player 1's hand so they will need to draw
+    main.currentState().players.byId[1].hand.pop();
+
+    main.playerDiscard(0);
+}
+
+function startInPlayer1PlayPhase() {
+    startInPlayer1DrawPhase();
+
+    main.playerDraw();
+}
+
+function startInPlayer1DiscardPhase() {
+    startInPlayer1PlayPhase();
+
+    const state = main.currentState();
+    state.players.byId[1].hand[0] = gameState.shrinkingBrew();
     state.table[0] = gameState.shrinkingBrew();
 
     main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0] });
