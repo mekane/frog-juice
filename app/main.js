@@ -170,8 +170,7 @@ function _resetState(num) {
 }
 
 function _resetIngredientAskList() {
-    const players = _currentState.players || {};
-    const allPlayerIds = Object.keys(players.byId || {});
+    const allPlayerIds = Object.keys(_currentState.players.byId);
     _playersEligibleForIngredientAskThisTurn = allPlayerIds;
     _removeAskedPlayerFromEligibleList(_currentPlayer);
 }

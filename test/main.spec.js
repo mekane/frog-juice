@@ -472,7 +472,7 @@ function actionSpy() {
     return {
         act: function(actionName, state, options) {
             actionHistory.push(actionName);
-            return {};
+            return state;
         },
         actionsPerformed: function() {
             return actionHistory;
