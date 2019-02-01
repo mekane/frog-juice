@@ -49,30 +49,12 @@ function newGame(number, optionalActionHandlerOverride) {
         action = optionalActionHandlerOverride;
 
     let next = _currentState;
-    next = action(actionsModule.DRAW, next, { player: 0 });
-    next = action(actionsModule.DRAW, next, { player: 0 });
-    next = action(actionsModule.DRAW, next, { player: 0 });
-    next = action(actionsModule.DRAW, next, { player: 0 });
-
-    next = action(actionsModule.DRAW, next, { player: 1 });
-    next = action(actionsModule.DRAW, next, { player: 1 });
-    next = action(actionsModule.DRAW, next, { player: 1 });
-    next = action(actionsModule.DRAW, next, { player: 1 });
-
-    if (numberOfPlayers >= 3) {
-        next = action(actionsModule.DRAW, next, { player: 2 });
-        next = action(actionsModule.DRAW, next, { player: 2 });
-        next = action(actionsModule.DRAW, next, { player: 2 });
-        next = action(actionsModule.DRAW, next, { player: 2 });
+    for (let p = 0; p < numberOfPlayers; p++) {
+        next = action(actionsModule.DRAW, next, { player: p });
+        next = action(actionsModule.DRAW, next, { player: p });
+        next = action(actionsModule.DRAW, next, { player: p });
+        next = action(actionsModule.DRAW, next, { player: p });
     }
-
-    if (numberOfPlayers >= 4) {
-        next = action(actionsModule.DRAW, next, { player: 3 });
-        next = action(actionsModule.DRAW, next, { player: 3 });
-        next = action(actionsModule.DRAW, next, { player: 3 });
-        next = action(actionsModule.DRAW, next, { player: 3 });
-    }
-
     next = action(actionsModule.REVEAL, next);
     next = action(actionsModule.REVEAL, next);
     next = action(actionsModule.REVEAL, next);
