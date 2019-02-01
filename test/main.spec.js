@@ -14,14 +14,9 @@ describe('the main module', () => {
     });
 
     it(`begins with an initial state`, () => {
-        main.reset();
-        expect(main.currentState()).to.deep.equal(gameState.initialState());
+        expect(main.currentState()).to.deep.equal(null);
         expect(main.currentPlayer()).to.equal(null);
         expect(main.currentPhase()).to.equal(gameState.SETUP);
-    });
-
-    it(`uses the built-in action handler, but can take an alternate one`, () => {
-        expect(main.overrideActionHandler).to.be.a('function');
     });
 
     it(`has a newGame() function that set up a new game`, () => {
@@ -32,9 +27,8 @@ describe('the main module', () => {
         const Draw = actionModule.DRAW;
 
         const spy = actionSpy();
-        main.overrideActionHandler(spy.act);
 
-        main.newGame();
+        main.newGame(2, spy.act);
 
         const expectedActions = [
             Draw,
@@ -55,7 +49,6 @@ describe('the main module', () => {
     });
 
     it(`deals four cards to each player and puts four in the middle to set up a new game`, () => {
-        main.reset();
         main.newGame();
 
         const newGameState = main.currentState();
@@ -68,11 +61,130 @@ describe('the main module', () => {
         expect(newGameState.table.length).to.equal(4);
     });
 
+    it(`Sets up game state for more than two players`, () => {
+        main.newGame(3);
+
+        const newGameState = main.currentState();
+
+        const player0 = newGameState.players.byId[0];
+        const player1 = newGameState.players.byId[1];
+        const player2 = newGameState.players.byId[2];
+
+        expect(player0.hand.length).to.equal(4);
+        expect(player1.hand.length).to.equal(4);
+        expect(player2.hand.length).to.equal(4);
+        expect(newGameState.table.length).to.equal(4);
+    });
+
     it(`keeps track of whose turn it is`, () => {
         main.newGame();
 
         expect(main.currentPlayer()).to.equal(0);
         expect(main.currentPhase()).to.equal(gameState.PLAY);
+    });
+});
+
+describe('Logic and functions for asking for ingredients', () => {
+    describe('Listing players than can still be asked', () => {
+
+        it(`has a function to get the list of players that the current play may ask for ingredients`, () => {
+            expect(main.listPlayersWhoHaveNotBeenAskedForIngredients).to.be.a('function');
+        });
+
+        it(`returns a list of all other players, excluding the current player`, () => {
+            startInPlayer0PlayPhase(4);
+            const listForPlayer0 = main.listPlayersWhoHaveNotBeenAskedForIngredients();
+
+            expect(listForPlayer0).to.be.an('array').and.to.have.length(3);
+            expect(listForPlayer0).to.not.contain('0');
+        });
+
+        it(`does not include players who have been asked this turn`, () => {
+            startInPlayer0PlayPhase(4);
+            main.askForIngredient({ target: 1, cardName: 'Bats' });
+
+            const listForPlayer1 = main.listPlayersWhoHaveNotBeenAskedForIngredients();
+
+            expect(listForPlayer1).to.deep.equal(['2', '3']);
+        });
+
+        it(`resets when transitioning to a new turn`, () => {
+            startInPlayer0PlayPhase(4);
+            main.askForIngredient({ target: 1, cardName: 'Bats' });
+            main.playerTurn(playerAction.PASS);
+            main.playerDiscard(0);
+
+            const listForPlayer1 = main.listPlayersWhoHaveNotBeenAskedForIngredients();
+
+            expect(listForPlayer1).to.be.an('array').and.to.have.length(3);
+            expect(listForPlayer1).to.not.contain('1');
+        });
+    });
+
+    describe('Deciding whether the current player can still take any ingredients', () => {
+        it(`has a function to say whether the current player can ask for or take any ingredients`, () => {
+            expect(main.playerCanTakeIngredients).to.be.a('function');
+        });
+
+        it(`returns false during the Draw phase`, () => {
+            startInPlayer1DrawPhase();
+            expect(main.playerCanTakeIngredients()).to.equal(false);
+        });
+
+        it(`returns false during the Discard phase`, () => {
+            startInPlayer0DiscardPhase();
+            expect(main.playerCanTakeIngredients()).to.equal(false);
+        });
+
+        it(`returns false if the player has no spells in play`, () => {
+            startInPlayer0PlayPhase();
+            expect(main.playerCanTakeIngredients()).to.equal(false);
+        });
+
+        it(`returns true if the player has a spell in progress`, () => {
+            startInPlayer0PlayPhase();
+            main.currentState().players.byId[0].spells.push(gameState.antigravitySpell());
+            expect(main.playerCanTakeIngredients()).to.equal(true);
+        });
+
+        it(`returns true even if they have asked everyone, if there are any cards on the table`, () => {
+            startInPlayer0PlayPhase();
+            main.currentState().players.byId[0].spells.push(gameState.antigravitySpell());
+            main.askForIngredient({ target: 1, cardName: 'Bats' });
+            expect(main.playerCanTakeIngredients()).to.equal(true);
+        });
+
+        it(`returns false once they have asked everyone and there are no cards on the table`, () => {
+            startInPlayer0PlayPhase();
+            main.currentState().players.byId[0].spells.push(gameState.antigravitySpell());
+            main.currentState().table = [];
+            main.askForIngredient({ target: 1, cardName: 'Bats' });
+            expect(main.playerCanTakeIngredients()).to.equal(false);
+        });
+
+        //enforces phase?
+    });
+
+    describe('Current player asking other player for ingredients', () => {
+        it(`is a function`, () => {
+            expect(main.askForIngredient).to.be.a('function');
+        });
+
+        it(`requires a player id and a card name`, () => {
+            const actualGameState = {};
+            const previousGameState = {};
+            //TODO: no-op without both (use {target: 1, cardName: ''})
+            expect(actualGameState).to.equal(previousGameState);
+        });
+
+        it.skip(`connects to the gameState action if valid`, () => {
+            //TODO: set up a case where current player has a spell in progress,
+            //other player has ingredient in hand, and do the TAKE_INGREDIENT action
+        });
+
+        it(`has no effect if the current player has already asked the target this turn`, () => {
+            //TODO: no-op without both
+        });
     });
 });
 
@@ -169,7 +281,6 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Transitions automatically to Player 0 Playing after setup because they start with four cards', () => {
-            main.reset();
             main.newGame();
 
             expect(main.currentPlayer()).to.equal(0);
@@ -177,8 +288,6 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Transitions to Player 0 Discarding after they play a card', () => {
-            main.reset();
-
             testPlayingBlackCat();
             testCapture();
             //testPlayingSpell();
@@ -235,7 +344,7 @@ describe('The Game State finite state machine', () => {
 
         it('Transitions from Playing to Discarding if the player Passes', () => {
             main.newGame();
-            main.playerTurn(playerAction.PASS, { target: 1 });
+            main.playerTurn(playerAction.PASS);
 
             expect(main.currentPlayer()).to.equal(0);
             expect(main.currentPhase()).to.equal(gameState.DISCARD);
@@ -250,7 +359,6 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Does not transition if there was a no-op due to invalid game state', () => {
-            main.reset();
             main.newGame();
             const gameStatePre = main.currentState();
 
@@ -263,7 +371,6 @@ describe('The Game State finite state machine', () => {
         });
 
         it('Does not transition if there was an error during the action', () => {
-            main.reset();
             main.newGame();
             const gameStatePre = main.currentState();
             gameStatePre.players.byId[0].hand = [];
@@ -373,13 +480,12 @@ function actionSpy() {
     };
 }
 
-function startInPlayer0PlayPhase() {
-    main.reset();
-    main.newGame();
+function startInPlayer0PlayPhase(num) {
+    main.newGame(num);
 }
 
-function startInPlayer0DiscardPhase() {
-    startInPlayer0PlayPhase();
+function startInPlayer0DiscardPhase(num) {
+    startInPlayer0PlayPhase(num);
 
     const state = main.currentState();
     state.players.byId[0].hand[0] = gameState.shrinkingBrew();
@@ -388,8 +494,8 @@ function startInPlayer0DiscardPhase() {
     main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0] });
 }
 
-function startInPlayer1DrawPhase() {
-    startInPlayer0DiscardPhase();
+function startInPlayer1DrawPhase(num) {
+    startInPlayer0DiscardPhase(num);
 
     //get rid of a card from player 1's hand so they will need to draw
     main.currentState().players.byId[1].hand.pop();
@@ -397,8 +503,8 @@ function startInPlayer1DrawPhase() {
     main.playerDiscard(0);
 }
 
-function startInPlayer1PlayPhase() {
-    startInPlayer1DrawPhase();
+function startInPlayer1PlayPhase(num) {
+    startInPlayer1DrawPhase(num);
 
     main.playerDraw();
 }

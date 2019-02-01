@@ -67,31 +67,39 @@ function getNewDeck() {
     ];
 }
 
-function initialState() {
+function initialState(numberOfPlayers) {
+    const players = {
+        0: getNewPlayer(),
+        1: getNewPlayer()
+    };
+
+    if (numberOfPlayers >= 3) {
+        players[2] = getNewPlayer();
+    }
+
+    if (numberOfPlayers >= 4) {
+        players[3] = getNewPlayer();
+    }
+
     return {
         deck: getNewDeck(),
         table: [],
         players: {
-            byId: {
-                0: {
-                    type: 'human',
-                    hand: [],
-                    captured: [],
-                    spells: [],
-                    ingredients: []
-                },
-                1: {
-                    type: 'robot',
-                    hand: [],
-                    captured: [],
-                    spells: [],
-                    ingredients: []
-                }
-            }
+            byId: players
         },
         currentPlayer: null,
         currentState: 'SETUP'
     };
+}
+
+function getNewPlayer() {
+    return {
+        type: 'human',
+        hand: [],
+        captured: [],
+        spells: [],
+        ingredients: []
+    }
 }
 
 function antigravitySpell() {

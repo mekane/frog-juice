@@ -19,6 +19,27 @@ describe('The gameState module', () => {
         expect(player0.ingredients, 'No initial ingredients').to.be.an('array').and.to.have.length(0);
     });
 
+    it('should accept an optional number of players to initialize the game', () => {
+        const game = gameState.initialState(4);
+        const players = Object.keys(game.players.byId);
+
+        expect(players).to.have.length(4);
+    });
+
+    it('should default to two players', () => {
+        const game = gameState.initialState();
+        const players = Object.keys(game.players.byId);
+
+        expect(players).to.have.length(2);
+    });
+
+    it('should cap the number of players at 4', () => {
+        const game = gameState.initialState(17);
+        const players = Object.keys(game.players.byId);
+
+        expect(players).to.have.length(4);
+    });
+
     it('should export game state constants to represent the phase of players turns', () => {
         expect(gameState.DISCARD).to.be.a('string');
         expect(gameState.DRAW).to.be.a('string');
