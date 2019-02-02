@@ -18,7 +18,21 @@ const playerAction = {
 const possibleActions = (Object.keys(playerAction).map(key => playerAction[key]));
 
 function askForIngredient(options) {
-    _removeAskedPlayerFromEligibleList(options.target);
+    if (_playersEligibleForIngredientAskThisTurn.includes(options.target + ''))
+        _removeAskedPlayerFromEligibleList(options.target);
+    else
+        return;
+
+    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+    const nextState = action(actionsModule.TAKE_INGREDIENT_FROM_PLAYER, _currentState, actionOptions);
+
+    if (_currentState !== nextState) {
+        _currentState = nextState;
+
+        if (nextState.error) {
+            console.log(`Alert: Player ${options.player} does not have ${options.cardName}`);
+        }
+    }
 }
 
 function currentPlayer() {
@@ -67,6 +81,9 @@ function newGame(number, optionalActionHandlerOverride) {
 }
 
 function playerCanTakeIngredients() {
+    if (_currentPhase != gameState.PLAY)
+        return false;
+
     const numberOfSpellsInProgress = _currentState.players.byId[_currentPlayer].spells.length;
     const hasSpellInprogress = (numberOfSpellsInProgress > 0);
     const thereAreAnyPlayersToAsk = _playersEligibleForIngredientAskThisTurn.length > 0;

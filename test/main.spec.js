@@ -128,11 +128,13 @@ describe('Logic and functions for asking for ingredients', () => {
 
         it(`returns false during the Draw phase`, () => {
             startInPlayer1DrawPhase();
+            main.currentState().players.byId[1].spells = [gameState.uglifyingSpell()];
             expect(main.playerCanTakeIngredients()).to.equal(false);
         });
 
         it(`returns false during the Discard phase`, () => {
             startInPlayer0DiscardPhase();
+            main.currentState().players.byId[0].spells = [gameState.uglifyingSpell()];
             expect(main.playerCanTakeIngredients()).to.equal(false);
         });
 
@@ -161,8 +163,6 @@ describe('Logic and functions for asking for ingredients', () => {
             main.askForIngredient({ target: 1, cardName: 'Bats' });
             expect(main.playerCanTakeIngredients()).to.equal(false);
         });
-
-        //enforces phase?
     });
 
     describe('Current player asking other player for ingredients', () => {
@@ -171,21 +171,57 @@ describe('Logic and functions for asking for ingredients', () => {
         });
 
         it(`requires a player id and a card name`, () => {
-            const actualGameState = {};
-            const previousGameState = {};
-            //TODO: no-op without both (use {target: 1, cardName: ''})
-            expect(actualGameState).to.equal(previousGameState);
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
+
+            main.askForIngredient({});
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.askForIngredient({ target: 1 });
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.askForIngredient({ cardName: 'Foo' });
+            expect(main.currentState()).to.equal(originalGameState);
         });
 
-        it.skip(`connects to the gameState action if valid`, () => {
-            //TODO: set up a case where current player has a spell in progress,
-            //other player has ingredient in hand, and do the TAKE_INGREDIENT action
+        it(`connects to the gameState action if valid`, () => {
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
+            const player0 = originalGameState.players.byId[0];
+            const player1 = originalGameState.players.byId[1];
+
+            player0.spells.push(gameState.princeToFrogSpell());
+            player1.hand[0] = gameState.prince();
+
+            main.askForIngredient({ target: 1, cardName: 'Prince', spell: 0 });
+
+            const newGameState = main.currentState();
+            expect(newGameState).not.to.equal(originalGameState);
+            expect(newGameState.players.byId[1].hand.length).to.equal(3);
         });
 
         it(`has no effect if the current player has already asked the target this turn`, () => {
-            //TODO: no-op without both
+            startInPlayer0PlayPhase();
+            let originalGameState = main.currentState();
+            let player0 = originalGameState.players.byId[0];
+            let player1 = originalGameState.players.byId[1];
+            player1.hand = [gameState.bats()];
+            player0.spells.push(gameState.princeToFrogSpell());
+
+            main.askForIngredient({ target: 1, cardName: 'Prince', spell: 0 });
+
+            originalGameState = main.currentState();
+            player1 = originalGameState.players.byId[1];
+            player1.hand = [gameState.prince()];
+
+            main.askForIngredient({ target: 1, cardName: 'Prince', spell: 0 });
+            const newGameState = main.currentState();
+            expect(newGameState).to.equal(originalGameState);
+            expect(newGameState.players.byId[1].hand.length).to.equal(1);
         });
     });
+
+    //TODO: current player taking an ingredient card from the table
 });
 
 /**
@@ -223,10 +259,6 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPlayer()).to.equal(1);
             expect(main.currentPhase()).to.equal(gameState.DRAW);
             expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
-        });
-
-        it.skip('Does not allow asking for spell ingredients during the Draw phase', () => {
-
         });
 
         it(`Adds a card to the player's hand and stays in the phase if they have less than four cards`, () => {
@@ -411,10 +443,6 @@ describe('The Game State finite state machine', () => {
             expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
         });
 
-        it.skip('Does not allow asking for spell ingredients during the Discard phase', () => {
-
-        });
-
         it('Transitions from Player 0 Discarding to Player 1 Drawing after player 0 discards', () => {
             startInPlayer0DiscardPhase();
             //get rid of a card from player 1's hand so they will need to draw
@@ -463,7 +491,6 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPlayer()).to.equal(0);
         });
     });
-
 });
 
 function actionSpy() {
