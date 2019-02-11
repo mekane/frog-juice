@@ -174,6 +174,20 @@ function _resetIngredientAskList() {
     _removeAskedPlayerFromEligibleList(_currentPlayer);
 }
 
+function takeIngredientFromTable(options) {
+    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+
+    const nextState = action(actionsModule.TAKE_INGREDIENT_FROM_TABLE, _currentState, actionOptions);
+
+    if (_currentState !== nextState) {
+        _currentState = nextState;
+
+        if (nextState.error) {
+            console.log(`Error: ${nextState.error}`);
+        }
+    }
+}
+
 module.exports = {
     askForIngredient,
     currentPhase,
@@ -185,5 +199,6 @@ module.exports = {
     playerCanTakeIngredients,
     playerDraw,
     playerDiscard,
-    playerTurn
+    playerTurn,
+    takeIngredientFromTable
 };

@@ -170,7 +170,7 @@ describe('Logic and functions for asking for ingredients', () => {
             expect(main.askForIngredient).to.be.a('function');
         });
 
-        it(`requires a player id and a card name`, () => {
+        it(`requires a player id, a card name, and a spell id`, () => {
             startInPlayer0PlayPhase();
             const originalGameState = main.currentState();
 
@@ -221,7 +221,41 @@ describe('Logic and functions for asking for ingredients', () => {
         });
     });
 
-    //TODO: current player taking an ingredient card from the table
+    describe('Current player taking an ingredient from the table', () => {
+        it(`is a function`, () => {
+            expect(main.takeIngredientFromTable).to.be.a('function');
+        });
+
+        it(`requires a card name and a spell id`, () => {
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
+
+            main.takeIngredientFromTable({});
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.askForIngredient({ spell: 0 });
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.askForIngredient({ cardName: 'Foo' });
+            expect(main.currentState()).to.equal(originalGameState);
+        });
+
+        it(`connects to the gameState action if valid`, () => {
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
+            const player0 = originalGameState.players.byId[0];
+
+            player0.spells.push(gameState.princeToFrogSpell());
+            originalGameState.table.push(gameState.prince());
+
+            main.takeIngredientFromTable({ cardName: 'Prince', spell: 0 });
+
+            const newGameState = main.currentState();
+            expect(newGameState).not.to.equal(originalGameState);
+            expect(newGameState.players.byId[0].ingredients.length).to.equal(1);
+            expect(newGameState.table.length).to.equal(4);
+        });
+    });
 });
 
 /**
