@@ -1,5 +1,6 @@
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
+const OVER = 'OVER';
 const PLAY = 'PLAY';
 const SETUP = 'SETUP';
 
@@ -286,6 +287,7 @@ module.exports = {
     initialState,
     DISCARD,
     DRAW,
+    OVER,
     PLAY,
     SETUP,
     antigravitySpell,

@@ -23,6 +23,9 @@ function askForIngredient(options) {
     else
         return;
 
+    if (_currentPhase !== gameState.PLAY)
+        return;
+
     const actionOptions = Object.assign({ player: _currentPlayer }, options);
     const nextState = action(actionsModule.TAKE_INGREDIENT_FROM_PLAYER, _currentState, actionOptions);
 
@@ -32,6 +35,22 @@ function askForIngredient(options) {
         if (nextState.error) {
             console.log(`Alert: Player ${options.player} does not have ${options.cardName}`);
         }
+    }
+}
+
+function _checkForGameOver() {
+    const deckIsEmpty = _currentState.deck.length === 0;
+
+    const allPlayerIds = Object.keys(_currentState.players.byId);
+    const allPlayers = allPlayerIds.map(id => _currentState.players.byId[id]);
+    const allPlayersHandsAreEmpty = allPlayers.every(player => player.hand.length === 0);
+
+    const gameOver = deckIsEmpty && allPlayersHandsAreEmpty;
+
+    if (gameOver) {
+        _currentPlayer = null;
+        _currentPhase = gameState.OVER;
+        _playersEligibleForIngredientAskThisTurn = [];
     }
 }
 
@@ -115,6 +134,8 @@ function playerDiscard(cardIndex) {
             _currentPhase = gameState.PLAY;
         }
 
+        _checkForGameOver();
+
         //this is part of the "start next turn" logic
         _resetIngredientAskList();
     }
@@ -175,6 +196,9 @@ function _resetIngredientAskList() {
 }
 
 function takeIngredientFromTable(options) {
+    if (_currentPhase !== gameState.PLAY)
+        return;
+
     const actionOptions = Object.assign({ player: _currentPlayer }, options);
 
     const nextState = action(actionsModule.TAKE_INGREDIENT_FROM_TABLE, _currentState, actionOptions);

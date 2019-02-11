@@ -82,6 +82,10 @@ describe('the main module', () => {
         expect(main.currentPlayer()).to.equal(0);
         expect(main.currentPhase()).to.equal(gameState.PLAY);
     });
+
+    //can calculate player scores (not just when game is over)
+
+
 });
 
 describe('Logic and functions for asking for ingredients', () => {
@@ -259,13 +263,16 @@ describe('Logic and functions for asking for ingredients', () => {
 });
 
 /**
+ * SETUP
  * [P0-Draw] --DRAW-> [P0-Play] --ACTION-> [P0-Discard] --DISCARD-> Next Player
  * [P1-Draw] --DRAW-> [P1-Play] --ACTION-> [p1-Discard] --DISCARD-> Next Player
+ * OVER
  *
+ * SETUP is a temporary state while the initial setup is done. Not a regular state.
  * The Draw->Play transition is automatic if they are already at four cards
  * The Play-Discard transition can include a "Pass" action (need to add)
  * The Discard->Next Draw transition can be auto if they have no cards to discard
- *
+ * OVER is when the game is over, as detected by the main module.
  *
  *
  */
@@ -525,6 +532,39 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPlayer()).to.equal(0);
         });
     });
+
+    describe('detecting the end of game state', () => {
+        it(`Transitions to OVER when the deck is empty, all but one players have no cards in hand, and the last player discards`, () => {
+            startInPlayer1DiscardPhaseOnLastTurnOfGame();
+
+            main.playerDiscard(0);
+
+            expect(main.currentPlayer()).to.equal(null);
+            expect(main.currentPhase()).to.equal(gameState.OVER);
+        });
+
+        it('ignores actions while in the OVER state', () => {
+            startInGameOverState();
+
+            const originalGameState = main.currentState();
+            originalGameState.players.byId[0].hand = [gameState.frogJuice()];
+            originalGameState.players.byId[1].hand = [gameState.witch()];
+            originalGameState.players.byId[1].spells = [gameState.princeToFrogSpell()];
+            originalGameState.table = [gameState.prince()]
+
+            main.playerDraw();
+            main.askForIngredient({ target: 0, cardName: 'Frog Juice', spell: 0 });
+            main.takeIngredientFromTable({ cardName: 'Frog Juice', spell: 0 })
+            main.playerTurn(playerAction.PLAY_WITCH);
+            main.playerDiscard(0);
+
+            expect(main.currentState(), 'Ignores player actions once game is over').to.equal(originalGameState);
+        });
+    });
+});
+
+describe('Integrating a realistic series of turns', () => {
+    it.skip('correctly tracks game state through successive player turns')
 });
 
 function actionSpy() {
@@ -578,4 +618,18 @@ function startInPlayer1DiscardPhase() {
     state.table[0] = gameState.shrinkingBrew();
 
     main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0] });
+}
+
+function startInPlayer1DiscardPhaseOnLastTurnOfGame() {
+    startInPlayer1DiscardPhase();
+
+    const state = main.currentState();
+    state.players.byId[0].hand = [];
+    state.players.byId[1].hand = [gameState.bats()];
+    state.deck = [];
+}
+
+function startInGameOverState() {
+    startInPlayer1DiscardPhaseOnLastTurnOfGame();
+    main.playerDiscard(0);
 }
