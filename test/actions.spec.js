@@ -2,18 +2,26 @@ const expect = require('chai').expect;
 const gameState = require('../app/gameState.js');
 const actions = require('../app/actions.js');
 
-const bats = gameState.bats;
-const blackCat = gameState.blackCat;
-const frogJuice = gameState.frogJuice;
-const mice = gameState.mice;
-const newts = gameState.newts;
-const prince = gameState.prince;
-const princeToFrogSpell = gameState.princeToFrogSpell;
-const shrinkingBrew = gameState.shrinkingBrew;
-const toads = gameState.toads;
-const uglifyingSpell = gameState.uglifyingSpell;
-const witch = gameState.witch;
-const witchWash = gameState.witchWash;
+const {
+    shrinkingBrew,
+    bats,
+    toads,
+    newts,
+    mice,
+    frogJuice,
+    toadStools,
+    unicornHorn,
+    monkeyPowder,
+    starAndMoonDust,
+    deadlyNightshade,
+    princess,
+    prince,
+    blackCat,
+    witchWash,
+    witch,
+    princeToFrogSpell,
+    uglifyingSpell
+} = gameState;
 
 describe('The action function', () => {
     it('takes an action string, the current game state, and optional data and returns a new state', () => {
