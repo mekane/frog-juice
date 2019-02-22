@@ -42,7 +42,7 @@ describe('the draw action', () => {
         expect(newState.players.byId[0].hand.length).to.equal(0);
     });
 
-    it("moves a random card from the deck array to the specified player's hand", () => {
+    it(`moves one card from the deck array to the specified player's hand`, () => {
         const state = gameState.initialState();
         const originalDeckSize = state.deck.length;
 
@@ -54,6 +54,16 @@ describe('the draw action', () => {
         expect(newState.players.byId[0].hand.length).to.equal(1);
     });
 
+    it(`shifts the next card from the deck array`, () => {
+        const state = gameState.initialState();
+        state.deck = [shrinkingBrew(), bats(), toads()];
+
+        let newState = actions.act(actions.DRAW, state, { player: 0 });
+        expect(newState.players.byId[0].hand).to.deep.equal([shrinkingBrew()]);
+
+        newState = actions.act(actions.DRAW, newState, { player: 0 });
+        expect(newState.players.byId[0].hand).to.deep.equal([shrinkingBrew(), bats()]);
+    });
 });
 
 describe('the reveal action', () => {
@@ -684,6 +694,71 @@ describe('the play spell action', () => {
         expect(spellIsNotInPlayersHand, `The spell is no longer in the player's hand`).to.be.true;
     });
 
+});
+
+describe(`Adding an ingredient from a player's hand to their own spell`, () => {
+    it(`does nothing if no player is specified`, () => {
+        const originalState = gameState.initialState();
+        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, {});
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`does nothing if no card is specified`, () => {
+        const originalState = gameState.initialState();
+        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0 });
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`does nothing if no spell is specified`, () => {
+        const originalState = gameState.initialState();
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, card: 0 });
+
+        expect(nextState).to.equal(originalState);
+    });
+
+    it(`produces an error state if the specified card is not in the spell's list of ingredients`, () => {
+        const originalState = gameState.initialState();
+        const player = originalState.players.byId[0];
+
+        player.spells = [
+            princeToFrogSpell()
+        ];
+        player.hand = [
+            toads()
+        ];
+
+        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0, spell: 0, card: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The specified card (Toads) is not an ingredient of the spell`);
+    });
+
+    it(`moves the card from the player's hand to their list of ingredients`, () => {
+        const originalState = gameState.initialState();
+        const playerSetup = originalState.players.byId[0];
+
+        playerSetup.spells = [
+            princeToFrogSpell()
+        ];
+        playerSetup.hand = [
+            bats(),
+            prince()
+        ];
+
+        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0, card: 1, spell: 0 });
+        const player = nextState.players.byId[0];
+        const ingredientIsNotInHand = !(player.hand.find(card => card.name === 'Prince'));
+        const playerHasIngredient = !!(player.ingredients.find(card => card.name === 'Prince'));
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+        expect(ingredientIsNotInHand, 'Ingredient is gone from hand').to.be.true;
+        expect(player.hand.length).to.equal(1);
+        expect(playerHasIngredient, `Ingredient is in player's list`).to.be.true;
+        expect(player.ingredients.length).to.equal(1);
+    });
 });
 
 describe("taking an ingredient from the table to add to a player's spell", () => {

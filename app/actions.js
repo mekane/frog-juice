@@ -2,6 +2,7 @@
 
 var deepFreeze = require('deep-freeze');
 
+const ADD_INGREDIENT_FROM_HAND = 'ADD_INGREDIENT_FROM_HAND';
 const BLACK_CAT = 'BLACK_CAT';
 const CAPTURE = 'CAPTURE';
 const DISCARD = 'DISCARD';
@@ -26,7 +27,23 @@ function act(actionType, currentState, options) {
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
     //TODO: check that target is a valid player (error or no-op?)
 
-    if (actionType === BLACK_CAT && optionsDefined(['player', 'target'])) {
+    if (actionType === ADD_INGREDIENT_FROM_HAND && optionsDefined(['player', 'card', 'spell'])) {
+        const card = player.hand[options.card];
+
+        const spell = player.spells[options.spell];
+        if (!spellRequiresIngredient(spell, card.name)) {
+            newState.error = `The specified card (${card.name}) is not an ingredient of the spell`;
+            return newState;
+        }
+
+        removeCardFrom(player.hand, options.card);
+        player.ingredients.push(card);
+
+        if (spellIsComplete(player, options.spell)) {
+            captureSpellAndIngredients(player, options.spell);
+        }
+    }
+    else if (actionType === BLACK_CAT && optionsDefined(['player', 'target'])) {
         if (!hasCard(player, 'Black Cat')) {
             newState.error = `Player ${options.player} does not have the Black Cat`;
             return newState;
@@ -142,7 +159,7 @@ function act(actionType, currentState, options) {
             return newState;
         }
 
-        const spell = player.spells[0];
+        const spell = player.spells[0]; //TODO: write a test to fix this bug!
         if (!spellRequiresIngredient(spell, options.cardName)) {
             newState.error = `The named card (${options.cardName}) is not an ingredient of the spell`;
             return newState;
@@ -298,12 +315,14 @@ function takeRandomCardFromDeck(deck) {
 }
 
 function drawCard(state, player) {
-    const card = takeRandomCardFromDeck(state.deck);
+    //const card = takeRandomCardFromDeck(state.deck);
+    const card = state.deck.shift();
     player.hand.push(card);
 }
 
 function revealCard(state) {
     const card = takeRandomCardFromDeck(state.deck);
+    //const card = state.deck.shift();
     state.table.push(card);
 }
 
@@ -336,6 +355,7 @@ function sumCardValues(total, nextCard) {
 }
 
 module.exports = {
+    ADD_INGREDIENT_FROM_HAND,
     act,
     BLACK_CAT,
     CAPTURE,
