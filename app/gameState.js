@@ -68,6 +68,21 @@ function getNewDeck() {
     ];
 }
 
+function shuffle(oldDeck) {
+    let deck = oldDeck.slice();
+    let temp = null;
+
+    for (let i = deck.length - 1; i > 0; i--) {
+        let randomCardIndex = Math.floor(Math.random() * (i + 1));
+
+        temp = deck[i];
+        deck[i] = deck[randomCardIndex];
+        deck[randomCardIndex] = temp;
+    }
+
+    return deck;
+}
+
 function initialState(numberOfPlayers) {
     const players = {
         0: getNewPlayer(),
@@ -83,7 +98,7 @@ function initialState(numberOfPlayers) {
     }
 
     return {
-        deck: getNewDeck(),
+        deck: shuffle(getNewDeck()),
         table: [],
         players: {
             byId: players
