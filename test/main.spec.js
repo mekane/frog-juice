@@ -368,7 +368,7 @@ describe('The Game State finite state machine', () => {
             testPlayingWitchWash();
 
             function testPlayingBlackCat() {
-                main.newGame();
+                startInPlayer0PlayPhase();
                 const state = main.currentState();
                 state.players.byId[0].hand[0] = gameState.blackCat();
                 state.players.byId[1].captured.push(gameState.frogJuice());
@@ -380,7 +380,7 @@ describe('The Game State finite state machine', () => {
             }
 
             function testCapture() {
-                main.newGame();
+                startInPlayer0PlayPhase();
                 const state = main.currentState();
                 state.players.byId[0].hand[0] = gameState.toads();
                 state.table[0] = gameState.shrinkingBrew();
@@ -393,7 +393,7 @@ describe('The Game State finite state machine', () => {
             }
 
             function testPlayingWitch() {
-                main.newGame();
+                startInPlayer0PlayPhase();
                 const state = main.currentState();
                 state.players.byId[0].hand[0] = gameState.witch();
 
@@ -404,7 +404,7 @@ describe('The Game State finite state machine', () => {
             }
 
             function testPlayingWitchWash() {
-                main.newGame();
+                startInPlayer0PlayPhase();
                 const state = main.currentState();
                 state.players.byId[0].hand[0] = gameState.witchWash();
                 state.table[0] = gameState.witch();
@@ -457,7 +457,6 @@ describe('The Game State finite state machine', () => {
         });
 
         //asking for spell ingredients - doesn't transition
-        //asking for spell ingredients isn't allowed after they've asked everyone
     });
 
     describe('the DISCARD phase', () => {
