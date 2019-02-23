@@ -159,7 +159,7 @@ function act(actionType, currentState, options) {
             return newState;
         }
 
-        const spell = player.spells[0]; //TODO: write a test to fix this bug!
+        const spell = player.spells[options.spell];
         if (!spellRequiresIngredient(spell, options.cardName)) {
             newState.error = `The named card (${options.cardName}) is not an ingredient of the spell`;
             return newState;

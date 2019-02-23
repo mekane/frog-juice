@@ -875,6 +875,32 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
         expect(playerCapturedPrince, `Prince is in player's capture pile`).to.be.true;
         expect(player.captured.length).to.equal(4);
     });
+
+    it(`uses the specified spell to decide if the action is valid (regression test)`, () => {
+        const originalState = gameState.initialState();
+        originalState.players.byId[0].spells = [
+            uglifyingSpell(),
+            princeToFrogSpell()
+        ];
+        originalState.table = [
+            bats(),
+            prince()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Prince', spell: 1 });
+        const player = nextState.players.byId[0];
+        const ingredientIsNotOnTable = !(nextState.table.find(card => card.name === 'Prince'));
+        const playerHasIngredient = !!(player.ingredients.find(card => card.name === 'Prince'));
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.be.an('undefined');
+        expect(ingredientIsNotOnTable, 'Ingredient is gone from table').to.be.true;
+        expect(nextState.table.length).to.equal(1);
+        expect(playerHasIngredient, `Ingredient is in player's list`).to.be.true;
+        expect(player.ingredients.length).to.equal(1);
+    });
+
+
 });
 
 describe('taking a spell component from another player and adding it to a spell', () => {
