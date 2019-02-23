@@ -363,7 +363,7 @@ describe('The Game State finite state machine', () => {
         it('Transitions to Player 0 Discarding after they play a card', () => {
             testPlayingBlackCat();
             testCapture();
-            //testPlayingSpell();
+            testPlayingSpell();
             testPlayingWitch();
             testPlayingWitchWash();
 
@@ -390,6 +390,18 @@ describe('The Game State finite state machine', () => {
 
                 expect(main.currentPlayer()).to.equal(0);
                 expect(main.currentPhase(), 'Transition to discard after Capture').to.equal(gameState.DISCARD);
+            }
+
+            function testPlayingSpell() {
+                startInPlayer0PlayPhase();
+                const state = main.currentState();
+                const player = state.players.byId[0];
+                player.hand = [gameState.princeToFrogSpell()];
+
+                main.playerTurn(playerAction.PLAY_SPELL, { card: [0] });
+
+                expect(main.currentPlayer()).to.equal(0);
+                expect(main.currentPhase(), 'Transition to discard after playing Spell').to.equal(gameState.DISCARD);
             }
 
             function testPlayingWitch() {
