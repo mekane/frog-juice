@@ -99,6 +99,24 @@ function newGame(number, optionalActionHandlerOverride) {
     _resetIngredientAskList();
 }
 
+function playerAddIngredientFromHandToSpell(options) {
+    if (_currentPhase !== gameState.PLAY)
+        return;
+
+    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+
+    const nextState = action(actionsModule.ADD_INGREDIENT_FROM_HAND, _currentState, actionOptions);
+
+    if (_currentState !== nextState) {
+        _currentState = nextState;
+
+        if (nextState.error) {
+            console.log(`Error: ${nextState.error}`);
+        }
+    }
+
+}
+
 function playerCanTakeIngredients() {
     if (_currentPhase != gameState.PLAY)
         return false;
@@ -220,6 +238,7 @@ module.exports = {
     listPlayersWhoHaveNotBeenAskedForIngredients,
     newGame,
     playerAction,
+    playerAddIngredientFromHandToSpell,
     playerCanTakeIngredients,
     playerDraw,
     playerDiscard,

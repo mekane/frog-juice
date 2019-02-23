@@ -88,7 +88,7 @@ describe('the main module', () => {
 
 });
 
-describe('Logic and functions for asking for ingredients', () => {
+describe('Logic and functions for adding ingredients to spells in play', () => {
     describe('Listing players than can still be asked', () => {
 
         it(`has a function to get the list of players that the current play may ask for ingredients`, () => {
@@ -166,6 +166,42 @@ describe('Logic and functions for asking for ingredients', () => {
             main.currentState().table = [];
             main.askForIngredient({ target: 1, cardName: 'Bats' });
             expect(main.playerCanTakeIngredients()).to.equal(false);
+        });
+    });
+
+    describe('Currnet player adding ingredients from their hand', () => {
+        it(`is a function`, () => {
+            expect(main.playerAddIngredientFromHandToSpell).to.be.a('function');
+        });
+
+        it(`requires a card index from hand and a spell index`, () => {
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
+
+            main.playerAddIngredientFromHandToSpell({});
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.playerAddIngredientFromHandToSpell({ spell: 0 });
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.playerAddIngredientFromHandToSpell({ card: 0 });
+            expect(main.currentState()).to.equal(originalGameState);
+        });
+
+        it(`connects to the gameState action if valid`, () => {
+            startInPlayer0PlayPhase();
+            const originalGameState = main.currentState();
+            const player0 = originalGameState.players.byId[0];
+
+            player0.spells.push(gameState.princeToFrogSpell());
+            player0.hand[0] = gameState.prince();
+
+            main.playerAddIngredientFromHandToSpell({ card: 0, spell: 0 });
+
+            const newGameState = main.currentState();
+            expect(newGameState).not.to.equal(originalGameState);
+            expect(newGameState.players.byId[0].ingredients.length).to.equal(1);
+            expect(newGameState.players.byId[0].hand.length).to.equal(3);
         });
     });
 
