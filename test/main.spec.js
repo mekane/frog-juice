@@ -344,6 +344,32 @@ describe('The Game State finite state machine', () => {
             expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
         });
 
+        it('Ignores ask and add ingredient actions in the Draw phase', () => {
+            startInPlayer1DrawPhase();
+            const originalGameState = main.currentState();
+            const player0 = originalGameState.players.byId[0];
+            const player1 = originalGameState.players.byId[1];
+            player0.hand[0] = gameState.prince();
+            player1.hand[1] = gameState.shrinkingBrew();
+            player1.spells = [gameState.princeToFrogSpell()];
+            originalGameState.table[0] = gameState.frogJuice();
+
+            main.playerAddIngredientFromHandToSpell({ spell: 0, card: 0 });
+            assertStateIsUnchanged();
+
+            main.askForIngredient({ target: 0, cardName: 'Prince', spell: 0 });
+            assertStateIsUnchanged();
+
+            //TODO: include "done asking" action
+            //assertStateIsUnchanged();
+
+            function assertStateIsUnchanged() {
+                expect(main.currentPlayer()).to.equal(1);
+                expect(main.currentPhase()).to.equal(gameState.DRAW);
+                expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
+            }
+        });
+
         it(`Adds a card to the player's hand and stays in the phase if they have less than four cards`, () => {
             startInPlayer1DrawPhase();
             let player1 = main.currentState().players.byId[1];
@@ -560,6 +586,33 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPhase(), 'Ignores player actions during the Discard phase').to.equal(gameState.DISCARD);
             expect(main.currentPlayer()).to.equal(0);
             expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
+        });
+
+        //TODO: add ask for ingredient and "done asking" action
+        it('ignores ask and add ingredient actions in the Draw phase', () => {
+            startInPlayer1DiscardPhase();
+            const originalGameState = main.currentState();
+            const player0 = originalGameState.players.byId[0];
+            const player1 = originalGameState.players.byId[1];
+            player0.hand[0] = gameState.prince();
+            player1.hand[0] = gameState.shrinkingBrew();
+            player1.spells = [gameState.princeToFrogSpell()];
+            originalGameState.table[0] = gameState.frogJuice();
+
+            main.playerAddIngredientFromHandToSpell({ spell: 0, card: 0 });
+            assertStateIsUnchanged();
+
+            main.askForIngredient({ target: 0, cardName: 'Prince', spell: 0 });
+            assertStateIsUnchanged();
+
+            //TODO: include "done asking" action
+            //assertStateIsUnchanged();
+
+            function assertStateIsUnchanged() {
+                expect(main.currentPlayer()).to.equal(1);
+                expect(main.currentPhase()).to.equal(gameState.DISCARD);
+                expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
+            }
         });
 
         it('Transitions from Player 0 Discarding to Player 1 Drawing after player 0 discards', () => {
