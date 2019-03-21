@@ -186,10 +186,13 @@ function playerTurn(actionType, options) {
         const noError = !nextState.error;
         const actionSuccess = (nextState !== _currentState) || (actionType === playerAction.PASS);
         const okToTransition = (noError && actionSuccess);
+        const playerHasSpellInProgress = !!nextState.players.byId[_currentPlayer].spells.length;
 
         if (okToTransition) {
             _currentState = nextState;
-            _currentPhase = gameState.DISCARD;
+
+            if (!playerHasSpellInProgress)
+                _currentPhase = gameState.DISCARD;
         }
     }
 }

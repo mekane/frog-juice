@@ -306,10 +306,16 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
  *
  * SETUP is a temporary state while the initial setup is done. Not a regular state.
  * The Draw->Play transition is automatic if they are already at four cards
- * The Play-Discard transition can include a "Pass" action (need to add)
+ * The Play->Discard transition can include a "Pass" action (need to add)
  * The Discard->Next Draw transition can be auto if they have no cards to discard
  * OVER is when the game is over, as detected by the main module.
  *
+ * Note that Play->Discard is delayed if the player has a spell in progress.
+ * This gives them the opportunity to ask for and add ingredients. It means
+ * that main has to know whether they've already done an action this turn and
+ * prevent a second one (e.g. another capture) and it needs to provide a way
+ * for them to indicate they are done asking for ingredients, which will then
+ * transition them out of PLAY into DISCARD.
  *
  */
 describe('The Game State finite state machine', () => {
@@ -399,7 +405,6 @@ describe('The Game State finite state machine', () => {
         it('Transitions to Player 0 Discarding after they play a card', () => {
             testPlayingBlackCat();
             testCapture();
-            testPlayingSpell();
             testPlayingWitch();
             testPlayingWitchWash();
 
@@ -426,18 +431,6 @@ describe('The Game State finite state machine', () => {
 
                 expect(main.currentPlayer()).to.equal(0);
                 expect(main.currentPhase(), 'Transition to discard after Capture').to.equal(gameState.DISCARD);
-            }
-
-            function testPlayingSpell() {
-                startInPlayer0PlayPhase();
-                const state = main.currentState();
-                const player = state.players.byId[0];
-                player.hand = [gameState.princeToFrogSpell()];
-
-                main.playerTurn(playerAction.PLAY_SPELL, { card: [0] });
-
-                expect(main.currentPlayer()).to.equal(0);
-                expect(main.currentPhase(), 'Transition to discard after playing Spell').to.equal(gameState.DISCARD);
             }
 
             function testPlayingWitch() {
@@ -471,6 +464,46 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPhase()).to.equal(gameState.DISCARD);
         });
 
+        it('Does not automatically transition to discarding if spell is in progress', () => {
+            testPlayingSpellThisTurn();
+            testRegularActionWithSpellAlreadyInPlay();
+
+            function testPlayingSpellThisTurn() {
+                startInPlayer0PlayPhase();
+                const state = main.currentState();
+                const player = state.players.byId[0];
+                player.hand = [gameState.princeToFrogSpell()];
+
+                main.playerTurn(playerAction.PLAY_SPELL, { card: [0] });
+
+                expect(main.currentPlayer()).to.equal(0);
+                expect(main.currentPhase()).to.equal(gameState.PLAY);
+            }
+
+            function testRegularActionWithSpellAlreadyInPlay() {
+                startInPlayer0PlayPhase();
+                const state = main.currentState();
+                const player0 = state.players.byId[0];
+                player0.hand[0] = gameState.toads();
+                player0.spells = [gameState.princeToFrogSpell()];
+                state.table[0] = gameState.shrinkingBrew();
+                state.table[1] = gameState.bats();
+
+                main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0, 1] });
+
+                expect(main.currentPlayer()).to.equal(0);
+                expect(main.currentPhase()).to.equal(gameState.PLAY);
+            }
+        });
+
+        it.skip('Does not allow a second action during the same turn', () => {
+
+        });
+
+        it.skip('Transitions to Discarding when the player is done with ingredients', () => {
+
+        })
+
         it('Does not transition for invalid action types', () => {
             main.newGame();
             main.playerTurn('OBVIOUS_GARBAGE', {});
@@ -503,8 +536,6 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPhase()).to.equal(gameState.PLAY);
             expect(gameStatePre).to.equal(gameStatePost);
         });
-
-        //asking for spell ingredients - doesn't transition
     });
 
     describe('the DISCARD phase', () => {
