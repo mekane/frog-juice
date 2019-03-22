@@ -5,6 +5,7 @@ let action = actionsModule.act;
 let _currentState = null;
 let _currentPlayer = null;
 let _currentPhase = gameState.SETUP;
+let _playerActionsRemaining = 1;
 let _playersEligibleForIngredientAskThisTurn = [];
 
 const playerAction = {
@@ -117,6 +118,10 @@ function playerAddIngredientFromHandToSpell(options) {
 
 }
 
+function playerCanTakeAction() {
+    return _playerActionsRemaining > 0;
+}
+
 function playerCanTakeIngredients() {
     if (_currentPhase != gameState.PLAY)
         return false;
@@ -143,6 +148,7 @@ function playerDiscard(cardIndex) {
         _currentState = nextState;
         _currentPlayer++;
         _currentPhase = gameState.DRAW;
+        _playerActionsRemaining = 1;
 
         if (_currentPlayer > (numberOfPlayers - 1)) {
             _currentPlayer = 0;
@@ -190,6 +196,8 @@ function playerTurn(actionType, options) {
 
         if (okToTransition) {
             _currentState = nextState;
+
+            _playerActionsRemaining--;
 
             if (!playerHasSpellInProgress)
                 _currentPhase = gameState.DISCARD;
@@ -242,6 +250,7 @@ module.exports = {
     newGame,
     playerAction,
     playerAddIngredientFromHandToSpell,
+    playerCanTakeAction,
     playerCanTakeIngredients,
     playerDraw,
     playerDiscard,

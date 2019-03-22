@@ -83,9 +83,34 @@ describe('the main module', () => {
         expect(main.currentPhase()).to.equal(gameState.PLAY);
     });
 
+    it('keeps track of whether the player has taken an action this turn', () => {
+        startInPlayer0PlayPhase();
+        const state = main.currentState();
+        const player0 = state.players.byId[0];
+        player0.hand[0] = gameState.witch();
+
+        expect(main.playerCanTakeAction(), 'True at start of turn').to.equal(true);
+
+        main.playerTurn(playerAction.PLAY_WITCH);
+
+        expect(main.playerCanTakeAction(), 'False after playing').to.equal(false);
+    });
+
+    it('resets the canTakeAction tracker when a new turn starts', () => {
+        startInPlayer0PlayPhase();
+        const state = main.currentState();
+        state.players.byId[0].hand[0] = gameState.witch();
+        main.playerTurn(playerAction.PLAY_WITCH);
+
+        expect(main.playerCanTakeAction(), 'False after playing').to.equal(false);
+
+        main.playerDiscard(0);
+
+        expect(main.currentPlayer(), `Next player's turn`).to.equal(1);
+        expect(main.playerCanTakeAction(), 'Action tracker was reset').to.equal(true);
+    });
+
     //can calculate player scores (not just when game is over)
-
-
 });
 
 describe('Logic and functions for adding ingredients to spells in play', () => {
