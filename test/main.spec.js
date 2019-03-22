@@ -624,7 +624,6 @@ describe('The Game State finite state machine', () => {
             expect(main.currentState(), 'Has no effect on game state').to.equal(originalGameState);
         });
 
-        //TODO: add ask for ingredient and "done asking" action
         it('ignores ask and add ingredient actions in the Draw phase', () => {
             startInPlayer1DiscardPhase();
             const originalGameState = main.currentState();
@@ -731,7 +730,86 @@ describe('The Game State finite state machine', () => {
 });
 
 describe('Integrating a realistic series of turns', () => {
-    it.skip('correctly tracks game state through successive player turns')
+    const {
+        shrinkingBrew,
+        bats,
+        toads,
+        newts,
+        mice,
+        frogJuice,
+        toadStools,
+        unicornHorn,
+        monkeyPowder,
+        starAndMoonDust,
+        deadlyNightshade,
+        princess,
+        prince,
+        blackCat,
+        witchWash,
+        witch,
+        princeToFrogSpell
+    } = gameState;
+
+    it('correctly tracks game state through successive player turns', () => {
+        //setup a curated initial game state so we can predict and test the outcome
+        main.newGame(4);
+        const state = main.currentState();
+        const player = state.players.byId;
+        player[0].hand = [shrinkingBrew(), frogJuice(), princeToFrogSpell(), bats()];
+        player[1].hand = [bats(), toads(), mice()];
+        player[2].hand = [witch(), newts(), monkeyPowder()];
+        player[3].hand = [blackCat(), witchWash(), princess()]
+        state.table = [unicornHorn(), starAndMoonDust(), deadlyNightshade(), prince()];
+        state.deck = [
+            toadStools(),
+            witch(),
+            frogJuice(),
+            toads()
+        ];
+
+        expect(main.currentPlayer(), `Start First Player's Turn`).to.equal(0);
+        expect(main.currentPhase()).to.equal(gameState.PLAY);
+
+        main.playerTurn(playerAction.PLAY_SPELL, { card: 2 });
+        main.takeIngredientFromTable({ cardName: 'Prince', spell: 0 });
+        main.playerAddIngredientFromHandToSpell({ card: 1, spell: 0 });
+        main.playerAddIngredientFromHandToSpell({ card: 0, spell: 0 });
+
+        expect(main.currentState().players.byId[0].hand.length, 'Player played three cards').to.equal(1);
+        expect(main.currentState().players.byId[0].captured.length, 'Player finished spell').to.equal(4);
+
+        /* TODO: this done() shouldn't be strictly necessary. If they have an
+         * in-progress spell and then add an ingredient that finishes the spell
+         * it would make sense to check if they still have any in progress and
+         * automatically transition them.
+         */
+        main.playerDone();
+        main.playerDiscard(0);
+
+        expect(main.currentPlayer(), `Start Second Player's Turn`).to.equal(1);
+        expect(main.currentPhase()).to.equal(gameState.DRAW);
+
+        main.playerDraw();
+
+        expect(main.currentPhase()).to.equal(gameState.PLAY);
+
+        console.log(main.currentState().table)
+        console.log(main.currentState().players.byId[1])
+
+        main.playerTurn(playerAction.PLAY_WITCH);
+        //TODO: make it possible for P3 to intercept with the Witch Wash
+        expect(false, 'P3 intercepted with witch wash').to.equal(true);
+
+        //*p1: draw toadstools, capture sd with bat, toads, mice, discard toadstools
+        //p1 hand: 0, capture: 3
+        //table: u, toadstools, dn, bats
+        //*P2: draw witch, play witch. p3 intercepts with witch wash. discard newts
+        //p2 hand: 2, capture: 0, p3 capture: 6?
+        //table: newts
+        //*p3: draw frog juice and toads. play black cat on p0. discard princess
+        //p3 capture: 8, p0 capture: 3
+        //table: newts, princess
+    });
 });
 
 function actionSpy() {
