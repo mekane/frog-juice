@@ -547,13 +547,24 @@ describe('The Game State finite state machine', () => {
             }
         });
 
-        it.skip('Does not allow a second action during the same turn', () => {
+        it('Does not allow a second action during the same turn', () => {
+            startInPlayer0PlayPhaseWithSpellAfterPlayingOneAction();
+            const stateAfterOneAction = main.currentState();
 
+            main.playerTurn(playerAction.PLAY_WITCH);
+            const stateAfterSecondAction = main.currentState();
+
+            expect(stateAfterSecondAction, 'Second action has no effect').to.equal(stateAfterOneAction);
+            expect(main.currentPhase(), 'No transition').to.equal(gameState.PLAY);
         });
 
-        it.skip('Transitions to Discarding when the player is done with ingredients', () => {
+        it('Transitions to Discarding when the player is done with ingredients', () => {
+            startInPlayer0PlayPhaseWithSpellAfterPlayingOneAction();
 
-        })
+            main.playerDone();
+
+            expect(main.currentPhase()).to.equal(gameState.DISCARD);
+        });
 
         it('Does not transition for invalid action types', () => {
             main.newGame();
@@ -739,6 +750,18 @@ function actionSpy() {
 
 function startInPlayer0PlayPhase(num) {
     main.newGame(num);
+}
+
+function startInPlayer0PlayPhaseWithSpellAfterPlayingOneAction() {
+    startInPlayer0PlayPhase();
+    const originalGameState = main.currentState();
+    const player0 = originalGameState.players.byId[0];
+    player0.hand[0] = gameState.mice();
+    player0.hand[1] = gameState.witch();
+    player0.spells = [gameState.uglifyingSpell()];
+    originalGameState.table = [gameState.bats(), gameState.toads()];
+
+    main.playerTurn(playerAction.CAPTURE, { cards: [0], tableCards: [0, 1] });
 }
 
 function startInPlayer0DiscardPhase(num) {

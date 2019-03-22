@@ -165,6 +165,15 @@ function playerDiscard(cardIndex) {
     }
 }
 
+function playerDone() {
+    /* Currently with no checks this is like a "super pass"
+     * that rockets you to directly to the discard phase.
+     * This might be okay. The only problem I can think of is
+     * that it would let you "un-end" a game that is over.
+     */
+    _currentPhase = gameState.DISCARD;
+}
+
 function playerDraw() {
     if (_currentPhase !== gameState.DRAW)
         return;
@@ -182,7 +191,7 @@ function playerTurn(actionType, options) {
     if (_currentPhase !== gameState.PLAY)
         return;
 
-    if (possibleActions.includes(actionType)) {
+    if (possibleActions.includes(actionType) && playerCanTakeAction()) {
         const actionOptions = Object.assign({ player: _currentPlayer }, options);
         const nextState = action(actionType, _currentState, actionOptions);
 
@@ -215,6 +224,7 @@ function _resetState(num) {
     _currentState = gameState.initialState(num);
     _currentPlayer = null;
     _currentPhase = gameState.SETUP;
+    _playerActionsRemaining = 1;
     _resetIngredientAskList();
 }
 
@@ -252,6 +262,7 @@ module.exports = {
     playerAddIngredientFromHandToSpell,
     playerCanTakeAction,
     playerCanTakeIngredients,
+    playerDone,
     playerDraw,
     playerDiscard,
     playerTurn,
