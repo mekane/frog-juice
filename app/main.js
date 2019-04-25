@@ -191,8 +191,15 @@ function playerTurn(actionType, options) {
     if (_currentPhase !== gameState.PLAY)
         return;
 
+    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+
     if (possibleActions.includes(actionType) && playerCanTakeAction()) {
-        const actionOptions = Object.assign({ player: _currentPlayer }, options);
+        if (actionType === playerAction.PLAY_WITCH && options && options.wash) {
+            actionType = actionsModule.WITCH_COUNTERED_BY_WASH;
+            actionOptions['player'] = options.wash;
+            actionOptions['target'] = _currentPlayer;
+        }
+
         const nextState = action(actionType, _currentState, actionOptions);
 
         if (nextState.error)

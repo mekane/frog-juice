@@ -110,6 +110,28 @@ describe('the main module', () => {
         expect(main.playerCanTakeAction(), 'Action tracker was reset').to.equal(true);
     });
 
+    it('converts a witch turn to a witch-countered-by-witch-wash if necessary', () => {
+        startInPlayer0PlayPhase();
+        const originalGameState = main.currentState();
+        let player0 = originalGameState.players.byId[0];
+        let player1 = originalGameState.players.byId[1];
+        player0.hand[0] = gameState.witch();
+        player1.hand.push(gameState.witchWash());
+
+        main.playerTurn(main.playerAction.PLAY_WITCH, { wash: 1 });
+
+        const newGameState = main.currentState();
+        player0 = newGameState.players.byId[0];
+        player1 = newGameState.players.byId[1];
+        const player1CapturedWitch = !!(player1.captured.find(card => card.name === 'Witch'));
+        const player1CapturedWash = !!(player1.captured.find(card => card.name === 'Witch Wash'));
+
+        expect(player0.captured.length, 'Player 0 did not capture any cards').to.equal(0);
+        expect(player1.captured.length, 'Player 1 got table cards, witch, and wash').to.equal(6);
+        expect(player1CapturedWitch, 'Player 1 captured the witch').to.equal(true);
+        expect(player1CapturedWash, 'Player 1 captured the witch wash').to.equal(true);
+    });
+
     //can calculate player scores (not just when game is over)
 });
 
@@ -331,7 +353,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
  *
  * SETUP is a temporary state while the initial setup is done. Not a regular state.
  * The Draw->Play transition is automatic if they are already at four cards
- * The Play->Discard transition can include a "Pass" action (need to add)
+ * The Play->Discard transition can include a "Pass" action
  * The Discard->Next Draw transition can be auto if they have no cards to discard
  * OVER is when the game is over, as detected by the main module.
  *
