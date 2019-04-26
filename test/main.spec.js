@@ -443,6 +443,32 @@ describe('The Game State finite state machine', () => {
             expect(main.currentPlayer()).to.equal(1);
             expect(main.currentPhase()).to.equal(gameState.PLAY);
         });
+
+        it(`Transitions to Play if the player doesn't have four cards but they drew the last card`, () => {
+            main.newGame(4);
+            const state = main.currentState();
+            const player = state.players.byId;
+            player[1].hand = [gameState.bats()];
+            state.deck = [
+                gameState.toadStools(),
+                gameState.witch()
+            ];
+
+            main.playerTurn(playerAction.PASS);
+            main.playerDiscard(0);
+
+            expect(main.currentPlayer(), `Start second player's turn - they need to draw three cards`).to.equal(1);
+            expect(main.currentPhase()).to.equal(gameState.DRAW);
+
+            main.playerDraw();
+            main.playerDraw();
+            main.playerDraw();
+
+            console.log(main.currentState().players.byId[1].hand)
+
+            expect(main.currentState().players.byId[1].hand.length, 'They could only draw up to three cards').to.equal(3);
+            expect(main.currentPhase(), 'Transitioned to PLAY despite fewer than four cards in hand').to.equal(gameState.PLAY);
+        });
     });
 
     describe('the PLAY phase', () => {

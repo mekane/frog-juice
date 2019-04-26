@@ -182,7 +182,11 @@ function playerDraw() {
     _currentState = nextState;
 
     const cardsInPlayersHand = _currentState.players.byId[_currentPlayer].hand.length;
-    if (cardsInPlayersHand >= 4) {
+    const deckIsEmpty = _currentState.deck.length === 0;
+
+    const doneDrawing = (deckIsEmpty || cardsInPlayersHand >= 4);
+
+    if (doneDrawing) {
         _currentPhase = gameState.PLAY;
     }
 }
