@@ -112,7 +112,7 @@ function act(actionType, currentState, options) {
         removeCardFrom(player.hand, options.card);
         newState.table.push(cardDiscarded);
     }
-    else if (actionType === DRAW && optionsDefined('player')) {
+    else if (actionType === DRAW && optionsDefined('player') && currentState.deck.length) {
         const player = newState.players.byId[options.player];
         drawCard(newState, player)
     }
@@ -315,7 +315,6 @@ function takeRandomCardFromDeck(deck) {
 }
 
 function drawCard(state, player) {
-    //const card = takeRandomCardFromDeck(state.deck);
     const card = state.deck.shift();
     player.hand.push(card);
 }

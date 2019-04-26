@@ -72,6 +72,14 @@ describe('the draw action', () => {
         newState = actions.act(actions.DRAW, newState, { player: 0 });
         expect(newState.players.byId[0].hand).to.deep.equal([shrinkingBrew(), bats()]);
     });
+
+    it(`has no effect if the deck is empty`, () => {
+        const originalState = gameState.initialState();
+        originalState.deck = [];
+
+        let newState = actions.act(actions.DRAW, originalState, { player: 0 });
+        expect(newState).to.equal(originalState);
+    });
 });
 
 describe('the reveal action', () => {
