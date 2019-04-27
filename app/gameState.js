@@ -85,16 +85,16 @@ function shuffle(oldDeck) {
 
 function initialState(numberOfPlayers) {
     const players = {
-        0: getNewPlayer(),
-        1: getNewPlayer()
+        0: getNewPlayer('Player 0'),
+        1: getNewPlayer('Player 1')
     };
 
     if (numberOfPlayers >= 3) {
-        players[2] = getNewPlayer();
+        players[2] = getNewPlayer('Player 2');
     }
 
     if (numberOfPlayers >= 4) {
-        players[3] = getNewPlayer();
+        players[3] = getNewPlayer('Player 3');
     }
 
     return {
@@ -108,8 +108,9 @@ function initialState(numberOfPlayers) {
     };
 }
 
-function getNewPlayer() {
+function getNewPlayer(name) {
     return {
+        name,
         type: 'human',
         hand: [],
         captured: [],
