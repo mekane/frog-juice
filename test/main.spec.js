@@ -155,6 +155,17 @@ describe(`Calculating player scores`, () => {
 
         expect(main.getPlayerScores()).to.deep.equal([0, 1, 2, 6]);
     });
+
+    it('scores two points for all players that tied for most cards', () => {
+        startInPlayer0PlayPhase(4);
+        const player = main.currentState().players.byId;
+        player[0].captured = [gameState.frogJuice(), gameState.mice(), gameState.newts()];
+        player[1].captured = [gameState.frogJuice()];
+        player[2].captured = [gameState.frogJuice()];
+        player[3].captured = [gameState.frogJuice(), gameState.bats(), gameState.toads()];
+
+        expect(main.getPlayerScores()).to.deep.equal([3, 1, 1, 3]);
+    });
 })
 
 
