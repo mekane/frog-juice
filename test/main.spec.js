@@ -131,9 +131,32 @@ describe('the main module', () => {
         expect(player1CapturedWitch, 'Player 1 captured the witch').to.equal(true);
         expect(player1CapturedWash, 'Player 1 captured the witch wash').to.equal(true);
     });
-
-    //can calculate player scores (not just when game is over)
 });
+
+describe(`Calculating player scores`, () => {
+    it(`scores two points for whoever has the most total cards in their capture pile`, () => {
+        startInPlayer0PlayPhase(4);
+        const player = main.currentState().players.byId;
+        player[0].captured = [];
+        player[1].captured = [gameState.bats()];
+        player[2].captured = [gameState.bats(), gameState.bats()];
+        player[3].captured = [gameState.bats(), gameState.bats(), gameState.bats()];
+
+        expect(main.getPlayerScores()).to.deep.equal([0, 0, 0, 2]);
+    });
+
+    it(`scores one point per power card in each player's capture pile`, () => {
+        startInPlayer0PlayPhase(4);
+        const player = main.currentState().players.byId;
+        player[0].captured = [];
+        player[1].captured = [gameState.frogJuice()];
+        player[2].captured = [gameState.frogJuice(), gameState.frogJuice()];
+        player[3].captured = [gameState.frogJuice(), gameState.witch(), gameState.blackCat(), gameState.princeToFrogSpell()];
+
+        expect(main.getPlayerScores()).to.deep.equal([0, 1, 2, 6]);
+    });
+})
+
 
 describe('Logic and functions for adding ingredients to spells in play', () => {
     describe('Listing players than can still be asked', () => {
@@ -216,7 +239,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
         });
     });
 
-    describe('Currnet player adding ingredients from their hand', () => {
+    describe('Current player adding ingredients from their hand', () => {
         it(`is a function`, () => {
             expect(main.playerAddIngredientFromHandToSpell).to.be.a('function');
         });
@@ -463,8 +486,6 @@ describe('The Game State finite state machine', () => {
             main.playerDraw();
             main.playerDraw();
             main.playerDraw();
-
-            console.log(main.currentState().players.byId[1].hand)
 
             expect(main.currentState().players.byId[1].hand.length, 'They could only draw up to three cards').to.equal(3);
             expect(main.currentPhase(), 'Transitioned to PLAY despite fewer than four cards in hand').to.equal(gameState.PLAY);
@@ -815,6 +836,7 @@ describe('Integrating a realistic series of turns', () => {
             toads()
         ];
 
+        /* ========== PLAYER 0 ========== */
         expect(main.currentPlayer(), `Start First Player's Turn`).to.equal(0);
         expect(main.currentPhase()).to.equal(gameState.PLAY);
 
@@ -834,6 +856,7 @@ describe('Integrating a realistic series of turns', () => {
         main.playerDone();
         main.playerDiscard(0);
 
+        /* ========== PLAYER 1 ========== */
         expect(main.currentPlayer(), `Start Second Player's Turn`).to.equal(1);
         expect(main.currentPhase()).to.equal(gameState.DRAW);
 
@@ -841,22 +864,35 @@ describe('Integrating a realistic series of turns', () => {
 
         expect(main.currentPhase()).to.equal(gameState.PLAY);
 
-        console.log(main.currentState().table)
-        console.log(main.currentState().players.byId[1])
+        main.playerTurn(playerAction.CAPTURE, { cards: [0, 1, 2], tableCards: [1] })
 
-        main.playerTurn(playerAction.PLAY_WITCH);
-        //TODO: make it possible for P3 to intercept with the Witch Wash
-        expect(false, 'P3 intercepted with witch wash').to.equal(true);
+        expect(main.currentState().players.byId[1].hand.length, 'Player played three cards').to.equal(1);
+        expect(main.currentState().players.byId[1].captured.length, 'Player captured four cards').to.equal(4);
 
-        //*p1: draw toadstools, capture sd with bat, toads, mice, discard toadstools
-        //p1 hand: 0, capture: 3
-        //table: u, toadstools, dn, bats
-        //*P2: draw witch, play witch. p3 intercepts with witch wash. discard newts
-        //p2 hand: 2, capture: 0, p3 capture: 6?
-        //table: newts
-        //*p3: draw frog juice and toads. play black cat on p0. discard princess
-        //p3 capture: 8, p0 capture: 3
-        //table: newts, princess
+        main.playerDiscard(0);
+
+        /* ========== PLAYER 2 ========== */
+        expect(main.currentPlayer(), `Start Third Player's Turn`).to.equal(2);
+        expect(main.currentPhase()).to.equal(gameState.DRAW);
+
+        main.playerDraw();
+
+        main.playerTurn(playerAction.PLAY_WITCH, { wash: 3 });
+        expect(main.currentState().players.byId[3].captured.length, 'Player 3 washed the witch').to.equal(6);
+
+        main.playerDiscard(0);
+
+        /* ========== PLAYER 3 ========== */
+        expect(main.currentPlayer(), `Start Third Player's Turn`).to.equal(3);
+        expect(main.currentPhase()).to.equal(gameState.DRAW);
+
+        main.playerDraw();
+        main.playerDraw();
+
+        main.playerTurn(playerAction.PLAY_BLACK_CAT, { target: 0 });
+        expect(main.currentState().players.byId[3].captured.length, 'Player 3 got black cat and another card').to.equal(8);
+
+        expect(main.getPlayerScores()).to.deep.equal([1, 0, 0, 6]);
     });
 });
 

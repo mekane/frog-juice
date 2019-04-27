@@ -67,6 +67,33 @@ function currentState() {
     return _currentState;
 }
 
+function getPlayerScores() {
+    const player = _currentState.players.byId
+    const allPlayerIds = Object.keys(player);
+
+    const scores = allPlayerIds.map(countCapturedPowerCards);
+
+    let maxCaptured = 0;
+    allPlayerIds.forEach(id => {
+        const numberOfCapturedCards = player[id].captured.length;
+        if (numberOfCapturedCards > maxCaptured)
+            maxCaptured = numberOfCapturedCards;
+    });
+
+    allPlayerIds.forEach(id => {
+        const numberOfCapturedCards = player[id].captured.length;
+        if (numberOfCapturedCards === maxCaptured)
+            scores[id] += 2;
+    });
+
+    return scores;
+
+    function countCapturedPowerCards(playerId) {
+        const capturePile = _currentState.players.byId[playerId].captured || [];
+        return capturePile.filter(card => card.isPowerCard).length;
+    }
+}
+
 /**
  * Note: returns string ids because of Object.keys. Beware!
  */
@@ -268,6 +295,7 @@ module.exports = {
     currentPlayer,
     currentState,
     listPlayersWhoHaveNotBeenAskedForIngredients,
+    getPlayerScores,
     newGame,
     playerAction,
     playerAddIngredientFromHandToSpell,
