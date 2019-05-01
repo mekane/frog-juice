@@ -25,6 +25,13 @@ calculate the scores.
 A client basically just needs to load the main module and call newGame, then
 provide prompts for the player according to the game state and available actions.
 
+## Clients
+
+### Command Line
+
+The command line client is a text-only implementation that displays game state
+and prompts for player actions using plain text. Run it with `node client/cli/main.js`
+
 ## Unit Tests
 
 Make sure to `npm install` and then run `npm test` in the root directory. The
@@ -37,8 +44,7 @@ the core modules using TDD, though I let myself take fairly large steps.
 
 ## How to Play
 
-A command-line client is in progress, so currently the only way to "play" is to
-program a game, the way the big test at the end of main.spec.js does.
+Run the command line client with `node client/cli/main.js`.
 
 ## History
 I wrote a similar application in Java way back in 2001 using AWT. It was much

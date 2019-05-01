@@ -82,7 +82,34 @@ function showTableCards(cards) {
 }
 
 function showCurrentPlayerSummary(player) {
-    console.log(`You are ${player.name}! It's your turn!`);
+    showCurrentPlayerHeader();
+    showPlayerCapturedStats();
+    showPlayerSpellsInProgress();
+    showPlayerHand();
+
+    function showCurrentPlayerHeader() {
+        console.log(`You are ${player.name}! It's your turn!`);
+        console.log('');
+    }
+
+    function showPlayerCapturedStats() {
+        const captured = player.captured.length;
+        const powerCards = player.captured.filter(card => card.isPowerCard).length;
+
+        console.log(`You have captured ${captured} cards (${powerCards} power cards)`);
+    }
+
+    function showPlayerSpellsInProgress() {
+        if (player.spells.length) {
+            console.log(`You have ${player.spells.length} spells in progress`);
+            //TODO: show details including ingredients, etc.
+        }
+    }
+
+    function showPlayerHand() {
+        console.log('Your Hand:');
+        player.hand.forEach(card => console.log(card.name));
+    }
 }
 
 function promptForInput(main) {
