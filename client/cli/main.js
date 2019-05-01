@@ -21,8 +21,76 @@ function getNumberOfPlayers() {
 }
 
 function gameLoop() {
-    //show state
-    //prompt current player for input (depending on phase)
+    showState();
+    promptForInput();
+}
+
+function showState(main) {
+    const state = game.currentState();
+    const currentPlayerId = game.currentPlayer();
+    const players = state.players.byId;
+    const ids = Object.keys(players);
+
+    showTurnHeader();
+    showOtherPlayerSummaries();
+    showDeck();
+    showTable();
+    showCurrentPlayerSummary(players[currentPlayerId])
+
+
+    function showTurnHeader() {
+        console.log('Turn #');
+        console.log('');
+    }
+
+    function showOtherPlayerSummaries() {
+        for (let i = 0; i < ids.length; i++) {
+            const id = ids[i];
+            if (currentPlayerId != id) {
+                showPlayerSummaryBar(players[id]);
+            }
+        }
+        console.log('');
+    }
+
+    function showDeck() {
+        console.log(`There are ${state.deck.length} cards left in the deck.`);
+        console.log('');
+    }
+
+    function showTable() {
+        console.log('Table:')
+        showTableCards(state.table);
+        console.log('');
+    }
+}
+
+
+function showPlayerSummaryBar(player) {
+    const name = player.name;
+    const hand = player.hand.length;
+    const captured = player.captured.length;
+    const spellCount = player.spells.length;
+    const s = spellCount === 1 ? '' : 's';
+    const spells = spellCount > 0 ? `${spells} spell${s} in progress` : '';
+
+    console.log(`${name}: ${hand} cards in hand. ${captured} captured. ${spells}`);
+}
+
+function showTableCards(cards) {
+    cards.forEach(card => console.log(card.name));
+}
+
+function showCurrentPlayerSummary(player) {
+    console.log(`You are ${player.name}! It's your turn!`);
+}
+
+function promptForInput(main) {
+    const phase = game.currentPhase();
+
+    if (phase === game.DRAW) {
+
+    }
 }
 
 function displayFinalScores() {
