@@ -3,8 +3,9 @@
  **/
 const game = require('../../app/main.js');
 const numberOfPlayers = getNumberOfPlayers();
+const term = require('terminal-kit').terminal;
 
-console.log(`Beginning new game with ${numberOfPlayers} players`);
+term(`Beginning new game with ${numberOfPlayers} players`);
 
 game.newGame(numberOfPlayers);
 
@@ -39,8 +40,7 @@ function showState(main) {
 
 
     function showTurnHeader() {
-        console.log('Turn #');
-        console.log('');
+        term.underline('Turn #\n');
     }
 
     function showOtherPlayerSummaries() {
