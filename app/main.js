@@ -5,6 +5,7 @@ let action = actionsModule.act;
 let _currentState = null;
 let _currentPlayer = null;
 let _currentPhase = gameState.SETUP;
+let _currentTurn = 0;
 let _playerActionsRemaining = 1;
 let _playersEligibleForIngredientAskThisTurn = [];
 
@@ -94,6 +95,10 @@ function getPlayerScores() {
     }
 }
 
+function getTurnNumber() {
+    return _currentTurn;
+}
+
 /**
  * Note: returns string ids because of Object.keys. Beware!
  */
@@ -124,6 +129,7 @@ function newGame(number, optionalActionHandlerOverride) {
     _currentState = next;
     _currentPlayer = 0;
     _currentPhase = gameState.PLAY;
+    _currentTurn = 0;
     _resetIngredientAskList();
 }
 
@@ -175,6 +181,7 @@ function playerDiscard(cardIndex) {
         _currentState = nextState;
         _currentPlayer++;
         _currentPhase = gameState.DRAW;
+        _currentTurn++;
         _playerActionsRemaining = 1;
 
         if (_currentPlayer > (numberOfPlayers - 1)) {
@@ -298,6 +305,7 @@ module.exports = {
     DRAW: gameState.DRAW,
     listPlayersWhoHaveNotBeenAskedForIngredients,
     getPlayerScores,
+    getTurnNumber,
     newGame,
     PLAY: gameState.PLAY,
     playerAction,

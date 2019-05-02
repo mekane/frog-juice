@@ -131,6 +131,24 @@ describe('the main module', () => {
         expect(player1CapturedWitch, 'Player 1 captured the witch').to.equal(true);
         expect(player1CapturedWash, 'Player 1 captured the witch wash').to.equal(true);
     });
+
+    it('keeps track of how many turns have been taken', () => {
+        main.newGame();
+        expect(main.getTurnNumber()).to.equal(0);
+
+        main.playerTurn(main.playerAction.PASS);
+        main.playerDiscard(0);
+
+        expect(main.getTurnNumber()).to.equal(1);
+
+        main.playerTurn(main.playerAction.PASS);
+        main.playerDiscard(0);
+
+        expect(main.getTurnNumber()).to.equal(2);
+
+        main.newGame();
+        expect(main.getTurnNumber()).to.equal(0);
+    });
 });
 
 describe(`Calculating player scores`, () => {
