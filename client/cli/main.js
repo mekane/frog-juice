@@ -3,11 +3,13 @@
  **/
 const game = require('../../app/main.js');
 const numberOfPlayers = getNumberOfPlayers();
-const term = require('terminal-kit').terminal;
+const show = require('./formatting.js');
 
-term(`Beginning new game with ${numberOfPlayers} players`);
+show.plain(`Beginning new game with ${numberOfPlayers} players\n`);
 
 game.newGame(numberOfPlayers);
+
+show.gameHeader('Welcome to Frog Juice!')
 
 gameLoop();
 
@@ -40,7 +42,7 @@ function showState(main) {
 
 
     function showTurnHeader() {
-        term.underline('Turn #\n');
+        show.smallHeader('Turn #\n');
     }
 
     function showOtherPlayerSummaries() {
@@ -50,18 +52,17 @@ function showState(main) {
                 showPlayerSummaryBar(players[id]);
             }
         }
-        console.log('');
+        show.newLine();
     }
 
     function showDeck() {
-        console.log(`There are ${state.deck.length} cards left in the deck.`);
-        console.log('');
+        show.plain(`There are ${state.deck.length} cards left in the deck.\n`);
     }
 
     function showTable() {
-        console.log('Table:')
+        show.strong('Table:')
         showTableCards(state.table);
-        console.log('');
+        show.plain('\n');
     }
 }
 
@@ -74,11 +75,11 @@ function showPlayerSummaryBar(player) {
     const s = spellCount === 1 ? '' : 's';
     const spells = spellCount > 0 ? `${spells} spell${s} in progress` : '';
 
-    console.log(`${name}: ${hand} cards in hand. ${captured} captured. ${spells}`);
+    show.plain(`${name}: ${hand} cards in hand. ${captured} captured. ${spells}`);
 }
 
 function showTableCards(cards) {
-    cards.forEach(card => console.log(card.name));
+    cards.forEach(card => show.plain(card.name));
 }
 
 function showCurrentPlayerSummary(player) {
@@ -88,27 +89,26 @@ function showCurrentPlayerSummary(player) {
     showPlayerHand();
 
     function showCurrentPlayerHeader() {
-        console.log(`You are ${player.name}! It's your turn!`);
-        console.log('');
+        show.plain(`You are ${player.name}! It's your turn!\n`);
     }
 
     function showPlayerCapturedStats() {
         const captured = player.captured.length;
         const powerCards = player.captured.filter(card => card.isPowerCard).length;
 
-        console.log(`You have captured ${captured} cards (${powerCards} power cards)`);
+        show.plain(`You have captured ${captured} cards (${powerCards} power cards)`);
     }
 
     function showPlayerSpellsInProgress() {
         if (player.spells.length) {
-            console.log(`You have ${player.spells.length} spells in progress`);
+            show.plain(`You have ${player.spells.length} spells in progress`);
             //TODO: show details including ingredients, etc.
         }
     }
 
     function showPlayerHand() {
-        console.log('Your Hand:');
-        player.hand.forEach(card => console.log(card.name));
+        show.strong('Your Hand:');
+        player.hand.forEach(card => show.plain(card.name));
     }
 }
 
@@ -124,8 +124,8 @@ function displayFinalScores() {
     const scores = game.getPlayerScores();
     const player = game.currentState().players.byId;
 
-    console.log(`\nGAME OVER`);
+    show.mediumHeader(`\nGAME OVER`);
     for (let i = 0; i < scores.length; i++) {
-        console.log(`${player[i].name}: ${scores[i]}`);
+        show.plain(`${player[i].name}: ${scores[i]}`);
     }
 }
