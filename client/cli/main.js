@@ -2,17 +2,16 @@
  * A command-line client to the FrogJuice game, intended to be run with Node
  **/
 const game = require('../../app/main.js');
-const numberOfPlayers = getNumberOfPlayers();
+const input = require('./input.js');
 const show = require('./formatting.js');
+
+game.newGame(getNumberOfPlayers());
 
 main();
 
+
 async function main() {
-    show.plain(`Beginning new game with ${numberOfPlayers} players\n`);
-
-    game.newGame(numberOfPlayers);
-
-    show.gameHeader('Welcome to Frog Juice!')
+    await showWelcomeScreen();
 
     await gameLoop();
 
@@ -43,6 +42,11 @@ async function gameLoop() {
         show.newLine();
         show.newLine();
     }
+}
+
+async function showWelcomeScreen() {
+    show.welcomeScreen();
+    return input.enterToContinue();
 }
 
 function showState(main) {
@@ -141,7 +145,7 @@ async function promptForInput(main) {
         //TODO
     }
     else if (phase === game.PLAY) {
-        return show.mainPhaseActionMenu();
+        return input.mainPhaseActionMenu();
     }
     else {
         show.error(`Unknown game phase: ` + phase);

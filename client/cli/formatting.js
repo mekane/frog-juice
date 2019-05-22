@@ -1,16 +1,5 @@
 const term = require('terminal-kit').terminal;
 
-listenForControlKeysToExit();
-
-function listenForControlKeysToExit() {
-    term.on('key', function(name, matches, data) {
-        if (name === 'CTRL_C') {
-            term.grabInput(false);
-            setTimeout(function() { process.exit() }, 100);
-        }
-    });
-}
-
 function newLine() {
     return term('\n');
 }
@@ -40,6 +29,7 @@ function largeHeader(msg) {
 }
 
 function gameHeader(msg) {
+    centered(msg);
     return largeHeader(msg);
 }
 
@@ -47,16 +37,20 @@ function error(msg) {
     return term.red.bold(msg);
 }
 
-async function mainPhaseActionMenu() {
-    const items = ['Capture', 'Play Spell', 'Witch', 'Black Cat', 'Witch Wash', 'Pass'];
+function welcomeScreen() {
+    term.clear();
 
-    const choice = await term.singleLineMenu(items, {
-        //y: 1, // the menu will be on the top of the terminal
-        //style: term.inverse,
-        selectedStyle: term.dim.blue.bgGreen
-    }).promise;
+    const title = 'Welcome to Frog Juice!';
 
-    return choice.selectedText;
+    centered(title);
+    mediumHeader(title);
+
+    term.moveTo(1, term.height);
+}
+
+function centered(text) {
+    const x = (term.width - text.length) / 2;
+    return term.column(x);
 }
 
 module.exports = {
@@ -69,5 +63,5 @@ module.exports = {
     largeHeader,
     gameHeader,
     error,
-    mainPhaseActionMenu
+    welcomeScreen
 }
