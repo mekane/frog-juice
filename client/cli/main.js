@@ -5,16 +5,21 @@ const game = require('../../app/main.js');
 const numberOfPlayers = getNumberOfPlayers();
 const show = require('./formatting.js');
 
-show.plain(`Beginning new game with ${numberOfPlayers} players\n`);
+main();
 
-game.newGame(numberOfPlayers);
+async function main() {
+    show.plain(`Beginning new game with ${numberOfPlayers} players\n`);
 
-show.gameHeader('Welcome to Frog Juice!')
+    game.newGame(numberOfPlayers);
 
-gameLoop();
+    show.gameHeader('Welcome to Frog Juice!')
 
-displayFinalScores();
+    await gameLoop();
 
+    displayFinalScores();
+
+    process.exit(0);
+}
 
 function getNumberOfPlayers() {
     const num = parseInt(process.argv[2]);
@@ -23,9 +28,21 @@ function getNumberOfPlayers() {
     return Math.min(Math.max(num, 2), 4);
 }
 
-function gameLoop() {
-    showState();
-    promptForInput();
+async function gameLoop() {
+    let action = null;
+    while (game.currentPhase() !== game.OVER && action !== 'Pass') {
+        showState();
+        action = await promptForInput();
+        show.newLine();
+        show.plain(`You chose ${action}`);
+
+        show.newLine();
+        show.newLine();
+        show.newLine();
+        show.newLine();
+        show.newLine();
+        show.newLine();
+    }
 }
 
 function showState(main) {
@@ -42,7 +59,7 @@ function showState(main) {
 
 
     function showTurnHeader() {
-        show.smallHeader('Turn #\n');
+        show.smallHeader(`Turn ${game.getTurnNumber() + 1}\n`);
     }
 
     function showOtherPlayerSummaries() {
@@ -112,11 +129,22 @@ function showCurrentPlayerSummary(player) {
     }
 }
 
-function promptForInput(main) {
+async function promptForInput(main) {
     const phase = game.currentPhase();
 
     if (phase === game.DRAW) {
-
+        show.plain('Press ENTER to draw a card');
+        //TODO
+    }
+    else if (phase === game.DISCARD) {
+        show.plain('Choose a card from your hand to discard');
+        //TODO
+    }
+    else if (phase === game.PLAY) {
+        return show.mainPhaseActionMenu();
+    }
+    else {
+        show.error(`Unknown game phase: ` + phase);
     }
 }
 
