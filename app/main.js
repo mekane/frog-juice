@@ -83,7 +83,7 @@ function getPlayerScores() {
 
     allPlayerIds.forEach(id => {
         const numberOfCapturedCards = player[id].captured.length;
-        if (numberOfCapturedCards === maxCaptured)
+        if (numberOfCapturedCards === maxCaptured && numberOfCapturedCards > 0)
             scores[id] += 2;
     });
 

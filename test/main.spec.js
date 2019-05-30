@@ -163,6 +163,16 @@ describe(`Calculating player scores`, () => {
         expect(main.getPlayerScores()).to.deep.equal([0, 0, 0, 2]);
     });
 
+    it('scores zero for the most cards if the most cards == 0', () => {
+        startInPlayer0PlayPhase(3);
+        const player = main.currentState().players.byId;
+        player[0].captured = [];
+        player[1].captured = [];
+        player[2].captured = [];
+        
+        expect(main.getPlayerScores()).to.deep.equal([0, 0, 0]);
+    });
+
     it(`scores one point per power card in each player's capture pile`, () => {
         startInPlayer0PlayPhase(4);
         const player = main.currentState().players.byId;
