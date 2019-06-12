@@ -48,6 +48,12 @@ function welcomeScreen() {
     term.moveTo(1, term.height);
 }
 
+function card(card) {
+    const valueIndicator = card.isPowerCard ? '*' : `[${card.numericValue}]`;
+    return `${card.name} ${valueIndicator}`;
+
+}
+
 function centered(text) {
     const x = (term.width - text.length) / 2;
     return term.column(x);
@@ -63,5 +69,6 @@ module.exports = {
     largeHeader,
     gameHeader,
     error,
-    welcomeScreen
+    welcomeScreen,
+    card
 }

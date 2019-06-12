@@ -21,8 +21,6 @@ async function mainPhaseActionMenu() {
     const items = ['Capture', 'Play Spell', 'Witch', 'Black Cat', 'Witch Wash', 'Pass'];
 
     const choice = await term.singleLineMenu(items, {
-        //y: 1, // the menu will be on the top of the terminal
-        //style: term.inverse,
         selectedStyle: term.dim.blue.bgGreen
     }).promise;
 

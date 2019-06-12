@@ -56,21 +56,24 @@ function showState(main) {
     const ids = Object.keys(players);
 
     showTurnHeader();
-    showOtherPlayerSummaries();
+    showPlayerSummaries();
     showDeck();
     showTable();
-    showCurrentPlayerSummary(players[currentPlayerId])
+    showCurrentPlayerStatus(players[currentPlayerId])
 
 
     function showTurnHeader() {
-        show.smallHeader(`Turn ${game.getTurnNumber() + 1}\n`);
+        show.smallHeader(`\nTurn ${game.getTurnNumber() + 1}`);
     }
 
-    function showOtherPlayerSummaries() {
+    function showPlayerSummaries() {
         for (let i = 0; i < ids.length; i++) {
             const id = ids[i];
             if (currentPlayerId != id) {
                 showPlayerSummaryBar(players[id]);
+            }
+            else {
+                showCurrentPlayerSummaryBar(players[id])
             }
         }
         show.newLine();
@@ -83,7 +86,6 @@ function showState(main) {
     function showTable() {
         show.strong('Table:')
         showTableCards(state.table);
-        show.plain('\n');
     }
 }
 
@@ -99,26 +101,23 @@ function showPlayerSummaryBar(player) {
     show.plain(`${name}: ${hand} cards in hand. ${captured} captured. ${spells}`);
 }
 
-function showTableCards(cards) {
-    cards.forEach(card => show.plain(card.name));
+function showCurrentPlayerSummaryBar(player) {
+    const hand = player.hand.length;
+    const captured = player.captured.length;
+    const powerCards = player.captured.filter(card => card.isPowerCard).length;
+
+    show.plain(`You: ${hand} cards in hand. ${captured} captured. (${powerCards} power cards)`);
 }
 
-function showCurrentPlayerSummary(player) {
-    showCurrentPlayerHeader();
-    showPlayerCapturedStats();
+
+function showTableCards(cards) {
+    cards.forEach(card => show.plain(show.card(card)));
+    show.plain('');
+}
+
+function showCurrentPlayerStatus(player) {
     showPlayerSpellsInProgress();
     showPlayerHand();
-
-    function showCurrentPlayerHeader() {
-        show.plain(`You are ${player.name}! It's your turn!\n`);
-    }
-
-    function showPlayerCapturedStats() {
-        const captured = player.captured.length;
-        const powerCards = player.captured.filter(card => card.isPowerCard).length;
-
-        show.plain(`You have captured ${captured} cards (${powerCards} power cards)`);
-    }
 
     function showPlayerSpellsInProgress() {
         if (player.spells.length) {
@@ -129,7 +128,7 @@ function showCurrentPlayerSummary(player) {
 
     function showPlayerHand() {
         show.strong('Your Hand:');
-        player.hand.forEach(card => show.plain(card.name));
+        player.hand.forEach((card, i) => show.plain(`${i}) ${show.card(card)}`));
     }
 }
 
