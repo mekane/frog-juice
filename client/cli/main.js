@@ -32,13 +32,7 @@ async function gameLoop() {
     while (game.currentPhase() !== game.OVER && action !== 'Pass') {
         showState();
         action = await promptForInput();
-        show.newLine();
-        show.plain(`You chose ${action}`);
 
-        show.newLine();
-        show.newLine();
-        show.newLine();
-        show.newLine();
         show.newLine();
         show.newLine();
     }
@@ -63,7 +57,7 @@ function showState(main) {
 
 
     function showTurnHeader() {
-        show.smallHeader(`\nTurn ${game.getTurnNumber() + 1}`);
+        show.smallHeader(`\nTurn ${game.getTurnNumber() + 1} (${game.currentPhase()})`);
     }
 
     function showPlayerSummaries() {
@@ -112,7 +106,7 @@ function showCurrentPlayerSummaryBar(player) {
 
 function showTableCards(cards) {
     cards.forEach(card => show.plain(show.card(card)));
-    show.plain('');
+    show.newLine();
 }
 
 function showCurrentPlayerStatus(player) {
@@ -132,19 +126,55 @@ function showCurrentPlayerStatus(player) {
     }
 }
 
+function getCurrentPlayer() {
+    return game.currentState().players.byId[game.currentPlayer()]
+}
+
 async function promptForInput(main) {
     const phase = game.currentPhase();
+    const player = getCurrentPlayer();
 
     if (phase === game.DRAW) {
         show.plain('Press ENTER to draw a card');
-        //TODO
+        game.playerDraw();
     }
     else if (phase === game.DISCARD) {
         show.plain('Choose a card from your hand to discard');
-        //TODO
+        const discardChoice = await input.chooseCardFromHand(player.hand);
+        game.playerDiscard(discardChoice);
     }
     else if (phase === game.PLAY) {
-        return input.mainPhaseActionMenu();
+        /*
+         * TODO: do we disable invalid actions?
+         * Alternative is to just let them try things and show the resulting errors.
+         * TODO: should write a unit test to enforce that they can't put the same
+         * card ids in capture lists (i.e. can't capture an 8 with the same 4 specified twice)
+         */
+        const actionChoice = await input.mainPhaseActionMenu();
+
+        if (actionChoice === input.actions.CAPTURE) {
+            //TODO: input card choice(s) for table and hand
+            //TODO: limit further choices to unselected (or see if term-kit has a multi-choice)
+        }
+        else if (actionChoice === input.actions.PLAY_SPELL) {
+            //TODO: prompt for spell choice
+        }
+        else if (actionChoice === input.actions.WITCH) {
+            //game.playerTurn(game.playerAction.PLAY_WITCH)
+        }
+        else if (actionChoice === input.actions.BLACK_CAT) {
+            //TODO: choose a target player
+            //game.playerTurn(game.playerAction.PLAY_BLACK_CAT)
+        }
+        else if (actionChoice === input.actions.WITCH_WASH) {
+            //game.playerTurn(game.playerAction.PLAY_WITCH_WASH)
+        }
+        else if (actionChoice === input.actions.PASS) {
+            game.playerTurn(game.playerAction.PASS);
+        }
+        else {
+            show.highlight(`You chose ${actionChoice}`);
+        }
     }
     else {
         show.error(`Unknown game phase: ` + phase);

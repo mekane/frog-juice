@@ -1,6 +1,16 @@
 const term = require('terminal-kit').terminal;
+const format = require('./formatting.js');
 
 listenForControlKeysToExit();
+
+const actions = {
+    CAPTURE: 'Capture',
+    PLAY_SPELL: 'Play Spell',
+    WITCH: 'Witch',
+    BLACK_CAT: 'Black Cat',
+    WITCH_WASH: 'Witch Wash',
+    PASS: 'Pass'
+}
 
 function listenForControlKeysToExit() {
     term.on('key', function(name, matches, data) {
@@ -11,6 +21,14 @@ function listenForControlKeysToExit() {
     });
 }
 
+async function chooseCardFromHand(hand) {
+    const items = hand.map(card => format.card(card));
+
+    const choice = await term.singleColumnMenu(items).promise;
+
+    return choice.selectedIndex;
+}
+
 async function enterToContinue() {
     term('Press ENTER to continue');
 
@@ -18,7 +36,7 @@ async function enterToContinue() {
 }
 
 async function mainPhaseActionMenu() {
-    const items = ['Capture', 'Play Spell', 'Witch', 'Black Cat', 'Witch Wash', 'Pass'];
+    const items = Object.values(actions);
 
     const choice = await term.singleLineMenu(items, {
         selectedStyle: term.dim.blue.bgGreen
@@ -28,6 +46,8 @@ async function mainPhaseActionMenu() {
 }
 
 module.exports = {
+    actions,
+    chooseCardFromHand,
     enterToContinue,
     mainPhaseActionMenu
 }
