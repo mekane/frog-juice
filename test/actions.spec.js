@@ -366,6 +366,47 @@ describe('the capture action', () => {
         expect(nextState.players.byId[0].hand[0].name).to.equal('Shrinking Brew');
         expect(nextState.players.byId[0].captured.length, 'Four cards in capture pile').to.equal(4);
     });
+
+    it(`ignores duplicate card indices in player cards, treating them as one`, () => {
+        const originalState = gameState.initialState();
+        const originalPlayer = originalState.players.byId[0];
+        originalPlayer.hand = [
+            shrinkingBrew(),
+            newts()
+        ];
+        originalState.table = [
+            bats()
+        ];
+
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0, 0], tableCards: [0] });
+        const newPlayer = nextState.players.byId[0];
+
+        expect(nextState).to.not.equal(originalState);
+        expect(newPlayer.hand, 'Expected hand to remain unchanged').to.deep.equal(originalPlayer.hand);
+        expect(newPlayer.captured, 'Expected capture to remain unchanged').to.have.length(0);
+        expect(nextState.error).to.equal('Error, capture cards are not equal');
+    });
+
+
+    it(`ignores duplicate card indices in table cards, treating them as one`, () => {
+        const originalState = gameState.initialState();
+        const originalPlayer = originalState.players.byId[0];
+        originalPlayer.hand = [
+            toads()
+        ];
+        originalState.table = [
+            bats(),
+            shrinkingBrew()
+        ];
+
+        const nextState = actions.act(actions.CAPTURE, originalState, { player: 0, cards: [0], tableCards: [0, 1, 1] });
+        const newPlayer = nextState.players.byId[0];
+
+        expect(nextState).to.not.equal(originalState);
+        expect(newPlayer.hand, 'Expected capture to have worked').to.have.length(0);
+        expect(newPlayer.captured, 'Expected capture to have worked').to.have.length(3);
+        expect(nextState.error).to.be.an('undefined');
+    });
 });
 
 describe('the black cat action', () => {

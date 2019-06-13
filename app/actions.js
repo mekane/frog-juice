@@ -67,8 +67,8 @@ function act(actionType, currentState, options) {
         removeCardFrom(target.captured, firstPowerCardIndex);
     }
     else if (actionType === CAPTURE && optionsDefined(['player', 'cards', 'tableCards'])) {
-        const playerCardIds = options['cards'];
-        const tableCardIds = options['tableCards'];
+        const playerCardIds = removeDuplicatesFromArray(options['cards']);
+        const tableCardIds = removeDuplicatesFromArray(options['tableCards']);
 
         if (playerCardIds.length === 0 || tableCardIds.length === 0)
             return currentState;
@@ -351,6 +351,10 @@ function isNumeric(card) {
 
 function sumCardValues(total, nextCard) {
     return total + nextCard.numericValue;
+}
+
+function removeDuplicatesFromArray(array) {
+    return Array.from(new Set(array));
 }
 
 module.exports = {
