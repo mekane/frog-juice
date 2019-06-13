@@ -169,7 +169,7 @@ describe(`Calculating player scores`, () => {
         player[0].captured = [];
         player[1].captured = [];
         player[2].captured = [];
-        
+
         expect(main.getPlayerScores()).to.deep.equal([0, 0, 0]);
     });
 
@@ -704,7 +704,6 @@ describe('The Game State finite state machine', () => {
 
             expect(main.currentPlayer()).to.equal(0);
             expect(main.currentPhase()).to.equal(gameState.PLAY);
-            expect(gameStatePre).to.equal(gameStatePost);
         });
     });
 

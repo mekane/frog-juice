@@ -23,8 +23,11 @@ function listenForControlKeysToExit() {
 
 async function chooseCardFromHand(hand) {
     const items = hand.map(card => format.card(card));
+    return chooseOne(items);
+}
 
-    const choice = await term.singleColumnMenu(items).promise;
+async function chooseOne(arrayOfChoices) {
+    const choice = await term.singleColumnMenu(arrayOfChoices).promise;
 
     return choice.selectedIndex;
 }
@@ -48,6 +51,7 @@ async function mainPhaseActionMenu() {
 module.exports = {
     actions,
     chooseCardFromHand,
+    chooseOne,
     enterToContinue,
     mainPhaseActionMenu
 }

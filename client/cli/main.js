@@ -31,9 +31,15 @@ async function gameLoop() {
     let action = null;
     while (game.currentPhase() !== game.OVER && action !== 'Pass') {
         showState();
-        action = await promptForInput();
+        action = await playerActionForPhase();
 
         show.newLine();
+
+        const nextState = game.currentState();
+
+        if (nextState.error)
+            show.error(`ERROR: ${nextState.error}`)
+
         show.newLine();
     }
 }
@@ -130,7 +136,7 @@ function getCurrentPlayer() {
     return game.currentState().players.byId[game.currentPlayer()]
 }
 
-async function promptForInput(main) {
+async function playerActionForPhase() {
     const phase = game.currentPhase();
     const player = getCurrentPlayer();
 
@@ -147,8 +153,6 @@ async function promptForInput(main) {
         /*
          * TODO: do we disable invalid actions?
          * Alternative is to just let them try things and show the resulting errors.
-         * TODO: should write a unit test to enforce that they can't put the same
-         * card ids in capture lists (i.e. can't capture an 8 with the same 4 specified twice)
          */
         const actionChoice = await input.mainPhaseActionMenu();
 
@@ -163,8 +167,8 @@ async function promptForInput(main) {
             //game.playerTurn(game.playerAction.PLAY_WITCH)
         }
         else if (actionChoice === input.actions.BLACK_CAT) {
-            //TODO: choose a target player
-            //game.playerTurn(game.playerAction.PLAY_BLACK_CAT)
+            const otherPlayerId = await chooseOtherPlayer();
+            game.playerTurn(game.playerAction.PLAY_BLACK_CAT, { target: otherPlayerId });
         }
         else if (actionChoice === input.actions.WITCH_WASH) {
             //game.playerTurn(game.playerAction.PLAY_WITCH_WASH)
@@ -173,11 +177,26 @@ async function promptForInput(main) {
             game.playerTurn(game.playerAction.PASS);
         }
         else {
-            show.highlight(`You chose ${actionChoice}`);
+            show.error(`Unknown action: ${actionChoice}`);
         }
     }
     else {
-        show.error(`Unknown game phase: ` + phase);
+        show.error(`Unknown game phase: ${phase}`);
+    }
+
+    async function chooseOtherPlayer() {
+        const players = game.currentState().players.byId;
+        const currentPlayerId = game.currentPlayer();
+        const otherPlayerIds = Object.keys(players).filter(pid => pid != currentPlayerId);
+
+        if (otherPlayerIds.length === 1)
+            return otherPlayerIds[0];
+
+        const playerChoices = otherPlayerIds.map(pid => players[pid].name);
+
+        const chosenIndex = await input.chooseOne(playerChoices);
+
+        return otherPlayerIds[chosenIndex];
     }
 }
 

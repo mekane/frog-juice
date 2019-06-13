@@ -240,17 +240,14 @@ function playerTurn(actionType, options) {
 
         const nextState = action(actionType, _currentState, actionOptions);
 
-        if (nextState.error)
-            console.log(`ERROR: ${nextState.error}`)
-
         const noError = !nextState.error;
         const actionSuccess = (nextState !== _currentState) || (actionType === playerAction.PASS);
         const okToTransition = (noError && actionSuccess);
         const playerHasSpellInProgress = !!nextState.players.byId[_currentPlayer].spells.length;
 
-        if (okToTransition) {
-            _currentState = nextState;
+        _currentState = nextState;
 
+        if (okToTransition) {
             _playerActionsRemaining--;
 
             if (!playerHasSpellInProgress)
