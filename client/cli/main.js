@@ -146,13 +146,13 @@ async function playerActionForPhase() {
     }
     else if (phase === game.DISCARD) {
         show.plain('Choose a card from your hand to discard');
-        const discardChoice = await input.chooseCardFromHand(player.hand);
+        const discardChoice = await input.chooseCardFrom(player.hand);
         game.playerDiscard(discardChoice);
     }
     else if (phase === game.PLAY) {
         /*
-         * TODO: do we disable invalid actions?
-         * Alternative is to just let them try things and show the resulting errors.
+         * TODO: add "add card to spell in play" if applicable
+         * TODO: if !canPlayAction() just show the "add cards to spell or done" menu
          */
         const actionChoice = await input.mainPhaseActionMenu();
 
@@ -161,7 +161,14 @@ async function playerActionForPhase() {
             //TODO: limit further choices to unselected (or see if term-kit has a multi-choice)
         }
         else if (actionChoice === input.actions.PLAY_SPELL) {
-            //TODO: prompt for spell choice
+            const chosenCardIndex = await input.chooseCardFrom(player.hand);
+            const chosenCard = player.hand[chosenCardIndex];
+
+            if (!chosenCard.isSpell) {
+                show.error(`${chosenCard.name} is not a spell!`);
+                return
+            }
+            game.playerTurn(game.playerAction.PLAY_SPELL, { card: chosenCardIndex });
         }
         else if (actionChoice === input.actions.WITCH) {
             //game.playerTurn(game.playerAction.PLAY_WITCH)

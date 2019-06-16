@@ -21,8 +21,8 @@ function listenForControlKeysToExit() {
     });
 }
 
-async function chooseCardFromHand(hand) {
-    const items = hand.map(card => format.card(card));
+async function chooseCardFrom(list) {
+    const items = list.map(card => format.card(card));
     return chooseOne(items);
 }
 
@@ -50,7 +50,7 @@ async function mainPhaseActionMenu() {
 
 module.exports = {
     actions,
-    chooseCardFromHand,
+    chooseCardFrom,
     chooseOne,
     enterToContinue,
     mainPhaseActionMenu
