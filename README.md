@@ -5,14 +5,24 @@ It consists of a few core logic modules which provide the basic game state to
 a client. The client code is completely decoupled from the application core, so
 various clients can all use the same app code.
 
+## Game State
+
 The *gameState* module encodes the basic information about the cards and data
 structures that make up the game. It can construct a new deck, and the data
 structure to represent a game.
+
+![gameState module diagram](docs/gameState.png)
+
+## Actions
 
 The *actions* module is written in a Flux-style action->state transition style
 with unit tests. It takes a starting game state, an action, and some options and
 returns the new game state resulting from that action. The original state is not
 mutated, with deep-freeze included to enforce this.
+
+![actions module diagram](docs/actions.png)
+
+## Main 
 
 The *main* module provides a client-friendly api to manage a game. It abstracts
 away much of the state tracking and transitions via a set of methods by which
@@ -22,8 +32,13 @@ middle when starting a new game. It keeps track of the current player, the
 current game "phase" (i.e. Draw / Play / Discard), can detect game-over, and can
 calculate the scores.
 
+![main module diagram](docs/main.png)
+
 A client basically just needs to load the main module and call newGame, then
 provide prompts for the player according to the game state and available actions.
+Then it calls `main.playerTurn()`, `main.playerDiscard()`, and `main.playerDraw()`
+according to the phases that main keeps track of (by querying `main.currentPhase()`.
+
 
 ## Clients
 
