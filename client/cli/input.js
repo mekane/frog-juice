@@ -23,14 +23,20 @@ function listenForControlKeysToExit() {
 
 async function chooseCardFrom(list) {
     const items = list.map(card => format.card(card));
-    return chooseOne(items);
+    return chooseOneOptional(items);
 }
 
-async function chooseOne(arrayOfChoices) {
-    const choice = await term.singleColumnMenu(arrayOfChoices).promise;
+async function chooseOneOptional(list) {
+    return chooseOne(list, { cancelable: true });
+}
+
+async function chooseOne(arrayOfChoices, opts) {
+    const options = opts || {};
+    const choice = await term.singleColumnMenu(arrayOfChoices, options).promise;
 
     return choice.selectedIndex;
 }
+
 
 async function enterToContinue() {
     term('Press ENTER to continue');
@@ -52,6 +58,7 @@ module.exports = {
     actions,
     chooseCardFrom,
     chooseOne,
+    chooseOneOptional,
     enterToContinue,
     mainPhaseActionMenu
 }

@@ -245,14 +245,15 @@ function playerTurn(actionType, options) {
         const okToTransition = (noError && actionSuccess);
         const playerHasSpellInProgress = !!nextState.players.byId[_currentPlayer].spells.length;
 
-        _currentState = nextState;
-
         if (okToTransition) {
+            _currentState = nextState;
             _playerActionsRemaining--;
 
             if (!playerHasSpellInProgress)
                 _currentPhase = gameState.DISCARD;
         }
+
+        return nextState.error;
     }
 }
 

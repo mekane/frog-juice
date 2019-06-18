@@ -33,6 +33,10 @@ function gameHeader(msg) {
     return largeHeader(msg);
 }
 
+function prompt(msg) {
+    return plain('\n' + msg);
+}
+
 function error(msg) {
     return term.red.bold(msg);
 }
@@ -68,6 +72,7 @@ module.exports = {
     mediumHeader,
     largeHeader,
     gameHeader,
+    prompt,
     error,
     welcomeScreen,
     card

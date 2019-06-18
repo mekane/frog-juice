@@ -702,6 +702,7 @@ describe('The Game State finite state machine', () => {
             main.playerTurn(playerAction.PLAY_WITCH_WASH, {});
             const gameStatePost = main.currentState();
 
+            expect(gameStatePre).to.equal(gameStatePost);
             expect(main.currentPlayer()).to.equal(0);
             expect(main.currentPhase()).to.equal(gameState.PLAY);
         });

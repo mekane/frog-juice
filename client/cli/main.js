@@ -28,17 +28,15 @@ function getNumberOfPlayers() {
 }
 
 async function gameLoop() {
-    let action = null;
-    while (game.currentPhase() !== game.OVER && action !== 'Pass') {
+    let error = null;
+    while (game.currentPhase() !== game.OVER) {
         showState();
-        action = await playerActionForPhase();
+        error = await playerActionForPhase();
 
         show.newLine();
 
-        const nextState = game.currentState();
-
-        if (nextState.error)
-            show.error(`ERROR: ${nextState.error}`)
+        if (error)
+            show.error(`ERROR: ${error}`)
 
         show.newLine();
     }
@@ -161,27 +159,35 @@ async function playerActionForPhase() {
             //TODO: limit further choices to unselected (or see if term-kit has a multi-choice)
         }
         else if (actionChoice === input.actions.PLAY_SPELL) {
+            show.prompt('Choose a spell card to play (esc to cancel):');
             const chosenCardIndex = await input.chooseCardFrom(player.hand);
+            if (wasCanceled(chosenCardIndex))
+                return;
+
             const chosenCard = player.hand[chosenCardIndex];
 
             if (!chosenCard.isSpell) {
                 show.error(`${chosenCard.name} is not a spell!`);
                 return
             }
-            game.playerTurn(game.playerAction.PLAY_SPELL, { card: chosenCardIndex });
+            return game.playerTurn(game.playerAction.PLAY_SPELL, { card: chosenCardIndex });
         }
         else if (actionChoice === input.actions.WITCH) {
             //game.playerTurn(game.playerAction.PLAY_WITCH)
         }
         else if (actionChoice === input.actions.BLACK_CAT) {
+            show.prompt('Choose a player to steal from (esc to cancel):');
             const otherPlayerId = await chooseOtherPlayer();
-            game.playerTurn(game.playerAction.PLAY_BLACK_CAT, { target: otherPlayerId });
+            if (wasCanceled(otherPlayerId))
+                return;
+
+            return game.playerTurn(game.playerAction.PLAY_BLACK_CAT, { target: otherPlayerId });
         }
         else if (actionChoice === input.actions.WITCH_WASH) {
-            //game.playerTurn(game.playerAction.PLAY_WITCH_WASH)
+            //return game.playerTurn(game.playerAction.PLAY_WITCH_WASH)
         }
         else if (actionChoice === input.actions.PASS) {
-            game.playerTurn(game.playerAction.PASS);
+            return game.playerTurn(game.playerAction.PASS);
         }
         else {
             show.error(`Unknown action: ${actionChoice}`);
@@ -201,10 +207,17 @@ async function playerActionForPhase() {
 
         const playerChoices = otherPlayerIds.map(pid => players[pid].name);
 
-        const chosenIndex = await input.chooseOne(playerChoices);
+        const chosenIndex = await input.chooseOneOptional(playerChoices);
+
+        if (wasCanceled(chosenIndex))
+            return;
 
         return otherPlayerIds[chosenIndex];
     }
+}
+
+function wasCanceled(arg) {
+    return typeof arg === 'undefined';
 }
 
 function displayFinalScores() {
