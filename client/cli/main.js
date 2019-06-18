@@ -176,7 +176,6 @@ async function playerActionForPhase() {
             //game.playerTurn(game.playerAction.PLAY_WITCH)
         }
         else if (actionChoice === input.actions.BLACK_CAT) {
-            show.prompt('Choose a player to steal from (esc to cancel):');
             const otherPlayerId = await chooseOtherPlayer();
             if (wasCanceled(otherPlayerId))
                 return;
@@ -184,7 +183,7 @@ async function playerActionForPhase() {
             return game.playerTurn(game.playerAction.PLAY_BLACK_CAT, { target: otherPlayerId });
         }
         else if (actionChoice === input.actions.WITCH_WASH) {
-            //return game.playerTurn(game.playerAction.PLAY_WITCH_WASH)
+            return game.playerTurn(game.playerAction.PLAY_WITCH_WASH);
         }
         else if (actionChoice === input.actions.PASS) {
             return game.playerTurn(game.playerAction.PASS);
@@ -207,6 +206,7 @@ async function playerActionForPhase() {
 
         const playerChoices = otherPlayerIds.map(pid => players[pid].name);
 
+        show.prompt('Choose a player to steal from (esc to cancel):');
         const chosenIndex = await input.chooseOneOptional(playerChoices);
 
         if (wasCanceled(chosenIndex))
