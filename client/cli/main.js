@@ -155,8 +155,19 @@ async function playerActionForPhase() {
         const actionChoice = await input.mainPhaseActionMenu();
 
         if (actionChoice === input.actions.CAPTURE) {
-            //TODO: input card choice(s) for table and hand
-            //TODO: limit further choices to unselected (or see if term-kit has a multi-choice)
+            let handCardIds = await chooseOneOrMoreCardsFrom(player.hand, 'hand');
+            let tableCardIds;
+
+            if (wasCanceled(handCardIds))
+                return;
+            else if (handCardIds.length === 1)
+                tableCardIds = await chooseOneOrMoreCardsFrom(game.currentState().table, 'table');
+            else if (handCardIds.length > 1)
+                tableCardIds = await input.chooseCardFrom(game.currentState().table)
+
+            console.log('Capture using hand cards: ', handCardIds);
+            console.log('Capture using table cards: ', tableCardIds);
+            return game.playerTurn(game.playerAction.CAPTURE, { cards: handCardIds, tableCards: tableCardIds });
         }
         else if (actionChoice === input.actions.PLAY_SPELL) {
             show.prompt('Choose a spell card to play (esc to cancel):');
@@ -173,7 +184,7 @@ async function playerActionForPhase() {
             return game.playerTurn(game.playerAction.PLAY_SPELL, { card: chosenCardIndex });
         }
         else if (actionChoice === input.actions.WITCH) {
-            //game.playerTurn(game.playerAction.PLAY_WITCH)
+            return game.playerTurn(game.playerAction.PLAY_WITCH);
         }
         else if (actionChoice === input.actions.BLACK_CAT) {
             const otherPlayerId = await chooseOtherPlayer();
@@ -213,6 +224,41 @@ async function playerActionForPhase() {
             return;
 
         return otherPlayerIds[chosenIndex];
+    }
+
+    async function chooseOneOrMoreCardsFrom(options, name) {
+        const remaining_options = options.slice();
+        const chosen_cards = [];
+
+        show.prompt(`Choose a card from ${name} (esc to cancel):`)
+        let choice = await input.chooseCardFrom(remaining_options);
+
+        if (wasCanceled(choice))
+            return;
+        else {
+            chosen_cards.push(choice);
+            remaining_options.splice(choice, 1)
+        }
+
+        show.prompt(`Choose a second card from ${name} (esc to just use first card):`)
+        choice = await input.chooseCardFrom(remaining_options);
+
+        if (wasCanceled(choice))
+            return chosen_cards;
+        else {
+            chosen_cards.push(choice);
+            remaining_options.splice(choice, 1)
+        }
+
+        show.prompt(`Choose a third card from ${name} (esc to just use cards so far):`)
+        choice = await input.chooseCardFrom(remaining_options);
+
+        if (wasCanceled(choice))
+            return chosen_cards;
+        else
+            chosen_cards.push(choice);
+
+        return chosen_cards;
     }
 }
 
