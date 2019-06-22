@@ -102,22 +102,40 @@ function getTurnNumber() {
 function getValidActions() {
     const player = _currentState.players.byId[_currentPlayer];
 
-    const actions = [playerAction.CAPTURE];
+    const actions = [];
 
-    if (playerHasBlackCat())
-        actions.push(playerAction.PLAY_BLACK_CAT);
+    if (playerCanTakeAction()) {
+        actions.push(playerAction.CAPTURE);
 
-    if (playerHasASpell())
-        actions.push(playerAction.PLAY_SPELL);
+        if (playerHasBlackCat())
+            actions.push(playerAction.PLAY_BLACK_CAT);
 
-    if (playerHasAWitch())
-        actions.push(playerAction.PLAY_WITCH);
+        if (playerHasASpell())
+            actions.push(playerAction.PLAY_SPELL);
 
-    if (playerHasWitchWash())
-        actions.push(playerAction.PLAY_WITCH_WASH);
+        if (playerHasAWitch())
+            actions.push(playerAction.PLAY_WITCH);
 
+        if (playerHasWitchWash())
+            actions.push(playerAction.PLAY_WITCH_WASH);
 
-    actions.push(playerAction.PASS);
+        actions.push(playerAction.PASS);
+    }
+    else {
+        actions.push('Done');
+    }
+
+    if (playerHasSpellInProgress()) {
+        if (player.hand.length > 0)
+            actions.push('Add Ingredient');
+
+        if (_currentState.table.length > 0)
+            actions.push('Take Ingredient');
+
+        if (listPlayersWhoHaveNotBeenAskedForIngredients().length > 0)
+            actions.push('Ask for Ingredient');
+    }
+
     return actions;
 
 
@@ -198,12 +216,10 @@ function playerCanTakeIngredients() {
     if (_currentPhase != gameState.PLAY)
         return false;
 
-    const numberOfSpellsInProgress = _currentState.players.byId[_currentPlayer].spells.length;
-    const hasSpellInprogress = (numberOfSpellsInProgress > 0);
     const thereAreAnyPlayersToAsk = _playersEligibleForIngredientAskThisTurn.length > 0;
     const thereAreAnyCardsOnTable = _currentState.table.length > 0;
 
-    return (hasSpellInprogress && (thereAreAnyPlayersToAsk || thereAreAnyCardsOnTable));
+    return (playerHasSpellInProgress() && (thereAreAnyPlayersToAsk || thereAreAnyCardsOnTable));
 }
 
 function playerDiscard(cardIndex) {
@@ -262,6 +278,11 @@ function playerDraw() {
     if (doneDrawing) {
         _currentPhase = gameState.PLAY;
     }
+}
+
+function playerHasSpellInProgress() {
+    const numberOfSpellsInProgress = _currentState.players.byId[_currentPlayer].spells.length;
+    return numberOfSpellsInProgress > 0;
 }
 
 function playerTurn(actionType, options) {

@@ -210,21 +210,86 @@ describe(`Providing lists of available actions`, () => {
         expect(actions).to.include(main.playerAction.PLAY_WITCH_WASH);
     });
 
+    it(`Includes Done if they have a spell in  and have played an action already`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.spells = [gameState.princeToFrogSpell()];
+
+        main.playerTurn(playerAction.PASS);
+
+        const actions = main.getValidActions();
+        expect(actions).to.include('Done');
+    });
+
     it(`Consists of only Done if they've played an action and don't have a spell in progress`, () => {
         startInPlayer0PlayPhase();
         const player = main.currentState().players.byId[main.currentPlayer()];
-        player.hand = [];
+        player.hand = [gameState.blackCat(), gameState.witch()];
         player.spells = [];
 
+        main.playerTurn(playerAction.PASS);
+
         const actions = main.getValidActions();
-        expect(actions).to.include( /* DONE */ );
+        expect(actions).to.deep.equal(['Done']);
     });
 
-    // it(`includes add ingredient if they have a spell in progress`, () => {});
+    it(`Includes add ingredient if they have a spell in progress and cards in hand`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [gameState.blackCat(), gameState.witch()];
+        player.spells = [gameState.princeToFrogSpell()];
 
-    // it(`includes take ingredient if they have a spell in progress`, () => {});
+        const actions = main.getValidActions();
+        expect(actions).to.include('Add Ingredient');
+    });
 
-    // it(`includes ask for ingredient if they have a spell in progress and can ask`, () => {});
+    it(`Excludes add ingredient if they have a spell in progress but no cards in hand`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [];
+        player.spells = [gameState.princeToFrogSpell()];
+
+        const actions = main.getValidActions();
+        expect(actions).to.not.include('Add Ingredient');
+    });
+
+    it(`includes take ingredient if they have a spell in progress and there are cards on the table`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.spells = [gameState.princeToFrogSpell()];
+
+        const actions = main.getValidActions();
+        expect(actions).to.include('Take Ingredient');
+    });
+
+    it(`excludes take ingredient if they have a spell in progress and there are no cards on the table`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.spells = [gameState.princeToFrogSpell()];
+        main.currentState().table = [];
+
+        const actions = main.getValidActions();
+        expect(actions).to.not.include('Take Ingredient');
+    });
+
+    it(`includes ask for ingredient if they have a spell in progress and can ask`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.spells = [gameState.princeToFrogSpell()];
+
+        const actions = main.getValidActions();
+        expect(actions).to.include('Ask for Ingredient');
+    });
+
+    it(`excludes ask for ingredient if they have a spell in progress and cannot ask any more`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.spells = [gameState.princeToFrogSpell()];
+        main.askForIngredient({ target: 1 });
+
+        const actions = main.getValidActions();
+        expect(actions).to.not.include('Ask for Ingredient');
+    });
 });
 
 describe(`Calculating player scores`, () => {
