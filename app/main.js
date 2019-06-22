@@ -11,7 +11,7 @@ let _playersEligibleForIngredientAskThisTurn = [];
 
 const playerAction = {
     CAPTURE: actionsModule.CAPTURE,
-    PASS: 'PASS',
+    PASS: 'Pass',
     PLAY_BLACK_CAT: actionsModule.BLACK_CAT,
     PLAY_SPELL: actionsModule.PLAY_SPELL,
     PLAY_WITCH: actionsModule.WITCH,
@@ -97,6 +97,45 @@ function getPlayerScores() {
 
 function getTurnNumber() {
     return _currentTurn;
+}
+
+function getValidActions() {
+    const player = _currentState.players.byId[_currentPlayer];
+
+    const actions = [playerAction.CAPTURE];
+
+    if (playerHasBlackCat())
+        actions.push(playerAction.PLAY_BLACK_CAT);
+
+    if (playerHasASpell())
+        actions.push(playerAction.PLAY_SPELL);
+
+    if (playerHasAWitch())
+        actions.push(playerAction.PLAY_WITCH);
+
+    if (playerHasWitchWash())
+        actions.push(playerAction.PLAY_WITCH_WASH);
+
+
+    actions.push(playerAction.PASS);
+    return actions;
+
+
+    function playerHasBlackCat() {
+        return !!(player.hand.find(card => card.name === 'Black Cat'));
+    }
+
+    function playerHasASpell() {
+        return !!(player.hand.find(card => card.isSpell));
+    }
+
+    function playerHasAWitch() {
+        return !!(player.hand.find(card => card.name === 'Witch'));
+    }
+
+    function playerHasWitchWash() {
+        return !!(player.hand.find(card => card.name === 'Witch Wash'));
+    }
 }
 
 /**
@@ -304,6 +343,7 @@ module.exports = {
     listPlayersWhoHaveNotBeenAskedForIngredients,
     getPlayerScores,
     getTurnNumber,
+    getValidActions,
     newGame,
     PLAY: gameState.PLAY,
     playerAction,

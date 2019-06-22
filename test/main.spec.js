@@ -151,6 +151,82 @@ describe('the main module', () => {
     });
 });
 
+describe(`Providing lists of available actions`, () => {
+    it(`Provides a getValidActions method`, () => {
+        expect(main.getValidActions).to.be.a('function');
+    });
+
+    it(`Always includes Capture and Pass if they can play an action`, () => {
+        startInPlayer0PlayPhase();
+        const actions = main.getValidActions();
+        expect(actions).to.include(playerAction.CAPTURE);
+        expect(actions).to.include(playerAction.PASS);
+    });
+
+    it(`Consists of only Capture and Pass if they have nothing else`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [];
+
+        const actions = main.getValidActions();
+        const expectedActions = [playerAction.CAPTURE, playerAction.PASS];
+
+        expect(actions).to.deep.equal(expectedActions);
+    });
+
+    it(`Includes Black Cat if they have the Black Cat card`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [gameState.blackCat()];
+
+        const actions = main.getValidActions();
+        expect(actions).to.include(playerAction.PLAY_BLACK_CAT);
+    });
+
+    it(`Includes Play Spell if they have a spell card`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [gameState.uglifyingSpell()];
+
+        const actions = main.getValidActions();
+        expect(actions).to.include(playerAction.PLAY_SPELL);
+    });
+
+    it(`Includes Play Witch if they have a witch card`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [gameState.witch()];
+
+        const actions = main.getValidActions();
+        expect(actions).to.include(playerAction.PLAY_WITCH);
+    });
+
+    it(`Includes Play Witch Wash if they have a spell card`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [gameState.witchWash()];
+
+        const actions = main.getValidActions();
+        expect(actions).to.include(main.playerAction.PLAY_WITCH_WASH);
+    });
+
+    it(`Consists of only Done if they've played an action and don't have a spell in progress`, () => {
+        startInPlayer0PlayPhase();
+        const player = main.currentState().players.byId[main.currentPlayer()];
+        player.hand = [];
+        player.spells = [];
+
+        const actions = main.getValidActions();
+        expect(actions).to.include( /* DONE */ );
+    });
+
+    // it(`includes add ingredient if they have a spell in progress`, () => {});
+
+    // it(`includes take ingredient if they have a spell in progress`, () => {});
+
+    // it(`includes ask for ingredient if they have a spell in progress and can ask`, () => {});
+});
+
 describe(`Calculating player scores`, () => {
     it(`scores two points for whoever has the most total cards in their capture pile`, () => {
         startInPlayer0PlayPhase(4);
