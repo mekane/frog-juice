@@ -3,15 +3,6 @@ const format = require('./formatting.js');
 
 listenForControlKeysToExit();
 
-const actions = {
-    CAPTURE: 'Capture',
-    PLAY_SPELL: 'Play Spell',
-    WITCH: 'Witch',
-    BLACK_CAT: 'Black Cat',
-    WITCH_WASH: 'Witch Wash',
-    PASS: 'Pass'
-}
-
 function listenForControlKeysToExit() {
     term.on('key', function(name, matches, data) {
         if (name === 'CTRL_C') {
@@ -44,8 +35,8 @@ async function enterToContinue() {
     return term.inputField({ echo: false }).promise;
 }
 
-async function mainPhaseActionMenu() {
-    const items = Object.values(actions);
+async function mainPhaseActionMenu(options) {
+    const items = Object.values(options);
 
     const choice = await term.singleLineMenu(items, {
         selectedStyle: term.dim.blue.bgGreen
@@ -55,7 +46,6 @@ async function mainPhaseActionMenu() {
 }
 
 module.exports = {
-    actions,
     chooseCardFrom,
     chooseOne,
     chooseOneOptional,

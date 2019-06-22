@@ -148,13 +148,10 @@ async function playerActionForPhase() {
         game.playerDiscard(discardChoice);
     }
     else if (phase === game.PLAY) {
-        /*
-         * TODO: add "add card to spell in play" if applicable
-         * TODO: if !canPlayAction() just show the "add cards to spell or done" menu
-         */
-        const actionChoice = await input.mainPhaseActionMenu();
+        const action = game.playerAction;
+        const actionChoice = await input.mainPhaseActionMenu(game.getValidActions());
 
-        if (actionChoice === input.actions.CAPTURE) {
+        if (actionChoice === action.CAPTURE) {
             let handCardIds = await chooseOneOrMoreCardsFrom(player.hand, 'hand');
             let tableCardIds;
 
@@ -167,9 +164,9 @@ async function playerActionForPhase() {
 
             console.log('Capture using hand cards: ', handCardIds);
             console.log('Capture using table cards: ', tableCardIds);
-            return game.playerTurn(game.playerAction.CAPTURE, { cards: handCardIds, tableCards: tableCardIds });
+            return game.playerTurn(action.CAPTURE, { cards: handCardIds, tableCards: tableCardIds });
         }
-        else if (actionChoice === input.actions.PLAY_SPELL) {
+        else if (actionChoice === action.PLAY_SPELL) {
             show.prompt('Choose a spell card to play (esc to cancel):');
             const chosenCardIndex = await input.chooseCardFrom(player.hand);
             if (wasCanceled(chosenCardIndex))
@@ -181,23 +178,23 @@ async function playerActionForPhase() {
                 show.error(`${chosenCard.name} is not a spell!`);
                 return
             }
-            return game.playerTurn(game.playerAction.PLAY_SPELL, { card: chosenCardIndex });
+            return game.playerTurn(action.PLAY_SPELL, { card: chosenCardIndex });
         }
-        else if (actionChoice === input.actions.WITCH) {
-            return game.playerTurn(game.playerAction.PLAY_WITCH);
+        else if (actionChoice === action.WITCH) {
+            return game.playerTurn(action.PLAY_WITCH);
         }
-        else if (actionChoice === input.actions.BLACK_CAT) {
+        else if (actionChoice === action.BLACK_CAT) {
             const otherPlayerId = await chooseOtherPlayer();
             if (wasCanceled(otherPlayerId))
                 return;
 
-            return game.playerTurn(game.playerAction.PLAY_BLACK_CAT, { target: otherPlayerId });
+            return game.playerTurn(action.PLAY_BLACK_CAT, { target: otherPlayerId });
         }
-        else if (actionChoice === input.actions.WITCH_WASH) {
-            return game.playerTurn(game.playerAction.PLAY_WITCH_WASH);
+        else if (actionChoice === action.WITCH_WASH) {
+            return game.playerTurn(action.PLAY_WITCH_WASH);
         }
-        else if (actionChoice === input.actions.PASS) {
-            return game.playerTurn(game.playerAction.PASS);
+        else if (actionChoice === action.PASS) {
+            return game.playerTurn(action.PASS);
         }
         else {
             show.error(`Unknown action: ${actionChoice}`);
