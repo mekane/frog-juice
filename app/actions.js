@@ -2,18 +2,18 @@
 
 var deepFreeze = require('deep-freeze');
 
-const ADD_INGREDIENT_FROM_HAND = 'ADD_INGREDIENT_FROM_HAND';
-const BLACK_CAT = 'BLACK_CAT';
-const CAPTURE = 'CAPTURE';
+const ADD_INGREDIENT_FROM_HAND = 'Add Ingredient';
+const BLACK_CAT = 'Black Cat';
+const CAPTURE = 'Capture';
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
 const PASS = 'Pass';
-const REVEAL = 'REVEAL';
+const REVEAL = 'Reveal';
 const SPELL = 'Play Spell';
-const TAKE_INGREDIENT_FROM_PLAYER = 'TAKE_INGREDIENT_FROM_PLAYER';
-const TAKE_INGREDIENT_FROM_TABLE = 'TAKE_INGREDIENT_FROM_TABLE';
-const WITCH = 'WITCH';
-const WITCH_WASH = 'WITCH_WASH';
+const TAKE_INGREDIENT_FROM_PLAYER = 'Ask for Ingredient';
+const TAKE_INGREDIENT_FROM_TABLE = 'Take Ingredient';
+const WITCH = 'Witch';
+const WITCH_WASH = 'Witch Wash';
 const WITCH_COUNTERED_BY_WASH = 'WITCH_COUNTERED_BY_WASH';
 
 function act(actionType, currentState, options) {
