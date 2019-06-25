@@ -703,17 +703,27 @@ describe('the witch-countered-by-witch-wash action', () => {
     });
 });
 
+describe(`The Pass action`, () => {
+    it(`Is always a no-op`, () => {
+        const originalState = gameState.initialState();
+        const nextState = actions.act(actions.PASS, originalState);
+
+        expect(nextState).to.equal(originalState);
+
+    });
+});
+
 describe('the play spell action', () => {
     it(`does nothing if no player is specified`, () => {
         const originalState = gameState.initialState();
-        const nextState = actions.act(actions.PLAY_SPELL, originalState, {});
+        const nextState = actions.act(actions.SPELL, originalState, {});
 
         expect(nextState).to.equal(originalState);
     });
 
     it('does nothing if no card is specified', () => {
         const originalState = gameState.initialState();
-        const nextState = actions.act(actions.PLAY_SPELL, originalState, { player: 0 });
+        const nextState = actions.act(actions.SPELL, originalState, { player: 0 });
 
         expect(nextState).to.equal(originalState);
     });
@@ -723,7 +733,7 @@ describe('the play spell action', () => {
         originalState.players.byId[0].hand = [
             bats()
         ];
-        const nextState = actions.act(actions.PLAY_SPELL, originalState, { player: 0, card: 0 });
+        const nextState = actions.act(actions.SPELL, originalState, { player: 0, card: 0 });
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal('Card specified (Bats) is not a spell');
@@ -736,7 +746,7 @@ describe('the play spell action', () => {
             princeToFrogSpell()
         ];
 
-        const nextState = actions.act(actions.PLAY_SPELL, originalState, { player: 0, card: 1 });
+        const nextState = actions.act(actions.SPELL, originalState, { player: 0, card: 1 });
 
         const player = nextState.players.byId[0];
         const playerHasSpellInProgress = !!(player.spells.find(card => card.name === 'Prince to Frog Spell'));

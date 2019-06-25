@@ -91,7 +91,7 @@ describe('the main module', () => {
 
         expect(main.playerCanTakeAction(), 'True at start of turn').to.equal(true);
 
-        main.playerTurn(playerAction.PLAY_WITCH);
+        main.playerTurn(playerAction.WITCH);
 
         expect(main.playerCanTakeAction(), 'False after playing').to.equal(false);
     });
@@ -100,7 +100,7 @@ describe('the main module', () => {
         startInPlayer0PlayPhase();
         const state = main.currentState();
         state.players.byId[0].hand[0] = gameState.witch();
-        main.playerTurn(playerAction.PLAY_WITCH);
+        main.playerTurn(playerAction.WITCH);
 
         expect(main.playerCanTakeAction(), 'False after playing').to.equal(false);
 
@@ -118,7 +118,7 @@ describe('the main module', () => {
         player0.hand[0] = gameState.witch();
         player1.hand.push(gameState.witchWash());
 
-        main.playerTurn(main.playerAction.PLAY_WITCH, { wash: 1 });
+        main.playerTurn(main.playerAction.WITCH, { wash: 1 });
 
         const newGameState = main.currentState();
         player0 = newGameState.players.byId[0];
@@ -180,7 +180,7 @@ describe(`Providing lists of available actions`, () => {
         player.hand = [gameState.blackCat()];
 
         const actions = main.getValidActions();
-        expect(actions).to.include(playerAction.PLAY_BLACK_CAT);
+        expect(actions).to.include(playerAction.BLACK_CAT);
     });
 
     it(`Includes Play Spell if they have a spell card`, () => {
@@ -189,7 +189,7 @@ describe(`Providing lists of available actions`, () => {
         player.hand = [gameState.uglifyingSpell()];
 
         const actions = main.getValidActions();
-        expect(actions).to.include(playerAction.PLAY_SPELL);
+        expect(actions).to.include(playerAction.SPELL);
     });
 
     it(`Includes Play Witch if they have a witch card`, () => {
@@ -198,7 +198,7 @@ describe(`Providing lists of available actions`, () => {
         player.hand = [gameState.witch()];
 
         const actions = main.getValidActions();
-        expect(actions).to.include(playerAction.PLAY_WITCH);
+        expect(actions).to.include(playerAction.WITCH);
     });
 
     it(`Includes Play Witch Wash if they have a spell card`, () => {
@@ -207,7 +207,7 @@ describe(`Providing lists of available actions`, () => {
         player.hand = [gameState.witchWash()];
 
         const actions = main.getValidActions();
-        expect(actions).to.include(main.playerAction.PLAY_WITCH_WASH);
+        expect(actions).to.include(main.playerAction.WITCH_WASH);
     });
 
     it(`Includes Done if they have a spell in  and have played an action already`, () => {
@@ -576,7 +576,7 @@ describe('The Game State finite state machine', () => {
             let player1 = originalGameState.players.byId[1];
             player1.hand[0] = gameState.witch();
 
-            main.playerTurn(main.playerAction.PLAY_WITCH);
+            main.playerTurn(main.playerAction.WITCH);
 
             expect(main.currentPlayer()).to.equal(1);
             expect(main.currentPhase()).to.equal(gameState.DRAW);
@@ -714,7 +714,7 @@ describe('The Game State finite state machine', () => {
                 state.players.byId[0].hand[0] = gameState.blackCat();
                 state.players.byId[1].captured.push(gameState.frogJuice());
 
-                main.playerTurn(playerAction.PLAY_BLACK_CAT, { target: 1 });
+                main.playerTurn(playerAction.BLACK_CAT, { target: 1 });
 
                 expect(main.currentPlayer()).to.equal(0);
                 expect(main.currentPhase(), 'Transition to discard after Black Cat').to.equal(gameState.DISCARD);
@@ -738,7 +738,7 @@ describe('The Game State finite state machine', () => {
                 const state = main.currentState();
                 state.players.byId[0].hand[0] = gameState.witch();
 
-                main.playerTurn(playerAction.PLAY_WITCH);
+                main.playerTurn(playerAction.WITCH);
 
                 expect(main.currentPlayer()).to.equal(0);
                 expect(main.currentPhase(), 'Transition to discard after playing Witch').to.equal(gameState.DISCARD);
@@ -749,7 +749,7 @@ describe('The Game State finite state machine', () => {
                 const state = main.currentState();
                 state.players.byId[0].hand[0] = gameState.witchWash();
                 state.table[0] = gameState.witch();
-                main.playerTurn(playerAction.PLAY_WITCH_WASH);
+                main.playerTurn(playerAction.WITCH_WASH);
 
                 expect(main.currentPlayer()).to.equal(0);
                 expect(main.currentPhase(), 'Transition to discard after playing Witch Wash').to.equal(gameState.DISCARD);
@@ -774,7 +774,7 @@ describe('The Game State finite state machine', () => {
                 const player = state.players.byId[0];
                 player.hand = [gameState.princeToFrogSpell()];
 
-                main.playerTurn(playerAction.PLAY_SPELL, { card: [0] });
+                main.playerTurn(playerAction.SPELL, { card: [0] });
 
                 expect(main.currentPlayer()).to.equal(0);
                 expect(main.currentPhase()).to.equal(gameState.PLAY);
@@ -800,7 +800,7 @@ describe('The Game State finite state machine', () => {
             startInPlayer0PlayPhaseWithSpellAfterPlayingOneAction();
             const stateAfterOneAction = main.currentState();
 
-            main.playerTurn(playerAction.PLAY_WITCH);
+            main.playerTurn(playerAction.WITCH);
             const stateAfterSecondAction = main.currentState();
 
             expect(stateAfterSecondAction, 'Second action has no effect').to.equal(stateAfterOneAction);
@@ -840,7 +840,7 @@ describe('The Game State finite state machine', () => {
             const gameStatePre = main.currentState();
             gameStatePre.players.byId[0].hand = [];
 
-            main.playerTurn(playerAction.PLAY_WITCH_WASH, {});
+            main.playerTurn(playerAction.WITCH_WASH, {});
             const gameStatePost = main.currentState();
 
             expect(gameStatePre).to.equal(gameStatePost);
@@ -866,7 +866,7 @@ describe('The Game State finite state machine', () => {
             const originalGameState = main.currentState();
             originalGameState.players.byId[0].hand[0] = gameState.witch();
 
-            main.playerTurn(playerAction.PLAY_WITCH);
+            main.playerTurn(playerAction.WITCH);
 
             expect(main.currentPhase(), 'Ignores player actions during the Discard phase').to.equal(gameState.DISCARD);
             expect(main.currentPlayer()).to.equal(0);
@@ -970,7 +970,7 @@ describe('The Game State finite state machine', () => {
             main.playerDraw();
             main.askForIngredient({ target: 0, cardName: 'Frog Juice', spell: 0 });
             main.takeIngredientFromTable({ cardName: 'Frog Juice', spell: 0 })
-            main.playerTurn(playerAction.PLAY_WITCH);
+            main.playerTurn(playerAction.WITCH);
             main.playerDiscard(0);
 
             expect(main.currentState(), 'Ignores player actions once game is over').to.equal(originalGameState);
@@ -1020,7 +1020,7 @@ describe('Integrating a realistic series of turns', () => {
         expect(main.currentPlayer(), `Start First Player's Turn`).to.equal(0);
         expect(main.currentPhase()).to.equal(gameState.PLAY);
 
-        main.playerTurn(playerAction.PLAY_SPELL, { card: 2 });
+        main.playerTurn(playerAction.SPELL, { card: 2 });
         main.takeIngredientFromTable({ cardName: 'Prince', spell: 0 });
         main.playerAddIngredientFromHandToSpell({ card: 1, spell: 0 });
         main.playerAddIngredientFromHandToSpell({ card: 0, spell: 0 });
@@ -1057,7 +1057,7 @@ describe('Integrating a realistic series of turns', () => {
 
         main.playerDraw();
 
-        main.playerTurn(playerAction.PLAY_WITCH, { wash: 3 });
+        main.playerTurn(playerAction.WITCH, { wash: 3 });
         expect(main.currentState().players.byId[3].captured.length, 'Player 3 washed the witch').to.equal(6);
 
         main.playerDiscard(0);
@@ -1069,7 +1069,7 @@ describe('Integrating a realistic series of turns', () => {
         main.playerDraw();
         main.playerDraw();
 
-        main.playerTurn(playerAction.PLAY_BLACK_CAT, { target: 0 });
+        main.playerTurn(playerAction.BLACK_CAT, { target: 0 });
         expect(main.currentState().players.byId[3].captured.length, 'Player 3 got black cat and another card').to.equal(8);
 
         expect(main.getPlayerScores()).to.deep.equal([1, 0, 0, 6]);

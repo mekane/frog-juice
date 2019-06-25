@@ -9,15 +9,8 @@ let _currentTurn = 0;
 let _playerActionsRemaining = 1;
 let _playersEligibleForIngredientAskThisTurn = [];
 
-const playerAction = {
-    CAPTURE: actionsModule.CAPTURE,
-    PASS: 'Pass',
-    PLAY_BLACK_CAT: actionsModule.BLACK_CAT,
-    PLAY_SPELL: actionsModule.PLAY_SPELL,
-    PLAY_WITCH: actionsModule.WITCH,
-    PLAY_WITCH_WASH: actionsModule.WITCH_WASH
-}
-const possibleActions = (Object.keys(playerAction).map(key => playerAction[key]));
+const playerAction = Object.assign({}, actionsModule);
+delete playerAction.act;
 
 function askForIngredient(options) {
     if (_playersEligibleForIngredientAskThisTurn.includes(options.target + ''))
@@ -105,21 +98,21 @@ function getValidActions() {
     const actions = [];
 
     if (playerCanTakeAction()) {
-        actions.push(playerAction.CAPTURE);
+        actions.push(actionsModule.CAPTURE);
 
         if (playerHasBlackCat())
-            actions.push(playerAction.PLAY_BLACK_CAT);
+            actions.push(actionsModule.BLACK_CAT);
 
         if (playerHasASpell())
-            actions.push(playerAction.PLAY_SPELL);
+            actions.push(actionsModule.SPELL);
 
         if (playerHasAWitch())
-            actions.push(playerAction.PLAY_WITCH);
+            actions.push(actionsModule.WITCH);
 
         if (playerHasWitchWash())
-            actions.push(playerAction.PLAY_WITCH_WASH);
+            actions.push(actionsModule.WITCH_WASH);
 
-        actions.push(playerAction.PASS);
+        actions.push(actionsModule.PASS);
     }
     else {
         actions.push('Done');
@@ -291,8 +284,8 @@ function playerTurn(actionType, options) {
 
     const actionOptions = Object.assign({ player: _currentPlayer }, options);
 
-    if (possibleActions.includes(actionType) && playerCanTakeAction()) {
-        if (actionType === playerAction.PLAY_WITCH && options && options.wash) {
+    if (playerCanTakeAction()) {
+        if (actionType === actionsModule.WITCH && options && options.wash) {
             actionType = actionsModule.WITCH_COUNTERED_BY_WASH;
             actionOptions['player'] = options.wash;
             actionOptions['target'] = _currentPlayer;
@@ -301,7 +294,7 @@ function playerTurn(actionType, options) {
         const nextState = action(actionType, _currentState, actionOptions);
 
         const noError = !nextState.error;
-        const actionSuccess = (nextState !== _currentState) || (actionType === playerAction.PASS);
+        const actionSuccess = (nextState !== _currentState) || (actionType === actionsModule.PASS);
         const okToTransition = (noError && actionSuccess);
         const playerHasSpellInProgress = !!nextState.players.byId[_currentPlayer].spells.length;
 

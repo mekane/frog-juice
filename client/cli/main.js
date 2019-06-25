@@ -196,6 +196,10 @@ async function playerActionForPhase() {
         else if (actionChoice === action.PASS) {
             return game.playerTurn(action.PASS);
         }
+        //TODO: Take Ingredient
+        //TODO: Add Ingredient
+        //TODO: Ask for Ingredient
+        //TODO: Done
         else {
             show.error(`Unknown action: ${actionChoice}`);
         }

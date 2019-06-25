@@ -7,8 +7,9 @@ const BLACK_CAT = 'BLACK_CAT';
 const CAPTURE = 'CAPTURE';
 const DISCARD = 'DISCARD';
 const DRAW = 'DRAW';
-const PLAY_SPELL = 'PLAY_SPELL';
+const PASS = 'Pass';
 const REVEAL = 'REVEAL';
+const SPELL = 'Play Spell';
 const TAKE_INGREDIENT_FROM_PLAYER = 'TAKE_INGREDIENT_FROM_PLAYER';
 const TAKE_INGREDIENT_FROM_TABLE = 'TAKE_INGREDIENT_FROM_TABLE';
 const WITCH = 'WITCH';
@@ -116,7 +117,7 @@ function act(actionType, currentState, options) {
         const player = newState.players.byId[options.player];
         drawCard(newState, player)
     }
-    else if (actionType === PLAY_SPELL && optionsDefined(['player', 'card'])) {
+    else if (actionType === SPELL && optionsDefined(['player', 'card'])) {
         const card = player.hand[options.card];
         if (!card || !card.isSpell) {
             newState.error = `Card specified (${card.name}) is not a spell`;
@@ -364,7 +365,8 @@ module.exports = {
     CAPTURE,
     DISCARD,
     DRAW,
-    PLAY_SPELL,
+    PASS,
+    SPELL,
     REVEAL,
     TAKE_INGREDIENT_FROM_PLAYER,
     TAKE_INGREDIENT_FROM_TABLE,
