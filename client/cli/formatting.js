@@ -57,9 +57,9 @@ function welcomeScreen() {
 }
 
 function card(card) {
-    //TODO: FrogJuice has numeric value 6 and is a power card(!)
-    const valueIndicator = card.isPowerCard ? '*' : `[${card.numericValue}]`;
-    return `${card.name} ${valueIndicator}`;
+    const powerCardIndicator = card.isPowerCard ? ' *' : '';
+    const valueIndicator = card.numericValue ? ` [${card.numericValue}]` : '';
+    return `${card.name}${valueIndicator}${powerCardIndicator}`;
 }
 
 function spell(spellCard, ingredientsCompleted, ingredientsRemaining) {
