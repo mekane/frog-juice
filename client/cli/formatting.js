@@ -8,6 +8,10 @@ function plain(msg) {
     return term(msg + '\n');
 }
 
+function strike(msg) {
+    return term.strikethrough(msg + '\n');
+}
+
 function strong(msg) {
     return term.bold(msg + '\n');
 }
@@ -53,9 +57,17 @@ function welcomeScreen() {
 }
 
 function card(card) {
+    //TODO: FrogJuice has numeric value 6 and is a power card(!)
     const valueIndicator = card.isPowerCard ? '*' : `[${card.numericValue}]`;
     return `${card.name} ${valueIndicator}`;
+}
 
+function spell(spellCard, ingredientsCompleted, ingredientsRemaining) {
+    term.bold('  ' + spellCard.name);
+    term(' {');
+    ingredientsCompleted.forEach(c => term(` ${c} `));
+    ingredientsRemaining.forEach(c => term.strike(` ${c} `));
+    term('}');
 }
 
 function centered(text) {
@@ -66,6 +78,7 @@ function centered(text) {
 module.exports = {
     newLine,
     plain,
+    strike,
     strong,
     highlight,
     smallHeader,
@@ -75,5 +88,6 @@ module.exports = {
     prompt,
     error,
     welcomeScreen,
-    card
+    card,
+    spell
 }

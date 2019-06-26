@@ -9,7 +9,7 @@ let _currentTurn = 0;
 let _playerActionsRemaining = 1;
 let _playersEligibleForIngredientAskThisTurn = [];
 
-const playerAction = Object.assign({}, actionsModule);
+const playerAction = Object.assign({ DONE: 'Done' }, actionsModule);
 delete playerAction.act;
 
 function askForIngredient(options) {

@@ -94,7 +94,7 @@ function showPlayerSummaryBar(player) {
     const captured = player.captured.length;
     const spellCount = player.spells.length;
     const s = spellCount === 1 ? '' : 's';
-    const spells = spellCount > 0 ? `${spells} spell${s} in progress` : '';
+    const spells = spellCount > 0 ? `${spellCount} spell${s} in progress` : '';
 
     show.plain(`${name}: ${hand} cards in hand. ${captured} captured. ${spells}`);
 }
@@ -115,19 +115,32 @@ function showTableCards(cards) {
 
 function showCurrentPlayerStatus(player) {
     showPlayerSpellsInProgress();
+    show.newLine();
     showPlayerHand();
 
     function showPlayerSpellsInProgress() {
         if (player.spells.length) {
-            show.plain(`You have ${player.spells.length} spells in progress`);
-            //TODO: show details including ingredients, etc.
+            show.strong('Your Spells:');
+            player.spells.forEach(showSpell);
+            show.newLine();
         }
+    }
+
+    function showSpell(spell) {
+        const ingredientsCompleted = spell.ingredients.filter(playerHasIngredient);
+        const ingredientsRemaining = spell.ingredients.filter(c => !playerHasIngredient(c));
+        show.spell(spell, ingredientsCompleted, ingredientsRemaining);
     }
 
     function showPlayerHand() {
         show.strong('Your Hand:');
         player.hand.forEach((card, i) => show.plain(`${i}) ${show.card(card)}`));
     }
+
+    function playerHasIngredient(ingredientName) {
+        return player.ingredients.find(card => card.name === ingredientName);
+    }
+
 }
 
 function getCurrentPlayer() {
@@ -166,7 +179,7 @@ async function playerActionForPhase() {
             console.log('Capture using table cards: ', tableCardIds);
             return game.playerTurn(action.CAPTURE, { cards: handCardIds, tableCards: tableCardIds });
         }
-        else if (actionChoice === action.PLAY_SPELL) {
+        else if (actionChoice === action.SPELL) {
             show.prompt('Choose a spell card to play (esc to cancel):');
             const chosenCardIndex = await input.chooseCardFrom(player.hand);
             if (wasCanceled(chosenCardIndex))
@@ -178,20 +191,20 @@ async function playerActionForPhase() {
                 show.error(`${chosenCard.name} is not a spell!`);
                 return
             }
-            return game.playerTurn(action.PLAY_SPELL, { card: chosenCardIndex });
+            return game.playerTurn(action.SPELL, { card: chosenCardIndex });
         }
         else if (actionChoice === action.WITCH) {
-            return game.playerTurn(action.PLAY_WITCH);
+            return game.playerTurn(action.WITCH);
         }
         else if (actionChoice === action.BLACK_CAT) {
             const otherPlayerId = await chooseOtherPlayer();
             if (wasCanceled(otherPlayerId))
                 return;
 
-            return game.playerTurn(action.PLAY_BLACK_CAT, { target: otherPlayerId });
+            return game.playerTurn(action.BLACK_CAT, { target: otherPlayerId });
         }
         else if (actionChoice === action.WITCH_WASH) {
-            return game.playerTurn(action.PLAY_WITCH_WASH);
+            return game.playerTurn(action.WITCH_WASH);
         }
         else if (actionChoice === action.PASS) {
             return game.playerTurn(action.PASS);
@@ -199,7 +212,9 @@ async function playerActionForPhase() {
         //TODO: Take Ingredient
         //TODO: Add Ingredient
         //TODO: Ask for Ingredient
-        //TODO: Done
+        else if (actionChoice === action.DONE) {
+            game.playerDone();
+        }
         else {
             show.error(`Unknown action: ${actionChoice}`);
         }
