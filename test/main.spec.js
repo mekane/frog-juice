@@ -424,17 +424,11 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             expect(main.playerAddIngredientFromHandToSpell).to.be.a('function');
         });
 
-        it(`requires a card index from hand and a spell index`, () => {
+        it(`requires a card index from hand`, () => {
             startInPlayer0PlayPhase();
             const originalGameState = main.currentState();
 
             main.playerAddIngredientFromHandToSpell({});
-            expect(main.currentState()).to.equal(originalGameState);
-
-            main.playerAddIngredientFromHandToSpell({ spell: 0 });
-            expect(main.currentState()).to.equal(originalGameState);
-
-            main.playerAddIngredientFromHandToSpell({ card: 0 });
             expect(main.currentState()).to.equal(originalGameState);
         });
 

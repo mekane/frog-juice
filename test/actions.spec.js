@@ -778,13 +778,6 @@ describe(`Adding an ingredient from a player's hand to their own spell`, () => {
         expect(nextState).to.equal(originalState);
     });
 
-    it(`does nothing if no spell is specified`, () => {
-        const originalState = gameState.initialState();
-        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, card: 0 });
-
-        expect(nextState).to.equal(originalState);
-    });
-
     it(`produces an error state if the specified card is not in any of the player's spell's ingredient lists`, () => {
         const originalState = gameState.initialState();
         const player = originalState.players.byId[0];
@@ -796,10 +789,10 @@ describe(`Adding an ingredient from a player's hand to their own spell`, () => {
             toads()
         ];
 
-        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0, spell: 0, card: 0 });
+        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0, card: 0 });
 
-        expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal(`The specified card (Toads) is not an ingredient of any spells`);
+        expect(nextState).to.not.equal(originalState);
     });
 
     it(`produces an error state if the specified card is already in the player's ingredient list`, () => {

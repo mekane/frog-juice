@@ -28,11 +28,14 @@ function act(actionType, currentState, options) {
     const player = optionsDefined('player') ? newState.players.byId[options.player] : null;
     //TODO: check that target is a valid player (error or no-op?)
 
-    if (actionType === ADD_INGREDIENT_FROM_HAND && optionsDefined(['player', 'card', 'spell'])) {
+    if (actionType === ADD_INGREDIENT_FROM_HAND && optionsDefined(['player', 'card'])) {
         const card = player.hand[options.card];
 
-        const spell = player.spells[options.spell];
-        if (!spellRequiresIngredient(spell, card.name)) {
+        let cardNeeded = false;
+        player.spells.forEach(spell => {
+            cardNeeded = cardNeeded || !!spellRequiresIngredient(spell, card.name);
+        });
+        if (!cardNeeded) {
             newState.error = `The specified card (${card.name}) is not an ingredient of any spells`;
             return newState;
         }
