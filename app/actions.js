@@ -173,15 +173,8 @@ function act(actionType, currentState, options) {
                 captureSpellAndIngredients(player, spell);
         });
     }
-    else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'cardName'])) {
-        const cardIndex = newState.table.findIndex(card => card.name === options.cardName);
-        const cardIsOnTable = (cardIndex !== -1);
-        if (!cardIsOnTable) {
-            newState.error = `The named card (${options.cardName}) is not available to take`;
-            return newState;
-        }
-
-        const card = newState.table[cardIndex];
+    else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'card'])) {
+        const card = newState.table[options.card];
 
         let cardNeeded = false;
         player.spells.forEach(spell => {
@@ -198,7 +191,7 @@ function act(actionType, currentState, options) {
             return newState;
         }
 
-        removeCardFrom(newState.table, cardIndex);
+        removeCardFrom(newState.table, options.card);
         player.ingredients.push(card);
 
         player.spells.forEach(spell => {

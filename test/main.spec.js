@@ -517,10 +517,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             main.takeIngredientFromTable({});
             expect(main.currentState()).to.equal(originalGameState);
 
-            main.askForIngredient({ spell: 0 });
-            expect(main.currentState()).to.equal(originalGameState);
-
-            main.askForIngredient({ cardName: 'Foo' });
+            main.askForIngredient({ card: 99 });
             expect(main.currentState()).to.equal(originalGameState);
         });
 
@@ -528,16 +525,18 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             startInPlayer0PlayPhase();
             const originalGameState = main.currentState();
             const player0 = originalGameState.players.byId[0];
+            originalGameState.table = [
+                gameState.bats(),
+                gameState.prince()
+            ];
+            player0.spells = [gameState.princeToFrogSpell()]
 
-            player0.spells.push(gameState.princeToFrogSpell());
-            originalGameState.table.push(gameState.prince());
-
-            main.takeIngredientFromTable({ cardName: 'Prince', spell: 0 });
+            main.takeIngredientFromTable({ card: 1 });
 
             const newGameState = main.currentState();
+            expect(newGameState.players.byId[0].ingredients.length, 'Ingredient was added').to.equal(1);
+            expect(newGameState.table.length).to.equal(1);
             expect(newGameState).not.to.equal(originalGameState);
-            expect(newGameState.players.byId[0].ingredients.length).to.equal(1);
-            expect(newGameState.table.length).to.equal(4);
         });
     });
 });
@@ -1002,7 +1001,12 @@ describe('Integrating a realistic series of turns', () => {
         player[1].hand = [bats(), toads(), mice()];
         player[2].hand = [witch(), newts(), monkeyPowder()];
         player[3].hand = [blackCat(), witchWash(), princess()]
-        state.table = [unicornHorn(), starAndMoonDust(), deadlyNightshade(), prince()];
+        state.table = [
+            unicornHorn(),
+            starAndMoonDust(),
+            deadlyNightshade(),
+            prince()
+        ];
         state.deck = [
             toadStools(),
             witch(),
@@ -1015,9 +1019,9 @@ describe('Integrating a realistic series of turns', () => {
         expect(main.currentPhase()).to.equal(gameState.PLAY);
 
         main.playerTurn(playerAction.SPELL, { card: 2 });
-        main.takeIngredientFromTable({ cardName: 'Prince', spell: 0 });
-        main.playerAddIngredientFromHandToSpell({ card: 1, spell: 0 });
-        main.playerAddIngredientFromHandToSpell({ card: 0, spell: 0 });
+        main.takeIngredientFromTable({ card: 3 });
+        main.playerAddIngredientFromHandToSpell({ card: 1 });
+        main.playerAddIngredientFromHandToSpell({ card: 0 });
 
         expect(main.currentState().players.byId[0].hand.length, 'Player played three cards').to.equal(1);
         expect(main.currentState().players.byId[0].captured.length, 'Player finished spell').to.equal(4);
