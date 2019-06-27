@@ -364,7 +364,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
 
         it(`resets when transitioning to a new turn`, () => {
             startInPlayer0PlayPhase(4);
-            main.askForIngredient({ target: 1, cardName: 'Bats' });
+            main.askForIngredient({ target: 1, cardName: 'Impossible' });
             main.playerTurn(playerAction.PASS);
             main.playerDiscard(0);
 
