@@ -139,28 +139,30 @@ function act(actionType, currentState, options) {
     else if (actionType === REVEAL && newState.deck.length) {
         revealCard(newState);
     }
-    else if (actionType === TAKE_INGREDIENT_FROM_PLAYER && optionsDefined(['player', 'target', 'cardName', 'spell'])) {
+    else if (actionType === TAKE_INGREDIENT_FROM_PLAYER && optionsDefined(['player', 'target', 'cardName'])) {
         const targetPlayer = newState.players.byId[options.target];
         if (!hasCard(targetPlayer, options.cardName)) {
             newState.error = `The player does not have the named card (${options.cardName})`;
             return newState;
         }
 
-        const spell = player.spells[0];
-        if (!spellRequiresIngredient(spell, options.cardName)) {
-            newState.error = `The named card (${options.cardName}) is not an ingredient of the spell`;
-            return newState;
-        }
-
         const cardIndex = targetPlayer.hand.findIndex(card => card.name === options.cardName);
         const card = targetPlayer.hand[cardIndex];
+
+        let cardNeeded = false;
+        player.spells.forEach(spell => {
+            cardNeeded = cardNeeded || !!spellRequiresIngredient(spell, card.name);
+        });
+        if (!cardNeeded) {
+            newState.error = `The specified card (${card.name}) is not an ingredient of any spells`;
+            return newState;
+        }
 
         const playerAlreadyHasIngredient = player.ingredients.find(c => c.name === card.name);
         if (playerAlreadyHasIngredient) {
             newState.error = `The specified card (${card.name}) is already added to a spell`;
             return newState;
         }
-
 
         removeCardFrom(targetPlayer.hand, cardIndex);
         player.ingredients.push(card);
@@ -169,7 +171,7 @@ function act(actionType, currentState, options) {
             captureSpellAndIngredients(player, options.spell);
         }
     }
-    else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'cardName', 'spell'])) {
+    else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'cardName'])) {
         const cardIndex = newState.table.findIndex(card => card.name === options.cardName);
         const cardIsOnTable = (cardIndex !== -1);
         if (!cardIsOnTable) {
@@ -177,13 +179,16 @@ function act(actionType, currentState, options) {
             return newState;
         }
 
-        const spell = player.spells[options.spell];
-        if (!spellRequiresIngredient(spell, options.cardName)) {
-            newState.error = `The named card (${options.cardName}) is not an ingredient of the spell`;
+        const card = newState.table[cardIndex];
+
+        let cardNeeded = false;
+        player.spells.forEach(spell => {
+            cardNeeded = cardNeeded || !!spellRequiresIngredient(spell, card.name);
+        });
+        if (!cardNeeded) {
+            newState.error = `The specified card (${card.name}) is not an ingredient of any spells`;
             return newState;
         }
-
-        const card = newState.table[cardIndex];
 
         const playerAlreadyHasIngredient = player.ingredients.find(c => c.name === card.name);
         if (playerAlreadyHasIngredient) {
