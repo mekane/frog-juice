@@ -839,6 +839,42 @@ describe(`Adding an ingredient from a player's hand to their own spell`, () => {
         expect(playerHasIngredient, `Ingredient is in player's list`).to.be.true;
         expect(player.ingredients.length).to.equal(1);
     });
+
+    it(`adds the spell and the ingredients to the player's capture pile if the spell is complete`, () => {
+        const originalState = gameState.initialState();
+        const player0 = originalState.players.byId[0];
+        player0.hand = [
+            deadlyNightshade(),
+            prince()
+        ];
+        player0.spells = [
+            princeToFrogSpell()
+        ];
+        player0.ingredients = [
+            toads(),
+            shrinkingBrew(),
+            frogJuice()
+        ];
+
+        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0, card: 1 });
+
+        const player = nextState.players.byId[0];
+        const ingredientIsNotInList = !(player.ingredients.find(card => card.name === 'Prince'));
+        const playerCapturedSpell = !!(player.captured.find(card => card.name === 'Prince to Frog Spell'));
+        const playerCapturedBrew = !!(player.captured.find(card => card.name === 'Shrinking Brew'));
+        const playerCapturedJuice = !!(player.captured.find(card => card.name === 'Frog Juice'));
+        const playerCapturedPrince = !!(player.captured.find(card => card.name === 'Prince'));
+
+        expect(ingredientIsNotInList, `Ingredient is gone from player's list`).to.be.true;
+        expect(player.ingredients.length, `Left the non-applicable ingredient alone`).to.equal(1);
+        expect(playerCapturedSpell, `Spell is in player's capture pile`).to.be.true;
+        expect(playerCapturedBrew, `Shrinking Brew is in player's capture pile`).to.be.true;
+        expect(playerCapturedJuice, `Frog Juice is in player's capture pile`).to.be.true;
+        expect(playerCapturedPrince, `Prince is in player's capture pile`).to.be.true;
+        expect(player.captured.length).to.equal(4);
+        expect(nextState.error).to.be.an('undefined');
+        expect(nextState).to.not.equal(originalState);
+    });
 });
 
 describe("taking an ingredient from the table to add to a player's spell", () => {
@@ -1073,7 +1109,7 @@ describe('taking a spell component from another player and adding it to a spell'
             prince()
         ];
 
-        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Prince', spell: 0 });
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Prince' });
         const player = nextState.players.byId[0];
         const target = nextState.players.byId[1];
         const ingredientIsNotInTargetsHand = !(target.hand.find(card => card.name === 'Prince'));
@@ -1102,7 +1138,7 @@ describe('taking a spell component from another player and adding it to a spell'
             mice()
         ];
 
-        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Mice', spell: 0 });
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Mice' });
         const player = nextState.players.byId[0];
         const target = nextState.players.byId[1];
 
