@@ -785,7 +785,7 @@ describe(`Adding an ingredient from a player's hand to their own spell`, () => {
         expect(nextState).to.equal(originalState);
     });
 
-    it(`produces an error state if the specified card is not in the spell's list of ingredients`, () => {
+    it(`produces an error state if the specified card is not in any of the player's spell's ingredient lists`, () => {
         const originalState = gameState.initialState();
         const player = originalState.players.byId[0];
 
@@ -799,7 +799,27 @@ describe(`Adding an ingredient from a player's hand to their own spell`, () => {
         const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0, spell: 0, card: 0 });
 
         expect(nextState).to.not.equal(originalState);
-        expect(nextState.error).to.equal(`The specified card (Toads) is not an ingredient of the spell`);
+        expect(nextState.error).to.equal(`The specified card (Toads) is not an ingredient of any spells`);
+    });
+
+    it(`produces an error state if the specified card is already in the player's ingredient list`, () => {
+        const originalState = gameState.initialState();
+        const player = originalState.players.byId[0];
+
+        player.spells = [
+            princeToFrogSpell()
+        ];
+        player.ingredients = [
+            prince()
+        ];
+        player.hand = [
+            prince()
+        ];
+
+        const nextState = actions.act(actions.ADD_INGREDIENT_FROM_HAND, originalState, { player: 0, spell: 0, card: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The specified card (Prince) is already added to a spell`);
     });
 
     it(`moves the card from the player's hand to their list of ingredients`, () => {
@@ -875,6 +895,27 @@ describe("taking an ingredient from the table to add to a player's spell", () =>
 
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal(`The named card (Bats) is not an ingredient of the spell`);
+    });
+
+    it(`produces an error state if the specified card is already in the player's ingredient list`, () => {
+        const originalState = gameState.initialState();
+        const player = originalState.players.byId[0];
+
+        player.spells = [
+            princeToFrogSpell()
+        ];
+        player.ingredients = [
+            prince()
+        ];
+        originalState.table = [
+            bats(),
+            prince()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_TABLE, originalState, { player: 0, cardName: 'Prince', spell: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The specified card (Prince) is already added to a spell`);
     });
 
     it(`adds the card to the players's list of ingredients`, () => {
@@ -1017,6 +1058,29 @@ describe('taking a spell component from another player and adding it to a spell'
         expect(nextState).to.not.equal(originalState);
         expect(nextState.error).to.equal(`The named card (Bats) is not an ingredient of the spell`);
     });
+
+    it(`produces an error state if the specified card is already in the player's ingredient list`, () => {
+        const originalState = gameState.initialState();
+        const player = originalState.players.byId[0];
+        const otherPlayer = originalState.players.byId[1];
+
+        player.spells = [
+            princeToFrogSpell()
+        ];
+        player.ingredients = [
+            prince()
+        ];
+        otherPlayer.hand = [
+            bats(),
+            prince()
+        ];
+
+        const nextState = actions.act(actions.TAKE_INGREDIENT_FROM_PLAYER, originalState, { player: 0, target: 1, cardName: 'Prince', spell: 0 });
+
+        expect(nextState).to.not.equal(originalState);
+        expect(nextState.error).to.equal(`The specified card (Prince) is already added to a spell`);
+    });
+
 
     it(`adds the card from the target's hand to the players's list of ingredients`, () => {
         const originalState = gameState.initialState();

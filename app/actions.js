@@ -33,7 +33,13 @@ function act(actionType, currentState, options) {
 
         const spell = player.spells[options.spell];
         if (!spellRequiresIngredient(spell, card.name)) {
-            newState.error = `The specified card (${card.name}) is not an ingredient of the spell`;
+            newState.error = `The specified card (${card.name}) is not an ingredient of any spells`;
+            return newState;
+        }
+
+        const playerAlreadyHasIngredient = player.ingredients.find(c => c.name === card.name);
+        if (playerAlreadyHasIngredient) {
+            newState.error = `The specified card (${card.name}) is already added to a spell`;
             return newState;
         }
 
@@ -145,6 +151,14 @@ function act(actionType, currentState, options) {
 
         const cardIndex = targetPlayer.hand.findIndex(card => card.name === options.cardName);
         const card = targetPlayer.hand[cardIndex];
+
+        const playerAlreadyHasIngredient = player.ingredients.find(c => c.name === card.name);
+        if (playerAlreadyHasIngredient) {
+            newState.error = `The specified card (${card.name}) is already added to a spell`;
+            return newState;
+        }
+
+
         removeCardFrom(targetPlayer.hand, cardIndex);
         player.ingredients.push(card);
 
@@ -167,6 +181,13 @@ function act(actionType, currentState, options) {
         }
 
         const card = newState.table[cardIndex];
+
+        const playerAlreadyHasIngredient = player.ingredients.find(c => c.name === card.name);
+        if (playerAlreadyHasIngredient) {
+            newState.error = `The specified card (${card.name}) is already added to a spell`;
+            return newState;
+        }
+
         removeCardFrom(newState.table, cardIndex);
         player.ingredients.push(card);
 
