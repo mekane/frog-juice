@@ -28,7 +28,7 @@ function askForIngredient(options) {
         _currentState = nextState;
 
         if (nextState.error) {
-            console.log(`Alert: Player ${options.player} does not have ${options.cardName}`);
+            console.log(`Error asking for ingredient: Player ${options.player} does not have ${options.cardName}`);
         }
     }
 }
@@ -293,7 +293,10 @@ function playerTurn(actionType, options) {
 
         const nextState = action(actionType, _currentState, actionOptions);
 
-        const noError = !nextState.error;
+        if (nextState.error)
+            console.log(`ERROR in playerTurn: ${nextState.error}`);
+
+        const noError = (!nextState.error || actionType === actionsModule.PASS);
         const actionSuccess = (nextState !== _currentState) || (actionType === actionsModule.PASS);
         const okToTransition = (noError && actionSuccess);
         const playerHasSpellInProgress = !!nextState.players.byId[_currentPlayer].spells.length;
