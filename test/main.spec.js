@@ -281,11 +281,11 @@ describe(`Providing lists of available actions`, () => {
         expect(actions).to.include('Ask for Ingredient');
     });
 
-    it(`excludes ask for ingredient if they have a spell in progress and cannot ask any more`, () => {
+    it(`excludes ask for ingredient if they have a spell in progress and there's no one else to ask`, () => {
         startInPlayer0PlayPhase();
         const player = main.currentState().players.byId[main.currentPlayer()];
         player.spells = [gameState.princeToFrogSpell()];
-        main.askForIngredient({ target: 1 });
+        main.askForIngredient({ target: 1, cardName: 'whatever' });
 
         const actions = main.getValidActions();
         expect(actions).to.not.include('Ask for Ingredient');
@@ -483,7 +483,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             player0.spells.push(gameState.princeToFrogSpell());
             player1.hand[0] = gameState.prince();
 
-            main.askForIngredient({ target: 1, cardName: 'Prince', spell: 0 });
+            main.askForIngredient({ target: 1, cardName: 'Prince' });
 
             const newGameState = main.currentState();
             expect(newGameState).not.to.equal(originalGameState);
@@ -498,13 +498,13 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             player1.hand = [gameState.bats()];
             player0.spells.push(gameState.princeToFrogSpell());
 
-            main.askForIngredient({ target: 1, cardName: 'Prince', spell: 0 });
+            main.askForIngredient({ target: 1, cardName: 'Prince' });
 
             originalGameState = main.currentState();
             player1 = originalGameState.players.byId[1];
             player1.hand = [gameState.prince()];
 
-            main.askForIngredient({ target: 1, cardName: 'Prince', spell: 0 });
+            main.askForIngredient({ target: 1, cardName: 'Prince' });
             const newGameState = main.currentState();
             expect(newGameState).to.equal(originalGameState);
             expect(newGameState.players.byId[1].hand.length).to.equal(1);
@@ -612,7 +612,7 @@ describe('The Game State finite state machine', () => {
             main.playerAddIngredientFromHandToSpell(0);
             assertStateIsUnchanged();
 
-            main.askForIngredient({ target: 0, cardName: 'Prince', spell: 0 });
+            main.askForIngredient({ target: 0, cardName: 'Prince' });
             assertStateIsUnchanged();
 
             //TODO: include "done asking" action
@@ -891,7 +891,7 @@ describe('The Game State finite state machine', () => {
             main.playerAddIngredientFromHandToSpell(0);
             assertStateIsUnchanged();
 
-            main.askForIngredient({ target: 0, cardName: 'Prince', spell: 0 });
+            main.askForIngredient({ target: 0, cardName: 'Prince' });
             assertStateIsUnchanged();
 
             //TODO: include "done asking" action
@@ -973,8 +973,8 @@ describe('The Game State finite state machine', () => {
             originalGameState.table = [gameState.prince()]
 
             main.playerDraw();
-            main.askForIngredient({ target: 0, cardName: 'Frog Juice', spell: 0 });
-            main.takeIngredientFromTable({ cardName: 'Frog Juice', spell: 0 })
+            main.askForIngredient({ target: 0, cardName: 'Frog Juice' });
+            main.takeIngredientFromTable(0)
             main.playerTurn(playerAction.WITCH);
             main.playerDiscard(0);
 
