@@ -209,9 +209,23 @@ async function playerActionForPhase() {
         else if (actionChoice === action.PASS) {
             return game.playerTurn(action.PASS);
         }
-        //TODO: Take Ingredient
-        //TODO: Add Ingredient
-        //TODO: Ask for Ingredient
+        else if (actionChoice === action.TAKE_INGREDIENT_FROM_TABLE) {
+            const tableCardId = await input.chooseCardFrom(game.currentState().table);
+
+            if (wasCanceled(tableCardId))
+                return
+            else
+                return game.takeIngredientFromTable(tableCardId);
+        }
+        else if (actionChoice === action.ADD_INGREDIENT_FROM_HAND) {
+            //TODO: choose card from hand
+            //TODO: do action
+        }
+        else if (actionChoice === action.TAKE_INGREDIENT_FROM_PLAYER) {
+            //TODO: choose player
+            //TODO: enter card name
+            //TODO: do action
+        }
         else if (actionChoice === action.DONE) {
             game.playerDone();
         }

@@ -510,15 +510,21 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             expect(main.takeIngredientFromTable).to.be.a('function');
         });
 
-        it(`requires a card name and a spell id`, () => {
+        it(`requires a valid card index from the table`, () => {
             startInPlayer0PlayPhase();
             const originalGameState = main.currentState();
 
-            main.takeIngredientFromTable({});
+            let error = main.takeIngredientFromTable();
             expect(main.currentState()).to.equal(originalGameState);
+            expect(error).to.be.an('undefined');
 
-            main.askForIngredient({ card: 99 });
+            error = main.takeIngredientFromTable(99);
             expect(main.currentState()).to.equal(originalGameState);
+            expect(error).to.be.an('undefined');
+
+            error = main.takeIngredientFromTable(-1);
+            expect(main.currentState()).to.equal(originalGameState);
+            expect(error).to.be.an('undefined');
         });
 
         it(`connects to the gameState action if valid`, () => {
@@ -531,7 +537,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             ];
             player0.spells = [gameState.princeToFrogSpell()]
 
-            main.takeIngredientFromTable({ card: 1 });
+            main.takeIngredientFromTable(1);
 
             const newGameState = main.currentState();
             expect(newGameState.players.byId[0].ingredients.length, 'Ingredient was added').to.equal(1);
@@ -1019,7 +1025,7 @@ describe('Integrating a realistic series of turns', () => {
         expect(main.currentPhase()).to.equal(gameState.PLAY);
 
         main.playerTurn(playerAction.SPELL, { card: 2 });
-        main.takeIngredientFromTable({ card: 3 });
+        main.takeIngredientFromTable(3);
         main.playerAddIngredientFromHandToSpell({ card: 1 });
         main.playerAddIngredientFromHandToSpell({ card: 0 });
 

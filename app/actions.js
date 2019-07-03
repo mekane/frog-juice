@@ -176,6 +176,9 @@ function act(actionType, currentState, options) {
     else if (actionType === TAKE_INGREDIENT_FROM_TABLE && optionsDefined(['player', 'card'])) {
         const card = newState.table[options.card];
 
+        if (typeof card === 'undefined')
+            return currentState;
+
         let cardNeeded = false;
         player.spells.forEach(spell => {
             cardNeeded = cardNeeded || !!spellRequiresIngredient(spell, card.name);

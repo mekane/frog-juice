@@ -333,12 +333,15 @@ function _resetIngredientAskList() {
     _removeAskedPlayerFromEligibleList(_currentPlayer);
 }
 
-function takeIngredientFromTable(options) {
+function takeIngredientFromTable(cardIndex) {
     if (_currentPhase !== gameState.PLAY)
         return;
 
-    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+    const options = {};
+    if (typeof cardIndex !== 'undefined')
+        options['card'] = cardIndex;
 
+    const actionOptions = Object.assign({ player: _currentPlayer }, options);
     const nextState = action(actionsModule.TAKE_INGREDIENT_FROM_TABLE, _currentState, actionOptions);
 
     if (_currentState !== nextState) {
@@ -348,6 +351,8 @@ function takeIngredientFromTable(options) {
             console.log(`Error: ${nextState.error}`);
         }
     }
+
+    return nextState.error;
 }
 
 module.exports = {
