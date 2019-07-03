@@ -183,12 +183,15 @@ function newGame(number, optionalActionHandlerOverride) {
     _resetIngredientAskList();
 }
 
-function playerAddIngredientFromHandToSpell(options) {
+function playerAddIngredientFromHandToSpell(cardIndex) {
     if (_currentPhase !== gameState.PLAY)
         return;
 
-    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+    const options = {};
+    if (typeof cardIndex !== 'undefined')
+        options['card'] = cardIndex;
 
+    const actionOptions = Object.assign({ player: _currentPlayer }, options);
     const nextState = action(actionsModule.ADD_INGREDIENT_FROM_HAND, _currentState, actionOptions);
 
     if (_currentState !== nextState) {

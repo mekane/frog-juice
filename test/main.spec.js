@@ -424,11 +424,17 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             expect(main.playerAddIngredientFromHandToSpell).to.be.a('function');
         });
 
-        it(`requires a card index from hand`, () => {
+        it(`requires a valid card index from hand`, () => {
             startInPlayer0PlayPhase();
             const originalGameState = main.currentState();
 
-            main.playerAddIngredientFromHandToSpell({});
+            main.playerAddIngredientFromHandToSpell();
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.playerAddIngredientFromHandToSpell(-1);
+            expect(main.currentState()).to.equal(originalGameState);
+
+            main.playerAddIngredientFromHandToSpell(99);
             expect(main.currentState()).to.equal(originalGameState);
         });
 
@@ -440,7 +446,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             player0.spells.push(gameState.princeToFrogSpell());
             player0.hand[0] = gameState.prince();
 
-            main.playerAddIngredientFromHandToSpell({ card: 0, spell: 0 });
+            main.playerAddIngredientFromHandToSpell(0);
 
             const newGameState = main.currentState();
             expect(newGameState).not.to.equal(originalGameState);
@@ -603,7 +609,7 @@ describe('The Game State finite state machine', () => {
             player1.spells = [gameState.princeToFrogSpell()];
             originalGameState.table[0] = gameState.frogJuice();
 
-            main.playerAddIngredientFromHandToSpell({ spell: 0, card: 0 });
+            main.playerAddIngredientFromHandToSpell(0);
             assertStateIsUnchanged();
 
             main.askForIngredient({ target: 0, cardName: 'Prince', spell: 0 });
@@ -882,7 +888,7 @@ describe('The Game State finite state machine', () => {
             player1.spells = [gameState.princeToFrogSpell()];
             originalGameState.table[0] = gameState.frogJuice();
 
-            main.playerAddIngredientFromHandToSpell({ spell: 0, card: 0 });
+            main.playerAddIngredientFromHandToSpell(0);
             assertStateIsUnchanged();
 
             main.askForIngredient({ target: 0, cardName: 'Prince', spell: 0 });
@@ -1026,8 +1032,8 @@ describe('Integrating a realistic series of turns', () => {
 
         main.playerTurn(playerAction.SPELL, { card: 2 });
         main.takeIngredientFromTable(3);
-        main.playerAddIngredientFromHandToSpell({ card: 1 });
-        main.playerAddIngredientFromHandToSpell({ card: 0 });
+        main.playerAddIngredientFromHandToSpell(1);
+        main.playerAddIngredientFromHandToSpell(0);
 
         expect(main.currentState().players.byId[0].hand.length, 'Player played three cards').to.equal(1);
         expect(main.currentState().players.byId[0].captured.length, 'Player finished spell').to.equal(4);

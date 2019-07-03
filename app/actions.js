@@ -31,6 +31,9 @@ function act(actionType, currentState, options) {
     if (actionType === ADD_INGREDIENT_FROM_HAND && optionsDefined(['player', 'card'])) {
         const card = player.hand[options.card];
 
+        if (typeof card === 'undefined')
+            return currentState;
+
         let cardNeeded = false;
         player.spells.forEach(spell => {
             cardNeeded = cardNeeded || !!spellRequiresIngredient(spell, card.name);
