@@ -210,6 +210,7 @@ async function playerActionForPhase() {
             return game.playerTurn(action.PASS);
         }
         else if (actionChoice === action.TAKE_INGREDIENT_FROM_TABLE) {
+            show.prompt('Choose a card to take from the table (esc to cancel):');
             const tableCardId = await input.chooseCardFrom(game.currentState().table);
 
             if (wasCanceled(tableCardId))
@@ -218,8 +219,13 @@ async function playerActionForPhase() {
                 return game.takeIngredientFromTable(tableCardId);
         }
         else if (actionChoice === action.ADD_INGREDIENT_FROM_HAND) {
-            //TODO: choose card from hand
-            //TODO: do action
+            show.prompt('Choose a card to add from your hand (esc to cancel):');
+            const handCardId = await input.chooseCardFrom(player.hand);
+
+            if (wasCanceled(handCardId))
+                return
+            else
+                return game.playerAddIngredientFromHandToSpell(handCardId);
         }
         else if (actionChoice === action.TAKE_INGREDIENT_FROM_PLAYER) {
             //TODO: choose player

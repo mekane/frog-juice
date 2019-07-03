@@ -66,7 +66,7 @@ function spell(spellCard, ingredientsCompleted, ingredientsRemaining) {
     term.bold('  ' + spellCard.name);
     term(' {');
     ingredientsCompleted.forEach(c => term(` ${c} `));
-    ingredientsRemaining.forEach(c => term.strike(` ${c} `));
+    ingredientsRemaining.forEach(c => term.bgGreen(` ${c} `));
     term('}');
 }
 
