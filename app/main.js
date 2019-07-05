@@ -12,7 +12,14 @@ let _playersEligibleForIngredientAskThisTurn = [];
 const playerAction = Object.assign({ DONE: 'Done' }, actionsModule);
 delete playerAction.act;
 
+function allSpellIngredientNames() {
+    return gameState.getAllSpellIngredientNames();
+}
+
 function askForIngredient(options) {
+    //TODO: I should really write a unit test to motivate adding this line of code
+    options.target = parseInt(options.target);
+
     if (_playersEligibleForIngredientAskThisTurn.includes(options.target + ''))
         _removeAskedPlayerFromEligibleList(options.target);
     else
@@ -359,6 +366,7 @@ function takeIngredientFromTable(cardIndex) {
 }
 
 module.exports = {
+    allSpellIngredientNames,
     askForIngredient,
     currentPhase,
     currentPlayer,

@@ -5,12 +5,22 @@ const game = require('../../app/main.js');
 const input = require('./input.js');
 const show = require('./formatting.js');
 
+const allIngredients = game.allSpellIngredientNames();
+
 game.newGame(getNumberOfPlayers());
 
 main();
 
 
+function hackASpelIntoPlayerZerosHand() {
+    const state = game.currentState();
+    const deck = state.deck;
+    const firstSpellCard = deck.find(c => c.isSpell);
+    state.players.byId[0].hand[0] = firstSpellCard;
+}
+
 async function main() {
+    //hackASpelIntoPlayerZerosHand();
     await showWelcomeScreen();
 
     await gameLoop();
@@ -228,9 +238,29 @@ async function playerActionForPhase() {
                 return game.playerAddIngredientFromHandToSpell(handCardId);
         }
         else if (actionChoice === action.TAKE_INGREDIENT_FROM_PLAYER) {
-            //TODO: choose player
-            //TODO: enter card name
-            //TODO: do action
+            const players = game.currentState().players.byId;
+            const validPlayerIds = game.listPlayersWhoHaveNotBeenAskedForIngredients();
+            const playerChoices = validPlayerIds.map(pid => players[pid].name);
+
+            show.prompt('Choose a player to ask (esc to cancel):')
+            const playerInput = await input.chooseOneOptional(playerChoices);
+
+            if (wasCanceled(playerInput))
+                return;
+
+            const chosenPlayer = validPlayerIds[playerInput];
+
+            show.prompt('Choose ingredient to ask for (esc to cancel):')
+            const cardNameInput = await input.chooseOneOptional(allIngredients);
+
+            if (wasCanceled(cardNameInput))
+                return;
+
+            const cardName = allIngredients[cardNameInput];
+
+            console.log(`asking player ${chosenPlayer} for ${cardName}`);
+
+            return game.askForIngredient({ target: chosenPlayer, cardName: cardName });
         }
         else if (actionChoice === action.DONE) {
             game.playerDone();

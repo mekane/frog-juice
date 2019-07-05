@@ -4,6 +4,26 @@ const OVER = 'OVER';
 const PLAY = 'PLAY';
 const SETUP = 'SETUP';
 
+function getAllSpellIngredientNames() {
+    const spellIngredientCards = [
+        shrinkingBrew(),
+        bats(),
+        toads(),
+        newts(),
+        mice(),
+        frogJuice(),
+        toadStools(),
+        unicornHorn(),
+        monkeyPowder(),
+        starAndMoonDust(),
+        deadlyNightshade(),
+        prince()
+    ];
+
+    const spellNames = spellIngredientCards.map(c => c.name);
+    return spellNames.sort();
+}
+
 function getNewDeck() {
     return [
         shrinkingBrew(),
@@ -311,6 +331,7 @@ module.exports = {
     blackCat,
     deadlyNightshade,
     frogJuice,
+    getAllSpellIngredientNames,
     mice,
     monkeyPowder,
     newts,

@@ -292,6 +292,12 @@ describe(`Providing lists of available actions`, () => {
     });
 });
 
+describe(`Getting the list of all ingredient names`, () => {
+    it(`provides a list of all the names of valid spell ingredients`, () => {
+        expect(main.allSpellIngredientNames()).to.be.an('array').with.length(12);
+    });
+});
+
 describe(`Calculating player scores`, () => {
     it(`scores two points for whoever has the most total cards in their capture pile`, () => {
         startInPlayer0PlayPhase(4);
@@ -460,7 +466,7 @@ describe('Logic and functions for adding ingredients to spells in play', () => {
             expect(main.askForIngredient).to.be.a('function');
         });
 
-        it(`requires a player id, a card name, and a spell id`, () => {
+        it(`requires a player id and a card name`, () => {
             startInPlayer0PlayPhase();
             const originalGameState = main.currentState();
 

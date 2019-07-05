@@ -28,7 +28,6 @@ async function chooseOne(arrayOfChoices, opts) {
     return choice.selectedIndex;
 }
 
-
 async function enterToContinue() {
     term('Press ENTER to continue');
 
