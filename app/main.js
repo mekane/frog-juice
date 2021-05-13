@@ -9,7 +9,7 @@ let _currentTurn = 0;
 let _playerActionsRemaining = 1;
 let _playersEligibleForIngredientAskThisTurn = [];
 
-const playerAction = Object.assign({ DONE: 'Done' }, actionsModule);
+const playerAction = Object.assign({DONE: 'Done'}, actionsModule);
 delete playerAction.act;
 
 function allSpellIngredientNames() {
@@ -28,7 +28,7 @@ function askForIngredient(options) {
     if (_currentPhase !== gameState.PLAY)
         return;
 
-    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+    const actionOptions = Object.assign({player: _currentPlayer}, options);
     const nextState = action(actionsModule.TAKE_INGREDIENT_FROM_PLAYER, _currentState, actionOptions);
 
     if (_currentState !== nextState) {
@@ -120,8 +120,7 @@ function getValidActions() {
             actions.push(actionsModule.WITCH_WASH);
 
         actions.push(actionsModule.PASS);
-    }
-    else {
+    } else {
         actions.push('Done');
     }
 
@@ -173,10 +172,10 @@ function newGame(number, optionalActionHandlerOverride) {
 
     let next = _currentState;
     for (let p = 0; p < numberOfPlayers; p++) {
-        next = action(actionsModule.DRAW, next, { player: p });
-        next = action(actionsModule.DRAW, next, { player: p });
-        next = action(actionsModule.DRAW, next, { player: p });
-        next = action(actionsModule.DRAW, next, { player: p });
+        next = action(actionsModule.DRAW, next, {player: p});
+        next = action(actionsModule.DRAW, next, {player: p});
+        next = action(actionsModule.DRAW, next, {player: p});
+        next = action(actionsModule.DRAW, next, {player: p});
     }
     next = action(actionsModule.REVEAL, next);
     next = action(actionsModule.REVEAL, next);
@@ -198,7 +197,7 @@ function playerAddIngredientFromHandToSpell(cardIndex) {
     if (typeof cardIndex !== 'undefined')
         options['card'] = cardIndex;
 
-    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+    const actionOptions = Object.assign({player: _currentPlayer}, options);
     const nextState = action(actionsModule.ADD_INGREDIENT_FROM_HAND, _currentState, actionOptions);
 
     if (_currentState !== nextState) {
@@ -270,7 +269,7 @@ function playerDraw() {
     if (_currentPhase !== gameState.DRAW)
         return;
 
-    const nextState = action(gameState.DRAW, _currentState, { player: _currentPlayer });
+    const nextState = action(gameState.DRAW, _currentState, {player: _currentPlayer});
     _currentState = nextState;
 
     const cardsInPlayersHand = _currentState.players.byId[_currentPlayer].hand.length;
@@ -292,7 +291,7 @@ function playerTurn(actionType, options) {
     if (_currentPhase !== gameState.PLAY)
         return;
 
-    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+    const actionOptions = Object.assign({player: _currentPlayer}, options);
 
     if (playerCanTakeAction()) {
         if (actionType === actionsModule.WITCH && options && options.wash) {
@@ -351,7 +350,7 @@ function takeIngredientFromTable(cardIndex) {
     if (typeof cardIndex !== 'undefined')
         options['card'] = cardIndex;
 
-    const actionOptions = Object.assign({ player: _currentPlayer }, options);
+    const actionOptions = Object.assign({player: _currentPlayer}, options);
     const nextState = action(actionsModule.TAKE_INGREDIENT_FROM_TABLE, _currentState, actionOptions);
 
     if (_currentState !== nextState) {
@@ -378,6 +377,7 @@ module.exports = {
     getTurnNumber,
     getValidActions,
     newGame,
+    OVER: gameState.OVER,
     PLAY: gameState.PLAY,
     playerAction,
     playerAddIngredientFromHandToSpell,
