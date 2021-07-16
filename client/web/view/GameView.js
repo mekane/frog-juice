@@ -7,6 +7,10 @@ import {
     h,
     toVNode
 } from "snabbdom";
+import {DeckView} from "./DeckView";
+import {TableView} from "./TableView";
+import {PlayerView} from "./PlayerView";
+import {PlayerSummary} from "./PlayerSummary";
 
 const patch = init([
     classModule,
@@ -15,17 +19,27 @@ const patch = init([
     eventListenersModule
 ]);
 
-export function GameView(domElement) {
+/**
+ * @param domElement the element to attach the view to
+ * @param actionHandler a function to send actions back out of the view
+ */
+export function GameView(domElement, actionHandler) {
     let vNode = toVNode(domElement);
 
-    function update(state, phaseDescription, humanPlayerIndex) {
+    function update(state, phaseDescription) {
         console.log('update', state);
 
         const phaseHeader = h('h1', {}, phaseDescription)
+        const deckView = DeckView(state.deck)
+        const tableView = TableView(state.table)
+        const playerViews = mapViews(state.players.byId)
 
         const updatedView = h('div', {}, [
-            phaseHeader
-        ])
+            phaseHeader,
+            deckView,
+            tableView,
+            playerViews
+        ].flat())
 
         vNode = patch(vNode, updatedView);
     }
@@ -33,4 +47,14 @@ export function GameView(domElement) {
     return {
         update
     }
+}
+
+function mapViews(playersById) {
+    return Object.keys(playersById).map(id => {
+        const player = playersById[id];
+        if (player.type === 'human')
+            return PlayerView(player)
+        else
+            return PlayerSummary(player)
+    })
 }

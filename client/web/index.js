@@ -13,8 +13,6 @@ const $newGameButton = document.querySelector('#start')
 
 const view = GameView($gameView)
 
-let playerIndex = 0; //TODO: this means human is always player 1. Could randomize for new games
-
 function getNumberOfPlayers() {
     const num = parseInt($numberOfPlayersField.value);
     if (isNaN(num) || typeof num !== 'number')
@@ -49,5 +47,5 @@ function updateGameView() {
     const state = game.currentState()
     const phaseSummary = getPhaseSummary(game.currentPhase(), game.currentPlayer())
 
-    view.update(state, phaseSummary, playerIndex)
+    view.update(state, phaseSummary)
 }
