@@ -2,7 +2,7 @@
  * This gets built with webpack, hence the mixing and matching of module styles
  */
 const game = require('../../app/main.js');
-import {BrowserView} from './view/Game';
+import {GameView} from './view/GameView';
 
 console.log('game bundle init', game)
 
@@ -11,7 +11,7 @@ const $gameView = document.querySelector('#game')
 const $numberOfPlayersField = document.querySelector('#number-of-players')
 const $newGameButton = document.querySelector('#start')
 
-const view = BrowserView($gameView)
+const view = GameView($gameView)
 
 let playerIndex = 0; //TODO: this means human is always player 1. Could randomize for new games
 
@@ -51,4 +51,3 @@ function updateGameView() {
 
     view.update(state, phaseSummary, playerIndex)
 }
-
