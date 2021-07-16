@@ -387,5 +387,6 @@ module.exports = {
     playerDraw,
     playerDiscard,
     playerTurn,
+    SETUP: gameState.SETUP,
     takeIngredientFromTable
 };

@@ -2,13 +2,18 @@
  * This gets built with webpack, hence the mixing and matching of module styles
  */
 const game = require('../../app/main.js');
+import {BrowserView} from './view/Game';
 
 console.log('game bundle init', game)
 
-$setupControls = document.querySelector('#setup')
-$gameView = document.querySelector('#game')
-$numberOfPlayersField = document.querySelector('#number-of-players')
-$newGameButton = document.querySelector('#start')
+const $setupControls = document.querySelector('#setup')
+const $gameView = document.querySelector('#game')
+const $numberOfPlayersField = document.querySelector('#number-of-players')
+const $newGameButton = document.querySelector('#start')
+
+const view = BrowserView($gameView)
+
+let playerIndex = 0; //TODO: this means human is always player 1. Could randomize for new games
 
 function getNumberOfPlayers() {
     const num = parseInt($numberOfPlayersField.value);
@@ -22,5 +27,28 @@ $newGameButton.addEventListener('click', e => {
     game.newGame(numberOfPlayers)
     $setupControls.classList.add('hide')
     $gameView.classList.remove('hide')
-    console.log('game state', game.currentState())
+    updateGameView()
 })
+
+function getPhaseSummary(phase, player) {
+    if (phase === game.PLAY)
+        return `Player ${player + 1} is playing`
+    else if (phase === game.DISCARD)
+        return `Player ${player + 1} is discarding`
+    else if (phase === game.DRAW)
+        return `Player ${player + 1} is drawing`
+    else if (phase === game.OVER)
+        return 'Game Over'
+    else if (phase === game.SETUP)
+        return 'Game is being set up'
+    else
+        return `Unknown phase (${phase})`
+}
+
+function updateGameView() {
+    const state = game.currentState()
+    const phaseSummary = getPhaseSummary(game.currentPhase(), game.currentPlayer())
+
+    view.update(state, phaseSummary, playerIndex)
+}
+
