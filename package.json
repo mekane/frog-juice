@@ -7,15 +7,21 @@
     "test": "test"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha -b"
+    "test": "./node_modules/.bin/mocha -b",
+    "build": "./node_modules/.bin/webpack",
+    "watch": "./node_modules/.bin/webpack -w"
   },
   "author": "",
   "repository": "git@github.com:mekane/frog-juice.git",
   "license": "ISC",
   "dependencies": {
-    "chai": "^4.2.0",
     "deep-freeze": "0.0.1",
-    "mocha": "^8.4.0",
     "terminal-kit": "^1.28.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.4.0",
+    "webpack": "^5.45.0",
+    "webpack-cli": "^4.7.2"
   }
 }
