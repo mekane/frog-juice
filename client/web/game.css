@@ -1,0 +1,27 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: #0a340a;
+    color: white;
+    font-family: arial, sans-serif;
+    font-size: 24px;
+}
+
+header {
+    color: #4a4;
+    text-align: center;
+}
+
+button {
+    background: #4a4;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    font-size: 28px;
+    padding: 6px 12px;
+}
+
+.hide {
+    display: none;
+}
