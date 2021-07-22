@@ -18,10 +18,69 @@ button {
     background: #4a4;
     border: 2px solid #ccc;
     border-radius: 6px;
+    cursor: pointer;
     font-size: 28px;
     padding: 6px 12px;
 }
 
+button.disabled {
+    background: #777;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .hide {
     display: none;
+}
+
+
+.game-view {
+    display: grid;
+    grid-gap: 8px;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas: ". . header header header header . ."
+    "summaryl summaryl deck table table table summaryr summaryr"
+    ". player player player player player player .";
+}
+
+.game-view > h1 {
+    grid-area: header;
+}
+
+.game-view .deck {
+    grid-area: deck;
+}
+
+.game-view .table {
+    grid-area: table;
+}
+
+.game-view .player {
+    grid-area: player;
+}
+
+.game-view .player-summary {
+    grid-area: summaryl;
+}
+
+.zone {
+    border: 1px dashed #cca;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+
+/* dev mode */
+.card {
+    width: 85px;
+    height: 120px;
+    border: 1px solid white;
+    margin: 8px;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.card-list {
+    display: flex;
 }
