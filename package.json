@@ -16,6 +16,6 @@
     "chai": "^4.2.0",
     "deep-freeze": "0.0.1",
     "mocha": "^8.4.0",
-    "terminal-kit": "^1.28.0"
+    "terminal-kit": "^1.49.4"
   }
 }
